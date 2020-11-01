@@ -23,11 +23,23 @@ public class UserDataViewModel extends AndroidViewModel {
         allUserData = mRepository.getAllUserData();
     }
 
+    //获取全部数据
     public LiveData<List<MessageBean>> getAllUserData() {
         return allUserData;
     }
 
+    //添加数据
     public void insert(MessageBean bean) {
         mRepository.insert(bean);
+    }
+
+    //删除一条数据
+    public void delByName(String username) {
+        mRepository.delByName(username);
+    }
+
+    //更新数据
+    public void updaterByName(MessageBean bean) {
+        mRepository.updaterByName(bean);
     }
 }

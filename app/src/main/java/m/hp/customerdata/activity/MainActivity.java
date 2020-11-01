@@ -4,17 +4,21 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -28,14 +32,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String TAG = "MainActivity";
     private static final int REQUEST_OK = 300;
     private static final int RESULT_SET_OK = 1000;
-    private List<MessageBean> mList;
-    //private CustomerMsgAdapter msgAdapter;
+    private static final String USER_DATA = "USER_DATA";
+    private static final int MODIFY_REQUEST = 400;
+    //是新加数据还是更新数据
+    private static final String IS_ADD = "IS_ADD";
+    /* //更新以及要传递的数据Bundle
+     private static final String MODIFY_BUNDLE = "MODIFY_BUNDLE";*/
+    /*//新增以及要接收保存的数据标记
+    private static final String ADD_BUNDLE = "ADD_BUNDLE";*/
     private MessageBeanListAdapter msgAdapter;
     private RecyclerView rv_msg;
     private UserDataViewModel mUserDataViewModel;
     private static final String SAVE_DATA = "SAVE_DATA";
     private HashMap<String, String> hashMap = new HashMap<String, String>();
-    private static int OBSERVE_COUNT = 0;
+    private final String USER_NAME = "USER_NAME";
+    private static final String USER_BEAN = "USER_BEAN";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,11 +62,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //获取ViewModel
         ViewModelProvider.AndroidViewModelFactory androidViewModelFactory = new ViewModelProvider.AndroidViewModelFactory(getApplication());
         mUserDataViewModel = new ViewModelProvider(this, androidViewModelFactory).get(UserDataViewModel.class);
-
         //初始化RecycleView控件
         rv_msg = findViewById(R.id.rv_msg);
-        //创建ArrayList实例
-        mList = new ArrayList<>();
         //创建RecycleView的适配器
         //msgAdapter = new CustomerMsgAdapter(this, mList);
         msgAdapter = new MessageBeanListAdapter(new MessageBeanListAdapter.MessageBeanDiff(), this);
@@ -78,9 +86,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 初始化数据
      */
     private void initData() {
-        if (mList != null) {
-            mList.clear();
-        }
         mUserDataViewModel.getAllUserData().observe(this, messageBeans -> {
             msgAdapter.submitList(messageBeans);
            /*
@@ -129,7 +134,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         Intent intent = new Intent(this, AddUserActivity.class);
-        intent.putExtra(SAVE_DATA, "SAVE_DATA");
+        Bundle bundle = new Bundle();
+        bundle.putString(SAVE_DATA, "SAVE_DATA");
+        bundle.putBoolean(IS_ADD, true);
+        intent.putExtras(bundle);
         startActivityForResult(intent, REQUEST_OK);
     }
 
@@ -137,6 +145,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 向数据库插入数据
      */
     private void insertUserData() {
+        MessageBean bean = getMessageBean();
+        //插入数据
+        mUserDataViewModel.insert(bean);
+        msgAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * 更新数据
+     */
+    private void updateUserData() {
+        MessageBean bean = getMessageBean();
+        mUserDataViewModel.updaterByName(bean);
+//        mUserDataViewModel.getAllUserData().observe(this, new Observer<List<MessageBean>>() {
+//            @Override
+//            public void onChanged(List<MessageBean> beans) {
+//                msgAdapter.submitList(beans);
+//                msgAdapter.notifyDataSetChanged();
+//            }
+//        });
+
+    }
+
+
+    /**
+     * 获取保存之后的bean实体数据
+     *
+     * @return
+     */
+    private MessageBean getMessageBean() {
         String[] keys = {"序号：", "车牌号：", "投保人：", "终保时间：", "承保时间：", "车架号：", "手机号：", "商业险费用：",
                 "交强险费用：", "驾乘险费用：", "商业险费率：", "交强险费率：", "驾乘险费率：", "返现：", "客户来源：", "备注："};
 
@@ -189,9 +226,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         bean.setType(hashMap.get(keys[14]));
         bean.setRemarks(hashMap.get(keys[15]));
-        //插入数据
-        mUserDataViewModel.insert(bean);
-        msgAdapter.notifyDataSetChanged();
+        return bean;
     }
 
     @Override
@@ -201,7 +236,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (requestCode == REQUEST_OK && resultCode == RESULT_SET_OK) {
             hashMap = (HashMap<String, String>) data.getSerializableExtra(SAVE_DATA);
             insertUserData();
+        } else if (requestCode == MODIFY_REQUEST && resultCode == RESULT_SET_OK) {
+            hashMap = (HashMap<String, String>) data.getSerializableExtra(SAVE_DATA);
+            Log.e(TAG, "get");
+            updateUserData();//更新数据
         }
     }
 
+    @Override
+    public boolean onContextItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case 1:
+                Log.d(TAG, "item====1");
+                Intent intent = new Intent(this, AddUserActivity.class);
+                MessageBean bean = item.getIntent().getParcelableExtra(USER_BEAN);
+                Bundle bundle = new Bundle();
+                bundle.putBoolean(IS_ADD, false);
+                bundle.putParcelable(USER_BEAN, bean);
+                intent.putExtras(bundle);
+                startActivityForResult(intent, MODIFY_REQUEST);
+                break;
+            case 2:
+                String userName = item.getIntent().getStringExtra(USER_NAME);
+                Log.d(TAG, "item====2|" + userName);
+                new AlertDialog.Builder(this).setTitle("警告").setMessage("数据不可恢复，确定要删除吗？").setPositiveButton("确定", (dialog, which) -> {
+                    mUserDataViewModel.delByName(userName);
+                    Toast.makeText(MainActivity.this, "删除成功", Toast.LENGTH_LONG).show();
+                }).setNegativeButton("取消", null).show();
+                break;
+        }
+        return true;
+    }
 }

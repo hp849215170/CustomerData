@@ -3,6 +3,7 @@ package m.hp.customerdata.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +24,8 @@ public class MessageBeanListAdapter extends ListAdapter<MessageBean, MessageBean
     private LayoutInflater mInflater;
     private String tag = getClass().getName();
     private final String MESSAGE_BEAN = "MESSAGE_BEAN";
+    private final String USER_NAME = "USER_NAME";
+    private static final String USER_BEAN = "USER_BEAN";
 
     public MessageBeanListAdapter(@NonNull DiffUtil.ItemCallback<MessageBean> diffCallback, Context mContext) {
         super(diffCallback);
@@ -50,7 +53,8 @@ public class MessageBeanListAdapter extends ListAdapter<MessageBean, MessageBean
         holder.tv_last_date.setText(lastDate);
     }
 
-    class MessageBeanViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class MessageBeanViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnCreateContextMenuListener {
+
 
         private TextView tv_serial_number;
         private TextView tv_user_name;
@@ -63,21 +67,38 @@ public class MessageBeanListAdapter extends ListAdapter<MessageBean, MessageBean
             tv_user_name = itemView.findViewById(R.id.user_name);
             tv_car_number = itemView.findViewById(R.id.car_number);
             tv_last_date = itemView.findViewById(R.id.last_date);
+            //点击跳转信息详情
             itemView.setOnClickListener(this);
+            //长按弹出操作菜单
+            itemView.setOnCreateContextMenuListener(this);
         }
 
         @Override
         public void onClick(View v) {
             MessageBean messageBean = getItem(getAdapterPosition());
             Log.d(tag, "messageBean==" + messageBean.getUserName());
-
             Intent intent = new Intent(mContext, DetailedActivity.class);
             intent.putExtra(MESSAGE_BEAN, messageBean);
             mContext.startActivity(intent);
 
         }
-    }
 
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+            int position = getAdapterPosition();
+
+            String userName = getItem(position).getUserName();
+            Intent intent = new Intent();
+            intent.putExtra(USER_NAME, userName);
+
+            MessageBean bean = getItem(position);
+            Intent intentBean = new Intent();
+            intentBean.putExtra(USER_BEAN,bean);
+            menu.add(0, 1, 0, "修改").setIntent(intentBean);
+            menu.add(0, 2, 0, "删除").setIntent(intent);
+        }
+    }
 
     public static class MessageBeanDiff extends DiffUtil.ItemCallback<MessageBean> {
 

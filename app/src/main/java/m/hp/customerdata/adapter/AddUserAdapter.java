@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import m.hp.customerdata.R;
+import m.hp.customerdata.activity.AddUserActivity;
 import m.hp.customerdata.entity.DetailedMsgBean;
 
 public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHolder> {
@@ -28,7 +29,6 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
     private static final String TAG = "AddUserAdapter";
     private HashMap<String, String> hashMap = new HashMap<>();//存放item数据
     public static AddUserAdapter instance;
-
 
     public AddUserAdapter(Context mContext, List<DetailedMsgBean> mList) {
         this.mContext = mContext;
@@ -55,7 +55,9 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         holder.tv_column_name.setText(mList.get(position).getDetailedTitle());
+
         holder.et_column_value.setHint(mList.get(position).getDetailedMessage());
+
         //解决EditText数据错乱问题
         //1、先移除ViewHolder里Item条目EditText的监听TextWatcher
         if (holder.et_column_value.getTag() != null && holder.et_column_value.getTag() instanceof TextWatcher) {
@@ -77,27 +79,74 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
             @Override
             public void afterTextChanged(Editable s) {
                 //3、保存当前数据的数据和item的位置Position
-                addTextToList(position, s.toString(), holder);
+                addTextToList(position, s.toString());
             }
         };
+
+        //设置输入数据类型
+        setInputType(holder, mList.get(position).getDetailedTitle());
         //4、把保存了位置的数据显示在对应的位置上
         holder.et_column_value.setText(hashMap.get(holder.tv_column_name.getText().toString()));
         //5、给EditText添加新建的TextWatcher监听
         holder.et_column_value.addTextChangedListener(textWatcher);
         //6、标记EditText
         holder.et_column_value.setTag(textWatcher);
+        //更新数据时显示要改的数据
+        if (!AddUserActivity.instance.isAdd) {
+            holder.et_column_value.setText(mList.get(position).getDetailedMessage());
+        }
     }
 
 
-    private void addTextToList(int position, String s, MyViewHolder holder) {
+    private void addTextToList(int position, String s) {
+
         String title = mList.get(position).getDetailedTitle();
-        if (title.equals("投保人：")) {
-            holder.et_column_value.setInputType(InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
-        }
         Log.d(TAG, "title==" + title);
         hashMap.put(title, s);
         //用于返回数据给其他地方用，与解决错乱没有关系
         getHashMap();
+    }
+
+    private void setInputType(MyViewHolder holder, String title) {
+        if (title.equals("投保人：")) {
+            holder.et_column_value.setInputType(InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
+        }
+        if (title.equals("车牌：")) {
+            holder.et_column_value.setInputType(InputType.TYPE_CLASS_TEXT);
+        }
+        if (title.equals("终保时间：")) {
+            holder.et_column_value.setInputType(InputType.TYPE_DATETIME_VARIATION_DATE);
+        }
+        if (title.equals("承保时间：")) {
+            holder.et_column_value.setInputType(InputType.TYPE_DATETIME_VARIATION_DATE);
+        }
+        if (title.equals("车架号：")) {
+            holder.et_column_value.setInputType(InputType.TYPE_CLASS_TEXT);
+        }
+        if (title.equals("手机号：")) {
+            holder.et_column_value.setInputType(InputType.TYPE_TEXT_VARIATION_PHONETIC | InputType.TYPE_CLASS_PHONE);
+        }
+        if (title.equals("商业险费用：")) {
+            holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
+        }
+        if (title.equals("交强险费用：")) {
+            holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
+        }
+        if (title.equals("驾乘险费用：")) {
+            holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
+        }
+        if (title.equals("商业险费率：")) {
+            holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
+        }
+        if (title.equals("交强险费率：")) {
+            holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
+        }
+        if (title.equals("驾乘险费率：")) {
+            holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
+        }
+        if (title.equals("返现：")) {
+            holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
+        }
     }
 
 

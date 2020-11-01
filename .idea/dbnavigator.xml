@@ -27,20 +27,23 @@
       <connection connection-id="3c1641eb-160c-45be-be05-d99513beaa3c">
         <schema name="main" object-types="table, view" />
       </connection>
-      <connection connection-id="1498d6b0-01c3-42bd-9493-0e5198c81731">
+      <connection connection-id="f995120f-efeb-4ffa-b266-f03dc13a195f">
         <schema name="main" object-types="table, view" />
       </connection>
     </loaded-nodes>
   </component>
   <component name="DBNavigator.Project.DatabaseConsoleManager">
     <connection id="3c1641eb-160c-45be-be05-d99513beaa3c">
-      <console name="Connection" type="STANDARD" schema="main" session="Main"><![CDATA[select * from users_table]]></console>
+      <console name="Connection" type="STANDARD" schema="main" session="Main">select * from users_table</console>
     </connection>
     <connection id="f995120f-efeb-4ffa-b266-f03dc13a195f">
       <console name="contacts" type="STANDARD" schema="main" session="Main" />
     </connection>
     <connection id="1498d6b0-01c3-42bd-9493-0e5198c81731">
-      <console name="roomexample" type="STANDARD" schema="main" session="Main"><![CDATA[select * from  word_table]]></console>
+      <console name="roomexample" type="STANDARD" schema="main" session="Main">select * from  word_table</console>
+    </connection>
+    <connection id="12571920-2781-4d78-801c-7fc810f2e2c8">
+      <console name="Connection 1" type="STANDARD" schema="main" session="Main" />
     </connection>
   </component>
   <component name="DBNavigator.Project.DatabaseFileManager">
@@ -50,6 +53,7 @@
     <connection id="3c1641eb-160c-45be-be05-d99513beaa3c" />
     <connection id="f995120f-efeb-4ffa-b266-f03dc13a195f" />
     <connection id="1498d6b0-01c3-42bd-9493-0e5198c81731" />
+    <connection id="12571920-2781-4d78-801c-7fc810f2e2c8" />
   </component>
   <component name="DBNavigator.Project.EditorStateManager">
     <last-used-providers />
@@ -262,6 +266,92 @@
           <database value="database" />
           <files>
             <file path="C:\Users\HP-PC\Desktop\word_database" schema="main" />
+          </files>
+          <type value="NONE" />
+          <user value="" />
+          <deprecated-pwd value="" />
+        </database>
+        <properties>
+          <auto-commit value="false" />
+        </properties>
+        <ssh-settings>
+          <active value="false" />
+          <proxy-host value="" />
+          <proxy-port value="22" />
+          <proxy-user value="" />
+          <deprecated-proxy-pwd value="" />
+          <auth-type value="PASSWORD" />
+          <key-file value="" />
+          <key-passphrase value="" />
+        </ssh-settings>
+        <ssl-settings>
+          <active value="false" />
+          <certificate-authority-file value="" />
+          <client-certificate-file value="" />
+          <client-key-file value="" />
+        </ssl-settings>
+        <details>
+          <charset value="UTF-8" />
+          <session-management value="true" />
+          <ddl-file-binding value="true" />
+          <database-logging value="false" />
+          <connect-automatically value="true" />
+          <restore-workspace value="true" />
+          <restore-workspace-deep value="true" />
+          <environment-type value="default" />
+          <idle-time-to-disconnect value="30" />
+          <idle-time-to-disconnect-pool value="5" />
+          <credential-expiry-time value="10" />
+          <max-connection-pool-size value="7" />
+          <alternative-statement-delimiter value="" />
+        </details>
+        <object-filters hide-empty-schemas="false" hide-pseudo-columns="false">
+          <object-type-filter use-master-settings="true">
+            <object-type name="SCHEMA" enabled="true" />
+            <object-type name="USER" enabled="true" />
+            <object-type name="ROLE" enabled="true" />
+            <object-type name="PRIVILEGE" enabled="true" />
+            <object-type name="CHARSET" enabled="true" />
+            <object-type name="TABLE" enabled="true" />
+            <object-type name="VIEW" enabled="true" />
+            <object-type name="MATERIALIZED_VIEW" enabled="true" />
+            <object-type name="NESTED_TABLE" enabled="true" />
+            <object-type name="COLUMN" enabled="true" />
+            <object-type name="INDEX" enabled="true" />
+            <object-type name="CONSTRAINT" enabled="true" />
+            <object-type name="DATASET_TRIGGER" enabled="true" />
+            <object-type name="DATABASE_TRIGGER" enabled="true" />
+            <object-type name="SYNONYM" enabled="true" />
+            <object-type name="SEQUENCE" enabled="true" />
+            <object-type name="PROCEDURE" enabled="true" />
+            <object-type name="FUNCTION" enabled="true" />
+            <object-type name="PACKAGE" enabled="true" />
+            <object-type name="TYPE" enabled="true" />
+            <object-type name="TYPE_ATTRIBUTE" enabled="true" />
+            <object-type name="ARGUMENT" enabled="true" />
+            <object-type name="DIMENSION" enabled="true" />
+            <object-type name="CLUSTER" enabled="true" />
+            <object-type name="DBLINK" enabled="true" />
+          </object-type-filter>
+          <object-name-filters />
+        </object-filters>
+      </connection>
+      <connection id="12571920-2781-4d78-801c-7fc810f2e2c8" active="true">
+        <database>
+          <name value="Connection 1" />
+          <description value="" />
+          <database-type value="SQLITE" />
+          <config-type value="BASIC" />
+          <database-version value="3.21" />
+          <driver-source value="BUILTIN" />
+          <driver-library value="" />
+          <driver value="" />
+          <url-type value="FILE" />
+          <host value="localhost" />
+          <port value="1234" />
+          <database value="database" />
+          <files>
+            <file path="C:\Users\HP-PC\Desktop\user_database.db" schema="main" />
           </files>
           <type value="NONE" />
           <user value="" />
