@@ -43,11 +43,11 @@ public class MessageBeanListAdapter extends ListAdapter<MessageBean, MessageBean
     public void onBindViewHolder(@NonNull MessageBeanViewHolder holder, int position) {
 
         MessageBean messageBean = getItem(position);
-        int serialNumber = messageBean.getSerialNumber();
+        int id = position+1;
         String carNumber = messageBean.getCarNumber();
         String userName = messageBean.getUserName();
         String lastDate = messageBean.getLastDate();
-        holder.tv_serial_number.setText(String.valueOf(serialNumber));
+        holder.tv_serial_number.setText(String.valueOf(id));
         holder.tv_car_number.setText(carNumber);
         holder.tv_user_name.setText(userName);
         holder.tv_last_date.setText(lastDate);

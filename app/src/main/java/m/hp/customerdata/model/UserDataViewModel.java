@@ -7,6 +7,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
 import java.util.List;
+import java.util.concurrent.Future;
 
 import m.hp.customerdata.entity.MessageBean;
 import m.hp.customerdata.room.UserDataRepository;
@@ -41,5 +42,14 @@ public class UserDataViewModel extends AndroidViewModel {
     //更新数据
     public void updaterByName(MessageBean bean) {
         mRepository.updaterByName(bean);
+    }
+
+    /**
+     * 通过名字查
+     *
+     * @param userName
+     */
+    public MessageBean getDataByUserName(String userName) {
+       return mRepository.getDataByName(userName);
     }
 }

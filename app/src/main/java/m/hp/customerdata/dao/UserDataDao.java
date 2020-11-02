@@ -12,18 +12,27 @@ import m.hp.customerdata.entity.MessageBean;
 
 @Dao
 public interface UserDataDao {
+    //插入数据
     @Insert
-    void insert(MessageBean bean);//插入数据
+    void insert(MessageBean bean);
 
+    //删除所有数据
     @Query("DELETE FROM users_table")
-    int deleteAll();//删除所有数据
+    int deleteAll();
 
+    //根据名字删除数据
     @Query("delete from users_table where user_name = :username")
     int delByName(String username);
 
+    //查询users_table表中所有数据
     @Query("SELECT * FROM users_table")
-    LiveData<List<MessageBean>> getAllUserData();//查询users_table表中所有数据
+    LiveData<List<MessageBean>> getAllUserData();
 
+    //通过名字查数据
+    @Query("select * from users_table where user_name=:userName")
+    MessageBean getDataByUserName(String userName);
+
+    //更新数据
     @Update(entity = MessageBean.class)
     int updater(MessageBean bean);
 

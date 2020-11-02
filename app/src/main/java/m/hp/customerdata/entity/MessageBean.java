@@ -13,12 +13,11 @@ import com.hannesdorfmann.parcelableplease.annotation.ParcelablePlease;
 @Entity(tableName = "users_table")//数据库表名
 @ParcelablePlease
 public class MessageBean implements Parcelable {
-
-    @ColumnInfo(name = "serial_number")
-    int serialNumber;//序号
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "id")
+    int id;//序号
     @ColumnInfo(name = "car_number")
     String carNumber;//车牌号
-    @PrimaryKey
     @NonNull
     @ColumnInfo(name = "user_name")
     String userName;//投保人
@@ -49,12 +48,12 @@ public class MessageBean implements Parcelable {
     @ColumnInfo(name = "remark")
     String remarks;//备注
 
-    public int getSerialNumber() {
-        return serialNumber;
+    public int getId() {
+        return id;
     }
 
-    public void setSerialNumber(int serialNumber) {
-        this.serialNumber = serialNumber;
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getCarNumber() {

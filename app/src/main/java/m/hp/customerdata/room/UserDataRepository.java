@@ -6,6 +6,8 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import m.hp.customerdata.dao.UserDataDao;
 import m.hp.customerdata.entity.MessageBean;
@@ -41,8 +43,29 @@ public class UserDataRepository {
     //通过名字更新数据
     public void updaterByName(MessageBean bean) {
         UserDataRoomDatabase.databaseWriteExecutor.execute(() -> {
-            int result=mUserDataDao.updater(bean);
-            Log.e("info-->","db update result:"+result);
+            int result = mUserDataDao.updater(bean);
+            Log.e("info-->", "db update result:" + result);
         });
     }
+
+    /**
+     * 通过名字查询
+     *
+     * @param userName 投保人名字
+     * @return
+     */
+    public MessageBean getDataByName(String userName) {
+        //线程池执行返回结果
+        Future<MessageBean> beanFuture = UserDataRoomDatabase.databaseWriteExecutor.submit(() ->
+                mUserDataDao.getDataByUserName(userName));
+        try {
+            return beanFuture.get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

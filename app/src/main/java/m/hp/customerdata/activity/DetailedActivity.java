@@ -61,7 +61,7 @@ public class DetailedActivity extends AppCompatActivity {
         // DetailedMsgBean serialNumber = new DetailedMsgBean();
         String[] titles = {"序号", "车牌号", "投保人", "终保时间", "承保时间", "车架号", "手机号", "商业险费用",
                 "交强险费用", "驾乘险费用", "商业险费率", "交强险费率", "驾乘险费率", "返现", "客户来源", "备注"};
-        String[] messages = {String.valueOf(messageBean.getSerialNumber()), messageBean.getCarNumber(), messageBean.getUserName(),
+        String[] messages = {String.valueOf(messageBean.getId()), messageBean.getCarNumber(), messageBean.getUserName(),
                 messageBean.getLastDate(), messageBean.getBuyTime(), messageBean.getCarSerialNumber(), messageBean.getPhone(),
                 String.valueOf(messageBean.getSyPrice()), String.valueOf(messageBean.getJqPrice()), String.valueOf(messageBean.getJcPrice()),
                 String.valueOf(messageBean.getSyRebate()), String.valueOf(messageBean.getJqRebate()), String.valueOf(messageBean.getJcRebate()),
