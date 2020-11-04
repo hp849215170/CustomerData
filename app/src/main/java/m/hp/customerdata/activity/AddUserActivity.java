@@ -3,7 +3,6 @@ package m.hp.customerdata.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -40,6 +39,7 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
     private static final String USER_BEAN = "USER_BEAN";
     private Intent intent;
     public static AddUserActivity instance;
+    private MessageBean intent_bean = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,30 +71,37 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void initData() {
+
         String[] column_value;
         if (isAdd) {
             column_value = new String[]{"请输入车牌号", "请输入投保人", "请输入终保时间", "请输入承保时间", "请输入车架号", "请输入手机号", "请输入商业险费用",
                     "请输入交强险费用", "请输入驾乘险费用", "请输入商业险费率", "请输入交强险费率", "请输入驾乘险费率", "请输入返现", "请输入客户来源", "请输入备注"};
         } else {
-            MessageBean bean = intent.getParcelableExtra(USER_BEAN);
-            Log.e(TAG, "USER_BEAN===" + bean);
-            column_value = new String[]{String.valueOf(bean.getCarNumber()), bean.getUserName(), bean.getLastDate(), bean.getBuyTime(),
-                    bean.getCarSerialNumber(), bean.getPhone(), String.valueOf(bean.getSyPrice()), String.valueOf(bean.getJqPrice()), String.valueOf(bean.getJqPrice()),
-                    String.valueOf(bean.getJcPrice()), String.valueOf(bean.getSyRebate()), String.valueOf(bean.getJqRebate()), String.valueOf(bean.getJcRebate()),
-                    String.valueOf(bean.getCashBack()), bean.getType(), bean.getRemarks()};
+            //更新按钮跳转过来传递的bean
+            intent_bean = intent.getParcelableExtra(USER_BEAN);
+            column_value = new String[]{String.valueOf(intent_bean.getCarNumber()), intent_bean.getUserName(), intent_bean.getLastDate(), intent_bean.getBuyTime(),
+                    intent_bean.getCarSerialNumber(), intent_bean.getPhone(), String.valueOf(intent_bean.getSyPrice()), String.valueOf(intent_bean.getJqPrice()), String.valueOf(intent_bean.getJcPrice()),
+                    String.valueOf(intent_bean.getSyRebate()), String.valueOf(intent_bean.getJqRebate()), String.valueOf(intent_bean.getJcRebate()),
+                    String.valueOf(intent_bean.getCashBack()), intent_bean.getType(), intent_bean.getRemarks()};
         }
         if (mList != null) {
             mList.clear();
         }
         String[] column_name = {"车牌号：", "投保人：", "终保时间：", "承保时间：", "车架号：", "手机号：", "商业险费用：",
                 "交强险费用：", "驾乘险费用：", "商业险费率：", "交强险费率：", "驾乘险费率：", "返现：", "客户来源：", "备注："};
-
+        DetailedMsgBean bean;
         for (int i = 0; i < column_name.length; i++) {
-            DetailedMsgBean bean = new DetailedMsgBean();
+
+            bean = new DetailedMsgBean();
             bean.setDetailedTitle(column_name[i]);
             bean.setDetailedMessage(column_value[i]);
             mList.add(bean);
         }
+        //添加主键id给更新数据操作
+        bean = new DetailedMsgBean();
+        bean.setDetailedTitle("id");
+        bean.setDetailedMessage(String.valueOf(intent_bean.getId()));
+        mList.add(bean);
         adapter.notifyDataSetChanged();
     }
 
@@ -149,7 +156,9 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
                 return true;
             }
         }
-
+        if (!isAdd) {
+            hashMap.put("id", String.valueOf(intent_bean.getId()));
+        }
         intent.putExtra(SAVE_DATA, hashMap);
         //Log.d(TAG, "重新绑定数据====" + intent);
         setResult(RESULT_SET_OK, intent);

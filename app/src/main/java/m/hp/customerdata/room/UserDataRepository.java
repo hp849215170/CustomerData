@@ -1,11 +1,11 @@
 package m.hp.customerdata.room;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -40,12 +40,23 @@ public class UserDataRepository {
         });
     }
 
-    //通过名字更新数据
-    public void updaterByName(MessageBean bean) {
-        UserDataRoomDatabase.databaseWriteExecutor.execute(() -> {
-            int result = mUserDataDao.updater(bean);
+    //更新数据
+    public int updateData(MessageBean bean) {
+        Future<Integer> result_future = UserDataRoomDatabase.databaseWriteExecutor.submit((Callable<Integer>) () ->
+                mUserDataDao.updateData(bean));
+        try {
+            return result_future.get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return 0;
+       /* UserDataRoomDatabase.databaseWriteExecutor.execute(() -> {
+            int result;
+            result = mUserDataDao.updateData(bean);
             Log.e("info-->", "db update result:" + result);
-        });
+        });*/
     }
 
     /**
@@ -67,5 +78,4 @@ public class UserDataRepository {
         }
         return null;
     }
-
 }

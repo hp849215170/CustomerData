@@ -41,9 +41,9 @@ public class MessageBeanListAdapter extends ListAdapter<MessageBean, MessageBean
 
     @Override
     public void onBindViewHolder(@NonNull MessageBeanViewHolder holder, int position) {
-
+        //获取当前显示的bean实体
         MessageBean messageBean = getItem(position);
-        int id = position+1;
+        int id = position + 1;
         String carNumber = messageBean.getCarNumber();
         String userName = messageBean.getUserName();
         String lastDate = messageBean.getLastDate();
@@ -75,6 +75,7 @@ public class MessageBeanListAdapter extends ListAdapter<MessageBean, MessageBean
 
         @Override
         public void onClick(View v) {
+            //跳转到详细信息界面
             MessageBean messageBean = getItem(getAdapterPosition());
             Log.d(tag, "messageBean==" + messageBean.getUserName());
             Intent intent = new Intent(mContext, DetailedActivity.class);
@@ -94,7 +95,7 @@ public class MessageBeanListAdapter extends ListAdapter<MessageBean, MessageBean
 
             MessageBean bean = getItem(position);
             Intent intentBean = new Intent();
-            intentBean.putExtra(USER_BEAN,bean);
+            intentBean.putExtra(USER_BEAN, bean);
             menu.add(0, 1, 0, "修改").setIntent(intentBean);
             menu.add(0, 2, 0, "删除").setIntent(intent);
         }

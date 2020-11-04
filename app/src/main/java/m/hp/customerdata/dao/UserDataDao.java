@@ -33,7 +33,6 @@ public interface UserDataDao {
     MessageBean getDataByUserName(String userName);
 
     //更新数据
-    @Update(entity = MessageBean.class)
-    int updater(MessageBean bean);
-
+    @Update
+    int updateData(MessageBean bean);
 }

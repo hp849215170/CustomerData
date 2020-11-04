@@ -99,9 +99,7 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
 
 
     private void addTextToList(int position, String s) {
-
         String title = mList.get(position).getDetailedTitle();
-        Log.d(TAG, "title==" + title);
         hashMap.put(title, s);
         //用于返回数据给其他地方用，与解决错乱没有关系
         getHashMap();

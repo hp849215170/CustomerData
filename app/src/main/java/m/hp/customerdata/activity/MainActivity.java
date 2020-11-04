@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -19,12 +20,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mancj.materialsearchbar.MaterialSearchBar;
 
+import java.util.Collections;
 import java.util.HashMap;
 
 import m.hp.customerdata.R;
 import m.hp.customerdata.adapter.MessageBeanListAdapter;
 import m.hp.customerdata.entity.MessageBean;
 import m.hp.customerdata.model.UserDataViewModel;
+import m.hp.customerdata.utils.MyCompareUtil;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -46,18 +49,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private FloatingActionButton fab_add;
     private FloatingActionButton fab_search;
     private MaterialSearchBar mSearchBar;
+    //投保人标题
+    private TextView tv_userName;
+    //到期时间标题
+    private TextView tv_lastDate;
+    //点击投保人标题次数
+    private int count_userName;
+    //点击到期时间标题次数
+    private int count_lastDate;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         initView();
+
+
     }
 
     /**
      * 初始化控件
      */
     private void initView() {
+        //到期时间标题
+        tv_lastDate = findViewById(R.id.lastDate);
+        tv_lastDate.setOnClickListener(this);
+        //投保人标题
+        tv_userName = findViewById(R.id.userName);
+        tv_userName.setOnClickListener(this);
         //获取ViewModel
         ViewModelProvider.AndroidViewModelFactory androidViewModelFactory = new ViewModelProvider.AndroidViewModelFactory(getApplication());
         mUserDataViewModel = new ViewModelProvider(this, androidViewModelFactory).get(UserDataViewModel.class);
@@ -100,29 +122,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.fab_search:
+                //搜索功能
                 showSearchBar();
                 break;
             case R.id.fab_add:
+                //添加数据功能
                 starAddUserActivity();
+                break;
+            case R.id.userName:
+                //按名字排序功能
+                sortByName();
+                break;
+            case R.id.lastDate:
+                //按时间排序功能
+                sortByDate();
                 break;
         }
     }
 
     /**
-     * 启动添加数据Activity
-     */
-    private void starAddUserActivity() {
-        Intent intent = new Intent(this, AddUserActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putString(SAVE_DATA, "SAVE_DATA");
-        bundle.putBoolean(IS_ADD, true);
-        intent.putExtras(bundle);
-        startActivityForResult(intent, REQUEST_OK);
-    }
-
-
-    /**
-     * 搜索框PopupWindow
+     * 按名字搜索相关数据
      */
     private void showSearchBar() {
         mSearchBar.setVisibility(View.VISIBLE);
@@ -154,6 +173,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     /**
+     * 启动添加数据Activity
+     */
+    private void starAddUserActivity() {
+        Intent intent = new Intent(this, AddUserActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString(SAVE_DATA, "SAVE_DATA");
+        bundle.putBoolean(IS_ADD, true);
+        intent.putExtras(bundle);
+        startActivityForResult(intent, REQUEST_OK);
+    }
+
+    /**
+     * 按名字排序
+     */
+    private void sortByName() {
+        count_userName++;
+        mUserDataViewModel.getAllUserData().observe(this, messageBeans -> {
+            if (count_userName % 2 == 0) {
+                //降序排序
+                Collections.sort(messageBeans, new MyCompareUtil(MyCompareUtil.SORT_DES, MyCompareUtil.COMPARE_NAME));
+            } else {
+                //升序排序
+                Collections.sort(messageBeans, new MyCompareUtil(MyCompareUtil.SORT_ASC, MyCompareUtil.COMPARE_NAME));
+            }
+            msgAdapter.submitList(messageBeans);
+        });
+        msgAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * 按时间排序
+     */
+    private void sortByDate() {
+        count_lastDate++;
+        mUserDataViewModel.getAllUserData().observe(this, messageBeans -> {
+            if (count_lastDate % 2 == 0) {
+                //降序排序
+                Collections.sort(messageBeans, new MyCompareUtil(MyCompareUtil.SORT_DES, MyCompareUtil.COMPARE_DATE));
+            } else {
+                //升序排序
+                Collections.sort(messageBeans, new MyCompareUtil(MyCompareUtil.SORT_ASC, MyCompareUtil.COMPARE_DATE));
+            }
+            msgAdapter.submitList(messageBeans);
+        });
+        msgAdapter.notifyDataSetChanged();
+    }
+
+
+    /**
      * 向数据库插入数据
      */
     private void insertUserData() {
@@ -168,7 +236,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void updateUserData() {
         MessageBean bean = getMessageBean();
-        mUserDataViewModel.updaterByName(bean);
+        int i = mUserDataViewModel.updateData(bean);
+        //Log.e("updateData==result===", i + "");
+        msgAdapter.notifyDataSetChanged();
     }
 
     /**
@@ -181,9 +251,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 "交强险费用：", "驾乘险费用：", "商业险费率：", "交强险费率：", "驾乘险费率：", "返现：", "客户来源：", "备注："};
 
         MessageBean bean = new MessageBean();
+
         bean.setCarNumber(hashMap.get(keys[0]));
         bean.setUserName(hashMap.get(keys[1]));
         bean.setLastDate(hashMap.get(keys[2]));
+        // Log.e("hashMap.get(keys[2])", hashMap.get(keys[2]));
         bean.setBuyTime(hashMap.get(keys[3]));
         bean.setCarSerialNumber(hashMap.get(keys[4]));
         bean.setPhone(hashMap.get(keys[5]));
@@ -224,13 +296,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         bean.setType(hashMap.get(keys[13]));
         bean.setRemarks(hashMap.get(keys[14]));
+        bean.setId(Integer.valueOf(hashMap.get("id")));
         return bean;
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "RESULT_OK====" + hashMap + "|data====" + data);
+
 
         if (requestCode == REQUEST_OK && resultCode == RESULT_SET_OK) {
             //获取需要添加的数据
@@ -239,16 +312,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else if (requestCode == MODIFY_REQUEST && resultCode == RESULT_SET_OK) {
             //获取需要修改的数据
             hashMap = (HashMap<String, String>) data.getSerializableExtra(SAVE_DATA);
-            Log.e(TAG, "get");
             updateUserData();//更新数据
         }
+        // Log.d(TAG, "onActivityResult====hashMap====" + hashMap);
     }
 
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case 1://修改按钮
-                Log.d(TAG, "item====1");
                 Intent intent = new Intent(this, AddUserActivity.class);
                 MessageBean bean = item.getIntent().getParcelableExtra(USER_BEAN);
                 Bundle bundle = new Bundle();
@@ -259,7 +331,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case 2://删除按钮
                 String userName = item.getIntent().getStringExtra(USER_NAME);
-                Log.d(TAG, "item====2|" + userName);
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
                 alertDialog.setTitle("警告").setMessage("数据不可恢复，确定要删除吗？").setPositiveButton("确定", (dialog, which) -> {
                     mUserDataViewModel.delByName(userName);
@@ -278,5 +349,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
         super.onBackPressed();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        count_lastDate = 0;
+        count_userName = 0;
+        if (hashMap != null) {
+            hashMap = null;
+        }
+        if (mUserDataViewModel != null) {
+            mUserDataViewModel = null;
+        }
+        if (msgAdapter != null) {
+            msgAdapter = null;
+        }
     }
 }

@@ -12,7 +12,7 @@ import com.hannesdorfmann.parcelableplease.annotation.ParcelablePlease;
 
 @Entity(tableName = "users_table")//数据库表名
 @ParcelablePlease
-public class MessageBean implements Parcelable {
+public class MessageBean implements Parcelable, Comparable<MessageBean> {
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     int id;//序号
@@ -202,4 +202,15 @@ public class MessageBean implements Parcelable {
             return new MessageBean[size];
         }
     };
+
+    /**
+     * 排序
+     * @param messageBean
+     * @return
+     */
+
+    @Override
+    public int compareTo(MessageBean messageBean) {
+        return this.userName.compareTo(messageBean.getUserName());
+    }
 }
