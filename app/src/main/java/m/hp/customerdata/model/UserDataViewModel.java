@@ -51,4 +51,14 @@ public class UserDataViewModel extends AndroidViewModel {
     public MessageBean getDataByUserName(String userName) {
         return mRepository.getDataByName(userName);
     }
+
+    /**
+     * 查终保日期
+     *
+     * @param lastDate
+     * @return
+     */
+    public List<MessageBean> getLastDateUsers(String lastDate) {
+        return mRepository.getLastDateUsers(lastDate);
+    }
 }

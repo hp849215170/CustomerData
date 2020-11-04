@@ -1,5 +1,7 @@
 package m.hp.customerdata.activity;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -13,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,8 +24,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mancj.materialsearchbar.MaterialSearchBar;
 
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 import m.hp.customerdata.R;
 import m.hp.customerdata.adapter.MessageBeanListAdapter;
@@ -32,11 +39,14 @@ import m.hp.customerdata.utils.MyCompareUtil;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "MainActivity";
+    //一组通知消息
+    private static final String GROUP_KEY_USER_NOTIFICE = "m.hp.customerdata";
     private static final int REQUEST_OK = 300;
     private static final int RESULT_SET_OK = 1000;
     private static final int MODIFY_REQUEST = 400;
     //是新加数据还是更新数据
     private static final String IS_ADD = "IS_ADD";
+    private static final String CHANNEL_ID = "800";
     //根据条件查询到的userBean数据
     private final String MESSAGE_BEAN = "MESSAGE_BEAN";
     private MessageBeanListAdapter msgAdapter;
@@ -63,11 +73,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
         initView();
-
-
     }
 
     /**
@@ -105,6 +111,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onResume() {
         super.onResume();
         initData();
+        //查询当天是否有可续保的客户
+        notificeCanBuy();
     }
 
     /**
@@ -339,6 +347,73 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
         return true;
+    }
+
+    /**
+     * 提醒已有客户到续保时间
+     */
+    private void notificeCanBuy() {
+
+        //获取当前的日期
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        //今天的日期几号
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        //29天即可续保几号
+        calendar.set(Calendar.DAY_OF_MONTH, day + 29);
+        //29天后的日期
+        int dayAfter29 = calendar.get(Calendar.DATE);
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1;
+        String canBuyDate = year + "/" + month + "/" + dayAfter29;
+
+        //开始查数据
+        List<MessageBean> lastDateUsers = mUserDataViewModel.getLastDateUsers(canBuyDate);
+        showCanBuyNotification(lastDateUsers);
+    }
+
+    /**
+     * 创建续保通知消息
+     */
+    private void showCanBuyNotification(List<MessageBean> lastDateUsers) {
+        if (lastDateUsers.size() == 0) {
+            return;
+        }
+        Notification notification;
+        int notificeid = 1;//通知消息id
+        int SUMMARY_ID = 0;//通知消息组id
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
+        int size = lastDateUsers.size();
+        for (int i = 0; i < size; i++) {
+            //点击通知消息跳转到详细信息页面
+            Intent intent = new Intent(this, DetailedActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            //传递数据
+            intent.putExtra(MESSAGE_BEAN, lastDateUsers.get(i));
+            //i表示传递数据id，PendingIntent.FLAG_UPDATE_CURRENT表示更新当前的数据
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            //创建多个通知
+            notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                    .setSmallIcon(R.drawable.ic__notifications)
+                    .setContentTitle("我的承保清单")
+                    .setContentText("客户" + lastDateUsers.get(i).getUserName() + "可以续保了，请及时跟进！")
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setGroup(GROUP_KEY_USER_NOTIFICE)
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true)
+                    .build();
+            notificationManagerCompat.notify(notificeid + i, notification);
+
+        }
+        //创建消息组
+        Notification summaryNotification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                .setContentText("没有更多消息了")
+                .setSmallIcon(R.drawable.ic__notifications)
+                .setGroup(GROUP_KEY_USER_NOTIFICE)
+                .setGroupSummary(true)
+                .build();
+
+        notificationManagerCompat.notify(SUMMARY_ID, summaryNotification);
     }
 
     @Override

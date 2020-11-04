@@ -1,7 +1,10 @@
 package m.hp.customerdata.activity;
 
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -52,6 +55,7 @@ public class DetailedActivity extends AppCompatActivity {
      * 初始化数据
      */
     private void initData() {
+
         mList.clear();
         //拿到MainActivity通过Intent传来的数据
         Intent intent = getIntent();

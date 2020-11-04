@@ -78,4 +78,23 @@ public class UserDataRepository {
         }
         return null;
     }
+
+    /**
+     * 查终保日期数据
+     *
+     * @param lastDate
+     * @return
+     */
+    public List<MessageBean> getLastDateUsers(String lastDate) {
+        Future<List<MessageBean>> beanFuture = UserDataRoomDatabase.databaseWriteExecutor.submit(() ->
+                mUserDataDao.getLastDateUsers(lastDate));
+        try {
+            return beanFuture.get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

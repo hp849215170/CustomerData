@@ -35,4 +35,8 @@ public interface UserDataDao {
     //更新数据
     @Update
     int updateData(MessageBean bean);
+
+    //通过终保日期查
+    @Query("select * from users_table where last_date=:lastDate")
+    List<MessageBean> getLastDateUsers(String lastDate);
 }

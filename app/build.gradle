@@ -69,4 +69,7 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$rootProject.androidxJunitVersion"
 
     implementation 'com.github.mancj:MaterialSearchBar:0.6'
+
+    //noinspection GradleCompatible
+    implementation "com.android.support:support-compat:28.0.0"
 }

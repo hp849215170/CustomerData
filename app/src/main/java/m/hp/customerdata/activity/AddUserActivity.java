@@ -97,11 +97,13 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
             bean.setDetailedMessage(column_value[i]);
             mList.add(bean);
         }
-        //添加主键id给更新数据操作
-        bean = new DetailedMsgBean();
-        bean.setDetailedTitle("id");
-        bean.setDetailedMessage(String.valueOf(intent_bean.getId()));
-        mList.add(bean);
+        if (!isAdd) {
+            //添加主键id给更新数据操作
+            bean = new DetailedMsgBean();
+            bean.setDetailedTitle("id");
+            bean.setDetailedMessage(String.valueOf(intent_bean.getId()));
+            mList.add(bean);
+        }
         adapter.notifyDataSetChanged();
     }
 

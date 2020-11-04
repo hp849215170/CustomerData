@@ -2,8 +2,11 @@ package m.hp.customerdata;
 
 import org.junit.Test;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -93,6 +96,28 @@ public class ExampleUnitTest {
         Collections.sort(list, new MyCompareUtil(MyCompareUtil.SORT_ASC, MyCompareUtil.COMPARE_DATE));
         for (int i = 0; i < list.size(); i++) {
             System.out.println("排序后的list：" + list.get(i).getLastDate());
+        }
+    }
+
+    @Test
+    public void testNotification() {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+        long timeMillis = System.currentTimeMillis();
+        String lastDate = "2020/12/03";
+        try {
+            Date date = format.parse(lastDate);
+            long day = date.getTime();
+            double leftTime = ((day - timeMillis) / 1000.0 / 60 / 60 / 24);
+
+            System.err.println("相差的时间===" + leftTime);
+            if (leftTime<30){
+                System.err.println("可以续保了");
+            }else{
+
+            }
+
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
     }
 }
