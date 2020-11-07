@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -41,6 +42,7 @@ import m.hp.customerdata.R;
 import m.hp.customerdata.adapter.MessageBeanListAdapter;
 import m.hp.customerdata.entity.UsersDataBean;
 import m.hp.customerdata.model.UserDataViewModel;
+import m.hp.customerdata.poiexcel.ExportUsersDateExcel;
 import m.hp.customerdata.poiexcel.ReadExcelByPOI;
 import m.hp.customerdata.utils.GetRealPathFromUriUtil;
 import m.hp.customerdata.utils.MyCompareUtil;
@@ -569,6 +571,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 startActivityForResult(intent, OPEN_FILE_REQUEST);
+                break;
+            case R.id.exportExcel:
+                mUserDataViewModel.getAllUserData().observe(this, messageBeans -> {
+                    new ExportUsersDateExcel(this, messageBeans, (ok, outputPath) -> {
+                        if (ok) {
+                            Looper.prepare();//加上避免报错：Can't toast on a thread that has not called Looper.prepare()
+                            Toast.makeText(MainActivity.this, "已保存至" + outputPath, Toast.LENGTH_LONG).show();
+                            Looper.loop();
+                        } else {
+                            Looper.prepare();
+                            Toast.makeText(MainActivity.this, "导出失败", Toast.LENGTH_LONG).show();
+                            Looper.loop();
+                        }
+                    });
+                });
                 break;
         }
         return true;
