@@ -8,11 +8,6 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
-import java.util.Collections;
-
-import m.hp.customerdata.entity.MessageBean;
-
 import static org.junit.Assert.assertEquals;
 
 /**

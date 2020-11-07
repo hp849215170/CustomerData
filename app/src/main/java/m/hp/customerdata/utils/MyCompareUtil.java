@@ -6,12 +6,12 @@ import java.text.SimpleDateFormat;
 import java.util.Comparator;
 import java.util.Locale;
 
-import m.hp.customerdata.entity.MessageBean;
+import m.hp.customerdata.entity.UsersDataBean;
 
 /**
  * 名字排序
  */
-public class MyCompareUtil implements Comparator<MessageBean> {
+public class MyCompareUtil implements Comparator<UsersDataBean> {
     //按名字首字拼音排序
     public static final String COMPARE_NAME = "COMPARE_NAME";
     //按时间排序
@@ -31,7 +31,7 @@ public class MyCompareUtil implements Comparator<MessageBean> {
     }
 
     @Override
-    public int compare(MessageBean bean1, MessageBean bean2) {
+    public int compare(UsersDataBean bean1, UsersDataBean bean2) {
         //名字排序
         if (compareType == COMPARE_NAME) {
             String userName1 = bean1.getUserName();

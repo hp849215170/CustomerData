@@ -16,9 +16,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import m.hp.customerdata.R;
 import m.hp.customerdata.activity.DetailedActivity;
-import m.hp.customerdata.entity.MessageBean;
+import m.hp.customerdata.entity.UsersDataBean;
 
-public class MessageBeanListAdapter extends ListAdapter<MessageBean, MessageBeanListAdapter.MessageBeanViewHolder> {
+public class MessageBeanListAdapter extends ListAdapter<UsersDataBean, MessageBeanListAdapter.MessageBeanViewHolder> {
 
     private Context mContext;
     private LayoutInflater mInflater;
@@ -27,7 +27,7 @@ public class MessageBeanListAdapter extends ListAdapter<MessageBean, MessageBean
     private final String USER_NAME = "USER_NAME";
     private static final String USER_BEAN = "USER_BEAN";
 
-    public MessageBeanListAdapter(@NonNull DiffUtil.ItemCallback<MessageBean> diffCallback, Context mContext) {
+    public MessageBeanListAdapter(@NonNull DiffUtil.ItemCallback<UsersDataBean> diffCallback, Context mContext) {
         super(diffCallback);
         mInflater = LayoutInflater.from(mContext);
         this.mContext = mContext;
@@ -42,11 +42,11 @@ public class MessageBeanListAdapter extends ListAdapter<MessageBean, MessageBean
     @Override
     public void onBindViewHolder(@NonNull MessageBeanViewHolder holder, int position) {
         //获取当前显示的bean实体
-        MessageBean messageBean = getItem(position);
+        UsersDataBean usersDataBean = getItem(position);
         int id = position + 1;
-        String carNumber = messageBean.getCarNumber();
-        String userName = messageBean.getUserName();
-        String lastDate = messageBean.getLastDate();
+        String carNumber = usersDataBean.getCarNumber();
+        String userName = usersDataBean.getUserName();
+        String lastDate = usersDataBean.getLastDate();
         holder.tv_serial_number.setText(String.valueOf(id));
         holder.tv_car_number.setText(carNumber);
         holder.tv_user_name.setText(userName);
@@ -76,10 +76,10 @@ public class MessageBeanListAdapter extends ListAdapter<MessageBean, MessageBean
         @Override
         public void onClick(View v) {
             //跳转到详细信息界面
-            MessageBean messageBean = getItem(getAdapterPosition());
-            Log.d(tag, "messageBean==" + messageBean.getUserName());
+            UsersDataBean usersDataBean = getItem(getAdapterPosition());
+            Log.d(tag, "messageBean==" + usersDataBean.getUserName());
             Intent intent = new Intent(mContext, DetailedActivity.class);
-            intent.putExtra(MESSAGE_BEAN, messageBean);
+            intent.putExtra(MESSAGE_BEAN, usersDataBean);
             mContext.startActivity(intent);
 
         }
@@ -93,7 +93,7 @@ public class MessageBeanListAdapter extends ListAdapter<MessageBean, MessageBean
             Intent intent = new Intent();
             intent.putExtra(USER_NAME, userName);
 
-            MessageBean bean = getItem(position);
+            UsersDataBean bean = getItem(position);
             Intent intentBean = new Intent();
             intentBean.putExtra(USER_BEAN, bean);
             menu.add(0, 1, 0, "修改").setIntent(intentBean);
@@ -101,15 +101,15 @@ public class MessageBeanListAdapter extends ListAdapter<MessageBean, MessageBean
         }
     }
 
-    public static class MessageBeanDiff extends DiffUtil.ItemCallback<MessageBean> {
+    public static class MessageBeanDiff extends DiffUtil.ItemCallback<UsersDataBean> {
 
         @Override
-        public boolean areItemsTheSame(@NonNull MessageBean oldItem, @NonNull MessageBean newItem) {
+        public boolean areItemsTheSame(@NonNull UsersDataBean oldItem, @NonNull UsersDataBean newItem) {
             return oldItem == newItem;
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull MessageBean oldItem, @NonNull MessageBean newItem) {
+        public boolean areContentsTheSame(@NonNull UsersDataBean oldItem, @NonNull UsersDataBean newItem) {
             return oldItem.getUserName().equals(newItem.getUserName());
         }
     }

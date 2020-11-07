@@ -13,12 +13,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import m.hp.customerdata.dao.UserDataDao;
-import m.hp.customerdata.entity.MessageBean;
+import m.hp.customerdata.entity.UsersDataBean;
 
 /**
  * Database migrations are beyond the scope of this codelab, so we set exportSchema to false here to avoid a build warning
  */
-@Database(entities = {MessageBean.class}, version = 1, exportSchema = false)
+@Database(entities = {UsersDataBean.class}, version = 1, exportSchema = false)
 public abstract class UserDataRoomDatabase extends RoomDatabase {
 
     private static final String TAG = "UserDataRoomDatabase";

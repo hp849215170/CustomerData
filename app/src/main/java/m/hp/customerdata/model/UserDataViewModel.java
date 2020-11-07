@@ -8,12 +8,12 @@ import androidx.lifecycle.LiveData;
 
 import java.util.List;
 
-import m.hp.customerdata.entity.MessageBean;
+import m.hp.customerdata.entity.UsersDataBean;
 import m.hp.customerdata.room.UserDataRepository;
 
 public class UserDataViewModel extends AndroidViewModel {
 
-    private LiveData<List<MessageBean>> allUserData;
+    private LiveData<List<UsersDataBean>> allUserData;
     private UserDataRepository mRepository;
 
 
@@ -24,12 +24,12 @@ public class UserDataViewModel extends AndroidViewModel {
     }
 
     //获取全部数据
-    public LiveData<List<MessageBean>> getAllUserData() {
+    public LiveData<List<UsersDataBean>> getAllUserData() {
         return allUserData;
     }
 
     //添加数据
-    public void insert(MessageBean bean) {
+    public void insert(UsersDataBean bean) {
         mRepository.insert(bean);
     }
 
@@ -39,7 +39,7 @@ public class UserDataViewModel extends AndroidViewModel {
     }
 
     //更新数据
-    public int updateData(MessageBean bean) {
+    public int updateData(UsersDataBean bean) {
         return mRepository.updateData(bean);
     }
 
@@ -48,7 +48,7 @@ public class UserDataViewModel extends AndroidViewModel {
      *
      * @param userName
      */
-    public MessageBean getDataByUserName(String userName) {
+    public UsersDataBean getDataByUserName(String userName) {
         return mRepository.getDataByName(userName);
     }
 
@@ -58,7 +58,7 @@ public class UserDataViewModel extends AndroidViewModel {
      * @param lastDate
      * @return
      */
-    public List<MessageBean> getLastDateUsers(String lastDate) {
+    public List<UsersDataBean> getLastDateUsers(String lastDate) {
         return mRepository.getLastDateUsers(lastDate);
     }
 }

@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 import m.hp.customerdata.R;
 import m.hp.customerdata.adapter.AddUserAdapter;
 import m.hp.customerdata.entity.DetailedMsgBean;
-import m.hp.customerdata.entity.MessageBean;
+import m.hp.customerdata.entity.UsersDataBean;
 
 public class AddUserActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -39,7 +39,7 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
     private static final String USER_BEAN = "USER_BEAN";
     private Intent intent;
     public static AddUserActivity instance;
-    private MessageBean intent_bean = null;
+    private UsersDataBean intent_bean = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

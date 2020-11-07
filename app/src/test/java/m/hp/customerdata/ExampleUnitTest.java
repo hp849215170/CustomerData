@@ -10,7 +10,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import m.hp.customerdata.entity.MessageBean;
+import m.hp.customerdata.entity.UsersDataBean;
 import m.hp.customerdata.utils.MyCompareUtil;
 
 import static org.junit.Assert.assertEquals;
@@ -40,21 +40,21 @@ public class ExampleUnitTest {
     @Test
     public void textUserNameCompare() {
         // 新建ArrayList(动态数组)
-        ArrayList<MessageBean> list = new ArrayList<MessageBean>();
+        ArrayList<UsersDataBean> list = new ArrayList<UsersDataBean>();
         // 添加对象到ArrayList中
-        MessageBean bean = new MessageBean();
+        UsersDataBean bean = new UsersDataBean();
         bean.setUserName("郭德纲");
         list.add(bean);
 
-        MessageBean bean2 = new MessageBean();
+        UsersDataBean bean2 = new UsersDataBean();
         bean2.setUserName("安华");
         list.add(bean2);
 
-        MessageBean bean3 = new MessageBean();
+        UsersDataBean bean3 = new UsersDataBean();
         bean3.setUserName("赵紫阳");
         list.add(bean3);
 
-        MessageBean bean4 = new MessageBean();
+        UsersDataBean bean4 = new UsersDataBean();
         bean4.setUserName("单田芳");
         list.add(bean4);
 
@@ -71,21 +71,21 @@ public class ExampleUnitTest {
     @Test
     public void testCompareByDate() {
         // 新建ArrayList(动态数组)
-        ArrayList<MessageBean> list = new ArrayList<MessageBean>();
+        ArrayList<UsersDataBean> list = new ArrayList<UsersDataBean>();
         // 添加对象到ArrayList中
-        MessageBean bean = new MessageBean();
+        UsersDataBean bean = new UsersDataBean();
         bean.setLastDate("2010/01/01");
         list.add(bean);
 
-        MessageBean bean2 = new MessageBean();
+        UsersDataBean bean2 = new UsersDataBean();
         bean2.setLastDate("2010/10/01");
         list.add(bean2);
 
-        MessageBean bean3 = new MessageBean();
+        UsersDataBean bean3 = new UsersDataBean();
         bean3.setLastDate("2010/05/01");
         list.add(bean3);
 
-        MessageBean bean4 = new MessageBean();
+        UsersDataBean bean4 = new UsersDataBean();
         bean4.setLastDate("2010/08/01");
         list.add(bean4);
 
@@ -110,14 +110,19 @@ public class ExampleUnitTest {
             double leftTime = ((day - timeMillis) / 1000.0 / 60 / 60 / 24);
 
             System.err.println("相差的时间===" + leftTime);
-            if (leftTime<30){
+            if (leftTime < 30) {
                 System.err.println("可以续保了");
-            }else{
+            } else {
 
             }
 
         } catch (ParseException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void testExcelPOI() {
+       System.out.println(10^6);
     }
 }

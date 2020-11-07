@@ -10,11 +10,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import m.hp.customerdata.dao.UserDataDao;
-import m.hp.customerdata.entity.MessageBean;
+import m.hp.customerdata.entity.UsersDataBean;
 
 public class UserDataRepository {
     private UserDataDao mUserDataDao;
-    private LiveData<List<MessageBean>> mAllUserData;
+    private LiveData<List<UsersDataBean>> mAllUserData;
 
     public UserDataRepository(Application application) {
         //获取数据库连接
@@ -25,11 +25,11 @@ public class UserDataRepository {
         mAllUserData = mUserDataDao.getAllUserData();
     }
 
-    public LiveData<List<MessageBean>> getAllUserData() {
+    public LiveData<List<UsersDataBean>> getAllUserData() {
         return mAllUserData;
     }
 
-    public void insert(MessageBean bean) {
+    public void insert(UsersDataBean bean) {
         UserDataRoomDatabase.databaseWriteExecutor.execute(() -> mUserDataDao.insert(bean));
     }
 
@@ -41,7 +41,7 @@ public class UserDataRepository {
     }
 
     //更新数据
-    public int updateData(MessageBean bean) {
+    public int updateData(UsersDataBean bean) {
         Future<Integer> result_future = UserDataRoomDatabase.databaseWriteExecutor.submit((Callable<Integer>) () ->
                 mUserDataDao.updateData(bean));
         try {
@@ -65,9 +65,9 @@ public class UserDataRepository {
      * @param userName 投保人名字
      * @return
      */
-    public MessageBean getDataByName(String userName) {
+    public UsersDataBean getDataByName(String userName) {
         //线程池执行返回结果
-        Future<MessageBean> beanFuture = UserDataRoomDatabase.databaseWriteExecutor.submit(() ->
+        Future<UsersDataBean> beanFuture = UserDataRoomDatabase.databaseWriteExecutor.submit(() ->
                 mUserDataDao.getDataByUserName(userName));
         try {
             return beanFuture.get();
@@ -85,8 +85,8 @@ public class UserDataRepository {
      * @param lastDate
      * @return
      */
-    public List<MessageBean> getLastDateUsers(String lastDate) {
-        Future<List<MessageBean>> beanFuture = UserDataRoomDatabase.databaseWriteExecutor.submit(() ->
+    public List<UsersDataBean> getLastDateUsers(String lastDate) {
+        Future<List<UsersDataBean>> beanFuture = UserDataRoomDatabase.databaseWriteExecutor.submit(() ->
                 mUserDataDao.getLastDateUsers(lastDate));
         try {
             return beanFuture.get();

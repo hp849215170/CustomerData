@@ -1,11 +1,16 @@
 package m.hp.customerdata.activity;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
@@ -15,8 +20,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,8 +39,10 @@ import java.util.List;
 
 import m.hp.customerdata.R;
 import m.hp.customerdata.adapter.MessageBeanListAdapter;
-import m.hp.customerdata.entity.MessageBean;
+import m.hp.customerdata.entity.UsersDataBean;
 import m.hp.customerdata.model.UserDataViewModel;
+import m.hp.customerdata.poiexcel.ReadExcelByPOI;
+import m.hp.customerdata.utils.GetRealPathFromUriUtil;
 import m.hp.customerdata.utils.MyCompareUtil;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -47,6 +56,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //是新加数据还是更新数据
     private static final String IS_ADD = "IS_ADD";
     private static final String CHANNEL_ID = "800";
+    //权限请求码
+    private static final int PERMISSION_REQUEST = 100;
+    //打开文件管理器请求码
+    private static final int OPEN_FILE_REQUEST = 200;
     //根据条件查询到的userBean数据
     private final String MESSAGE_BEAN = "MESSAGE_BEAN";
     private MessageBeanListAdapter msgAdapter;
@@ -68,12 +81,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //点击到期时间标题次数
     private int count_lastDate;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initView();
+        //检查是否获取到需要的权限
+        requestPermissions();
     }
 
     /**
@@ -157,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String text = mSearchBar.getText();
         if (!TextUtils.isEmpty(text)) {
             //开始查询
-            MessageBean userBean = mUserDataViewModel.getDataByUserName(text);
+            UsersDataBean userBean = mUserDataViewModel.getDataByUserName(text);
             //提示用户找到查询结果
             if (userBean == null) {
                 //没有查到
@@ -233,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 向数据库插入数据
      */
     private void insertUserData() {
-        MessageBean bean = getMessageBean();
+        UsersDataBean bean = getMessageBean();
         //插入数据
         mUserDataViewModel.insert(bean);
         msgAdapter.notifyDataSetChanged();
@@ -243,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 更新数据
      */
     private void updateUserData() {
-        MessageBean bean = getMessageBean();
+        UsersDataBean bean = getMessageBean();
         int i = mUserDataViewModel.updateData(bean);
         //Log.e("updateData==result===", i + "");
         msgAdapter.notifyDataSetChanged();
@@ -254,11 +268,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      *
      * @return
      */
-    private MessageBean getMessageBean() {
+    private UsersDataBean getMessageBean() {
         String[] keys = {"车牌号：", "投保人：", "终保时间：", "承保时间：", "车架号：", "手机号：", "商业险费用：",
                 "交强险费用：", "驾乘险费用：", "商业险费率：", "交强险费率：", "驾乘险费率：", "返现：", "客户来源：", "备注："};
 
-        MessageBean bean = new MessageBean();
+        UsersDataBean bean = new UsersDataBean();
 
         bean.setCarNumber(hashMap.get(keys[0]));
         bean.setUserName(hashMap.get(keys[1]));
@@ -308,6 +322,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return bean;
     }
 
+    /**
+     * 启动Activity之后返回的结果处理
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -321,16 +342,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //获取需要修改的数据
             hashMap = (HashMap<String, String>) data.getSerializableExtra(SAVE_DATA);
             updateUserData();//更新数据
+        } else if (requestCode == OPEN_FILE_REQUEST) {
+            if (data == null) {
+                return;
+            }
+            Uri excelUri = data.getData();
+            String path = GetRealPathFromUriUtil.getPath(this, excelUri);
+            Log.e(TAG, "realPath==" + path);
+            addUserFromExcel(path);
         }
-        // Log.d(TAG, "onActivityResult====hashMap====" + hashMap);
+
     }
 
+    /**
+     * 上下文菜单点击监听回调
+     *
+     * @param item
+     * @return
+     */
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case 1://修改按钮
                 Intent intent = new Intent(this, AddUserActivity.class);
-                MessageBean bean = item.getIntent().getParcelableExtra(USER_BEAN);
+                UsersDataBean bean = item.getIntent().getParcelableExtra(USER_BEAN);
                 Bundle bundle = new Bundle();
                 bundle.putBoolean(IS_ADD, false);
                 bundle.putParcelable(USER_BEAN, bean);
@@ -368,14 +403,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String canBuyDate = year + "/" + month + "/" + dayAfter29;
 
         //开始查数据
-        List<MessageBean> lastDateUsers = mUserDataViewModel.getLastDateUsers(canBuyDate);
+        List<UsersDataBean> lastDateUsers = mUserDataViewModel.getLastDateUsers(canBuyDate);
         showCanBuyNotification(lastDateUsers);
     }
 
     /**
      * 创建续保通知消息
      */
-    private void showCanBuyNotification(List<MessageBean> lastDateUsers) {
+    private void showCanBuyNotification(List<UsersDataBean> lastDateUsers) {
         if (lastDateUsers.size() == 0) {
             return;
         }
@@ -440,5 +475,102 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (msgAdapter != null) {
             msgAdapter = null;
         }
+    }
+
+    /**
+     * 申请权限
+     */
+    private void requestPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+        } else {
+            String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST);
+            }
+        }
+    }
+
+    /**
+     * 权限申请处理结果
+     *
+     * @param requestCode
+     * @param permissions
+     * @param grantResults
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+
+            case PERMISSION_REQUEST:
+                //判断用户是否同意了全部权限
+                int length = permissions.length;
+                //假设全部同意
+                boolean result = true;
+                if (length == grantResults.length) {
+                    for (int i = 0; i < length; i++) {
+                        if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                            result = false;
+                            break;
+                        }
+                    }
+                    if (result) {
+
+                    }
+                }
+                break;
+        }
+    }
+
+    /**
+     * 从Excel文件添加用户数据
+     */
+    private void addUserFromExcel(String filePath) {
+
+        new ReadExcelByPOI(filePath, usersDataBeanList -> {
+            for (int i = 0; i < usersDataBeanList.size(); i++) {
+                //添加用户数据到数据库
+                mUserDataViewModel.insert(usersDataBeanList.get(i));
+            }
+            runOnUiThread(() -> {
+
+            });
+
+        });
+        msgAdapter.notifyDataSetChanged();
+    }
+
+    /**
+     * 创建右上角菜单按钮
+     *
+     * @param menu
+     * @return
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.options, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    /**
+     * 右上角菜单点击监听
+     *
+     * @param item
+     * @return
+     */
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.addFromExcel:
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.setType("*/*");
+                String[] mimeTypes = {"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel"};
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                startActivityForResult(intent, OPEN_FILE_REQUEST);
+                break;
+        }
+        return true;
     }
 }

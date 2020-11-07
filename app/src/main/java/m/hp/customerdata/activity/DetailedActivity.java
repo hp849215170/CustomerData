@@ -1,10 +1,7 @@
 package m.hp.customerdata.activity;
 
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -16,7 +13,7 @@ import java.util.List;
 import m.hp.customerdata.R;
 import m.hp.customerdata.adapter.DetailedMsgAdapter;
 import m.hp.customerdata.entity.DetailedMsgBean;
-import m.hp.customerdata.entity.MessageBean;
+import m.hp.customerdata.entity.UsersDataBean;
 
 public class DetailedActivity extends AppCompatActivity {
 
@@ -59,17 +56,17 @@ public class DetailedActivity extends AppCompatActivity {
         mList.clear();
         //拿到MainActivity通过Intent传来的数据
         Intent intent = getIntent();
-        MessageBean messageBean = intent.getParcelableExtra(MESSAGE_BEAN);
+        UsersDataBean usersDataBean = intent.getParcelableExtra(MESSAGE_BEAN);
         //把数据加载到当前Activity
         DetailedMsgBean detailedMsgBean;
         // DetailedMsgBean serialNumber = new DetailedMsgBean();
         String[] titles = {"序号", "车牌号", "投保人", "终保时间", "承保时间", "车架号", "手机号", "商业险费用",
                 "交强险费用", "驾乘险费用", "商业险费率", "交强险费率", "驾乘险费率", "返现", "客户来源", "备注"};
-        String[] messages = {String.valueOf(messageBean.getId()), messageBean.getCarNumber(), messageBean.getUserName(),
-                messageBean.getLastDate(), messageBean.getBuyTime(), messageBean.getCarSerialNumber(), messageBean.getPhone(),
-                String.valueOf(messageBean.getSyPrice()), String.valueOf(messageBean.getJqPrice()), String.valueOf(messageBean.getJcPrice()),
-                String.valueOf(messageBean.getSyRebate()), String.valueOf(messageBean.getJqRebate()), String.valueOf(messageBean.getJcRebate()),
-                String.valueOf(messageBean.getCashBack()), messageBean.getType(), messageBean.getRemarks()};
+        String[] messages = {String.valueOf(usersDataBean.getId()), usersDataBean.getCarNumber(), usersDataBean.getUserName(),
+                usersDataBean.getLastDate(), usersDataBean.getBuyTime(), usersDataBean.getCarSerialNumber(), usersDataBean.getPhone(),
+                String.valueOf(usersDataBean.getSyPrice()), String.valueOf(usersDataBean.getJqPrice()), String.valueOf(usersDataBean.getJcPrice()),
+                String.valueOf(usersDataBean.getSyRebate()), String.valueOf(usersDataBean.getJqRebate()), String.valueOf(usersDataBean.getJcRebate()),
+                String.valueOf(usersDataBean.getCashBack()), usersDataBean.getType(), usersDataBean.getRemarks()};
 
         for (int i = 0; i <= 15; i++) {
             detailedMsgBean = new DetailedMsgBean();

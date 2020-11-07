@@ -8,13 +8,13 @@ import androidx.room.Update;
 
 import java.util.List;
 
-import m.hp.customerdata.entity.MessageBean;
+import m.hp.customerdata.entity.UsersDataBean;
 
 @Dao
 public interface UserDataDao {
     //插入数据
     @Insert
-    void insert(MessageBean bean);
+    void insert(UsersDataBean bean);
 
     //删除所有数据
     @Query("DELETE FROM users_table")
@@ -26,17 +26,17 @@ public interface UserDataDao {
 
     //查询users_table表中所有数据
     @Query("SELECT * FROM users_table")
-    LiveData<List<MessageBean>> getAllUserData();
+    LiveData<List<UsersDataBean>> getAllUserData();
 
     //通过名字查数据
     @Query("select * from users_table where user_name=:userName")
-    MessageBean getDataByUserName(String userName);
+    UsersDataBean getDataByUserName(String userName);
 
     //更新数据
     @Update
-    int updateData(MessageBean bean);
+    int updateData(UsersDataBean bean);
 
     //通过终保日期查
     @Query("select * from users_table where last_date=:lastDate")
-    List<MessageBean> getLastDateUsers(String lastDate);
+    List<UsersDataBean> getLastDateUsers(String lastDate);
 }
