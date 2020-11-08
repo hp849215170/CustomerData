@@ -4,7 +4,6 @@ import android.content.Context;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,6 +53,12 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+        /*//如果标题名字为id不显示，只用来作为更新的条件
+        if (mList.get(position).getDetailedTitle().equals("id")) {
+            holder.tv_column_name.setVisibility(View.GONE);
+            holder.et_column_value.setVisibility(View.GONE);
+        }*/
+
         holder.tv_column_name.setText(mList.get(position).getDetailedTitle());
 
         holder.et_column_value.setHint(mList.get(position).getDetailedMessage());

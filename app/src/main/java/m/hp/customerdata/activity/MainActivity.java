@@ -11,16 +11,20 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -87,9 +91,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setCustomActionBar();
         initView();
         //检查是否获取到需要的权限
         requestPermissions();
+    }
+
+    /**
+     * 自定义ActionBar
+     */
+    private void setCustomActionBar() {
+        ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.MATCH_PARENT);
+        View actionBarView = LayoutInflater.from(this).inflate(R.layout.customacitonbar_layout, null);
+        TextView tvTitle = actionBarView.findViewById(R.id.actionBarTile);
+        ImageView ivBack = actionBarView.findViewById(R.id.ivBack);
+        ivBack.setVisibility(View.GONE);
+        tvTitle.setText("承保清单列表");
+        ActionBar supportActionBar = getSupportActionBar();
+        supportActionBar.setCustomView(actionBarView, layoutParams);
+        supportActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        supportActionBar.setDisplayShowHomeEnabled(true);
+        supportActionBar.setDisplayShowTitleEnabled(false);
+        Toolbar parent = (Toolbar) actionBarView.getParent();
+        //去两边空白
+        parent.setPadding(0, 0, 0, 0);
+        parent.setContentInsetsAbsolute(0, 0);
     }
 
     /**
@@ -248,8 +274,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * 向数据库插入数据
      */
-    private void insertUserData() {
-        UsersDataBean bean = getMessageBean();
+    private void insertUserData(boolean isAdd) {
+        UsersDataBean bean = getMessageBean(isAdd);
         //插入数据
         mUserDataViewModel.insert(bean);
         msgAdapter.notifyDataSetChanged();
@@ -258,8 +284,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * 更新数据
      */
-    private void updateUserData() {
-        UsersDataBean bean = getMessageBean();
+    private void updateUserData(boolean isAdd) {
+        UsersDataBean bean = getMessageBean(isAdd);
         int i = mUserDataViewModel.updateData(bean);
         //Log.e("updateData==result===", i + "");
         msgAdapter.notifyDataSetChanged();
@@ -270,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      *
      * @return
      */
-    private UsersDataBean getMessageBean() {
+    private UsersDataBean getMessageBean(boolean isAdd) {
         String[] keys = {"车牌号：", "投保人：", "终保时间：", "承保时间：", "车架号：", "手机号：", "商业险费用：",
                 "交强险费用：", "驾乘险费用：", "商业险费率：", "交强险费率：", "驾乘险费率：", "返现：", "客户来源：", "备注："};
 
@@ -320,7 +346,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         bean.setType(hashMap.get(keys[13]));
         bean.setRemarks(hashMap.get(keys[14]));
-        bean.setId(Integer.valueOf(hashMap.get("id")));
+        if (!isAdd) {
+            bean.setId(Integer.valueOf(hashMap.get("id")));
+        }
         return bean;
     }
 
@@ -339,11 +367,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (requestCode == REQUEST_OK && resultCode == RESULT_SET_OK) {
             //获取需要添加的数据
             hashMap = (HashMap<String, String>) data.getSerializableExtra(SAVE_DATA);
-            insertUserData();
+            boolean isAdd = data.getBooleanExtra(IS_ADD, true);
+            insertUserData(isAdd);
         } else if (requestCode == MODIFY_REQUEST && resultCode == RESULT_SET_OK) {
             //获取需要修改的数据
             hashMap = (HashMap<String, String>) data.getSerializableExtra(SAVE_DATA);
-            updateUserData();//更新数据
+            boolean isAdd = data.getBooleanExtra(IS_ADD, true);
+            updateUserData(isAdd);//更新数据
         } else if (requestCode == OPEN_FILE_REQUEST) {
             if (data == null) {
                 return;

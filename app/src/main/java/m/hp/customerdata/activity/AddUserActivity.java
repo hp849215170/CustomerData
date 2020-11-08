@@ -3,11 +3,17 @@ package m.hp.customerdata.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,6 +33,7 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
     private static final String SAVE_DATA = "SAVE_DATA";
     private static final String TAG = "AddUserActivity";
     private static final int RESULT_SET_OK = 1000;
+    //添加还是更新数据的标识
     private static final String IS_ADD = "IS_ADD";
     private RecyclerView rv_add_users;
     private AddUserAdapter adapter;
@@ -48,6 +55,27 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
         initView();
     }
 
+    /**
+     * 自定义ActionBar
+     */
+    private void setCustomActionBar(String title) {
+        ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.MATCH_PARENT);
+        View actionBarView = LayoutInflater.from(this).inflate(R.layout.customacitonbar_layout, null);
+        TextView tvTitle = actionBarView.findViewById(R.id.actionBarTile);
+        ImageView ivBack = actionBarView.findViewById(R.id.ivBack);
+        ivBack.setOnClickListener(this);
+        tvTitle.setText(title);
+        ActionBar supportActionBar = getSupportActionBar();
+        supportActionBar.setCustomView(actionBarView, layoutParams);
+        supportActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        supportActionBar.setDisplayShowHomeEnabled(true);
+        supportActionBar.setDisplayShowTitleEnabled(false);
+        Toolbar parent = (Toolbar) actionBarView.getParent();
+        //去两边空白
+        parent.setPadding(0, 0, 0, 0);
+        parent.setContentInsetsAbsolute(0, 0);
+    }
+
     private void initView() {
         rv_add_users = findViewById(R.id.rv_add);
         bt_save = findViewById(R.id.save_data);
@@ -67,6 +95,11 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
         //判断是新增数据还是修改数据
         isAdd = intent.getBooleanExtra(IS_ADD, true);
         instance = this;
+        if (isAdd) {
+            setCustomActionBar("添加用户数据");
+        } else {
+            setCustomActionBar("修改用户数据");
+        }
         initData();
     }
 
@@ -77,7 +110,7 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
             column_value = new String[]{"请输入车牌号", "请输入投保人", "请输入终保时间", "请输入承保时间", "请输入车架号", "请输入手机号", "请输入商业险费用",
                     "请输入交强险费用", "请输入驾乘险费用", "请输入商业险费率", "请输入交强险费率", "请输入驾乘险费率", "请输入返现", "请输入客户来源", "请输入备注"};
         } else {
-            //更新按钮跳转过来传递的bean
+            //更新上下文菜单按钮跳转过来传递的bean
             intent_bean = intent.getParcelableExtra(USER_BEAN);
             column_value = new String[]{String.valueOf(intent_bean.getCarNumber()), intent_bean.getUserName(), intent_bean.getLastDate(), intent_bean.getBuyTime(),
                     intent_bean.getCarSerialNumber(), intent_bean.getPhone(), String.valueOf(intent_bean.getSyPrice()), String.valueOf(intent_bean.getJqPrice()), String.valueOf(intent_bean.getJcPrice()),
@@ -97,21 +130,22 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
             bean.setDetailedMessage(column_value[i]);
             mList.add(bean);
         }
-        if (!isAdd) {
-            //添加主键id给更新数据操作
-            bean = new DetailedMsgBean();
-            bean.setDetailedTitle("id");
-            bean.setDetailedMessage(String.valueOf(intent_bean.getId()));
-            mList.add(bean);
-        }
         adapter.notifyDataSetChanged();
     }
 
     @Override
     public void onClick(View v) {
-
-        if (saveData()) return;
-        finish();
+        switch (v.getId()) {
+            case R.id.save_data:
+                if (!saveData()) {
+                    return;
+                }
+                finish();
+                break;
+            case R.id.ivBack:
+                finish();
+                break;
+        }
     }
 
 
@@ -125,46 +159,49 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
 
         if (TextUtils.isEmpty(hashMap.get("车牌号："))) {
             showToast("车牌不能为空");
-            return true;
+            return false;
         }
         if (TextUtils.isEmpty(hashMap.get("投保人："))) {
             showToast("投保人不能为空");
-            return true;
+            return false;
         }
 
 
         if (TextUtils.isEmpty(hashMap.get("车架号："))) {
             showToast("车架号不能为空");
-            return true;
+            return false;
         } else if (hashMap.get("车架号：").length() != 17) {
+            Log.e("hashMap.get(\"车架号：\")", hashMap.get("车架号："));
             showToast("车架号为17位");
-            return true;
+            return false;
         } else {
             //判断车架号是否已大写字母开头并且是字母和数字组合
-            Pattern p = Pattern.compile("^[A-Z][0-9]");
+            Pattern p = Pattern.compile("^[A-Z]");
             Matcher m = p.matcher(hashMap.get("车架号："));
             boolean b = m.find();
             if (!b) {
                 showToast("车架号应当由大写字母开头");
-                return true;
+                return false;
             }
         }
         if (!TextUtils.isEmpty(hashMap.get("手机号："))) {
             if (hashMap.get("手机号：").length() != 11) {
                 showToast("请输入十一位数字有效手机号");
-                return true;
+                return false;
             } else if (!hashMap.get("手机号：").startsWith("1")) {
                 showToast("请输有效手机号");
-                return true;
+                return false;
             }
         }
         if (!isAdd) {
             hashMap.put("id", String.valueOf(intent_bean.getId()));
         }
         intent.putExtra(SAVE_DATA, hashMap);
+        intent.putExtra(IS_ADD, true);
+        intent.putExtras(intent);
         //Log.d(TAG, "重新绑定数据====" + intent);
         setResult(RESULT_SET_OK, intent);
-        return false;
+        return true;
     }
 
     private void showToast(String msg) {

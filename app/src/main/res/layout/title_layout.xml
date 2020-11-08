@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/purple_700"
     android:orientation="horizontal"
+    android:layout_marginTop="1dp"
     android:paddingTop="8dp"
     android:paddingBottom="8dp"
     tools:context=".activity.MainActivity">
@@ -15,7 +15,7 @@
         android:layout_weight="1"
         android:gravity="center"
         android:text="序号"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="18sp" />
 
     <TextView
@@ -24,7 +24,7 @@
         android:layout_weight="1"
         android:gravity="center"
         android:text="车牌号"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="18sp" />
 
     <TextView
@@ -34,7 +34,7 @@
         android:layout_weight="1"
         android:gravity="center"
         android:text="投保人"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="18sp" />
 
 
@@ -45,7 +45,7 @@
         android:gravity="center"
         android:text="到期时间"
         android:id="@+id/lastDate"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="18sp" />
 
 </LinearLayout>

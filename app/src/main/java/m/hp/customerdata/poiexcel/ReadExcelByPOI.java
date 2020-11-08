@@ -3,12 +3,12 @@ package m.hp.customerdata.poiexcel;
 import android.util.Log;
 
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
@@ -66,15 +66,30 @@ public class ReadExcelByPOI {
             Log.d("readExcel", "没有找到文件");
             return null;
         }
+        //获取文件的扩展名
+        String extString = excelFile.substring(excelFile.indexOf("."));
         try {
             InputStream stream = new FileInputStream(file);
-            //传入要加载的Excel xlsx文件
-            XSSFWorkbook workbook = new XSSFWorkbook(stream);
-            //读取工作表0，即sheet1表
-            XSSFSheet sheet = workbook.getSheetAt(0);
-            //获取有数据的行数
-            int rowCount = sheet.getPhysicalNumberOfRows();
-            XSSFFormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
+            int rowCount = 0;
+            Sheet sheet = null;
+            FormulaEvaluator formulaEvaluator = null;
+            if (extString.equals(".xls")) {//xls格式Excel
+                HSSFWorkbook hssfWorkbook = new HSSFWorkbook(stream);
+                sheet = hssfWorkbook.getSheetAt(0);
+                rowCount = sheet.getPhysicalNumberOfRows();
+                formulaEvaluator = hssfWorkbook.getCreationHelper().createFormulaEvaluator();
+            } else if (extString.equals(".xlsx")) {//xlsx格式Excel
+                //传入要加载的Excel xlsx文件
+                XSSFWorkbook workbook = new XSSFWorkbook(stream);
+                //读取工作表0，即sheet1表
+                sheet = workbook.getSheetAt(0);
+                //获取有数据的行数
+                formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
+                rowCount = sheet.getPhysicalNumberOfRows();
+            } else {
+                return null;
+            }
+
             //用户数据集合
             List<UsersDataBean> usersDataBeanList = new ArrayList<>();
             for (int r = 1; r < rowCount; r++) {//第0行是标题，从第1行开始才是用户用户数据
