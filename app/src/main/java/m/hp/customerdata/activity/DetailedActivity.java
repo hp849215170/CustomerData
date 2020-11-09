@@ -2,8 +2,14 @@ package m.hp.customerdata.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,7 +21,7 @@ import m.hp.customerdata.adapter.DetailedMsgAdapter;
 import m.hp.customerdata.entity.DetailedMsgBean;
 import m.hp.customerdata.entity.UsersDataBean;
 
-public class DetailedActivity extends AppCompatActivity {
+public class DetailedActivity extends AppCompatActivity implements View.OnClickListener {
 
     private RecyclerView rv_detail;
     private DetailedMsgAdapter adapter;
@@ -27,8 +33,30 @@ public class DetailedActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detailed);
-
+        setCustomActionBar();
         initView();
+    }
+
+    /**
+     * 自定义ActionBar
+     */
+    private void setCustomActionBar() {
+        ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.MATCH_PARENT);
+        View actionBarView = LayoutInflater.from(this).inflate(R.layout.customacitonbar_layout, null);
+        TextView tvTitle = actionBarView.findViewById(R.id.actionBarTile);
+        //返回操作
+        ImageView ivBack = actionBarView.findViewById(R.id.ivBack);
+        ivBack.setOnClickListener(this);
+        tvTitle.setText("详细信息");
+        ActionBar supportActionBar = getSupportActionBar();
+        supportActionBar.setCustomView(actionBarView, layoutParams);
+        supportActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        supportActionBar.setDisplayShowHomeEnabled(true);
+        supportActionBar.setDisplayShowTitleEnabled(false);
+        Toolbar parent = (Toolbar) actionBarView.getParent();
+        //去两边空白
+        parent.setPadding(0, 0, 0, 0);
+        parent.setContentInsetsAbsolute(0, 0);
     }
 
     /**
@@ -75,5 +103,10 @@ public class DetailedActivity extends AppCompatActivity {
             mList.add(detailedMsgBean);
         }
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        finish();
     }
 }

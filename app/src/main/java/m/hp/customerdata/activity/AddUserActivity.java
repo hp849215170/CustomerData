@@ -62,6 +62,7 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
         ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.MATCH_PARENT);
         View actionBarView = LayoutInflater.from(this).inflate(R.layout.customacitonbar_layout, null);
         TextView tvTitle = actionBarView.findViewById(R.id.actionBarTile);
+        //返回操作
         ImageView ivBack = actionBarView.findViewById(R.id.ivBack);
         ivBack.setOnClickListener(this);
         tvTitle.setText(title);

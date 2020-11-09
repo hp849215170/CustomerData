@@ -1,7 +1,6 @@
 package m.hp.customerdata.poiexcel;
 
 import android.content.Context;
-import android.os.Environment;
 
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.WorkbookUtil;
@@ -27,11 +26,13 @@ public class ExportUsersDateExcel {
     private Context context;
     private ExportFinish exportFinish;
     private String outputPath;
+    private String savePath;
 
-    public ExportUsersDateExcel(Context context, List<UsersDataBean> usersDataBeanList, ExportFinish exportFinish) {
+    public ExportUsersDateExcel(Context context, List<UsersDataBean> usersDataBeanList, ExportFinish exportFinish, String savePath) {
         this.usersDataBeanList = usersDataBeanList;
         this.context = context;
         this.exportFinish = exportFinish;
+        this.savePath = savePath;
         thread.start();
     }
 
@@ -83,9 +84,8 @@ public class ExportUsersDateExcel {
         String formatDate = simpleDateFormat.format(new Date());
         //Excel文件名
         String outFileName = "user-data-" + formatDate + ".xlsx";
-        //导出自定义目录
-        String storageDirectory = Environment.getExternalStorageDirectory().getAbsolutePath() + "/CustomerData";
-        File exportDir = new File(storageDirectory);
+        //导出用户选择的目录
+        File exportDir = new File(savePath);
         if (!exportDir.exists()) {
             exportDir.mkdir();
         }

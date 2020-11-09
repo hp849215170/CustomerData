@@ -57,15 +57,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //一组通知消息
     private static final String GROUP_KEY_USER_NOTIFICE = "m.hp.customerdata";
     private static final int REQUEST_OK = 300;
+    //选择保存路径完成结果码
+    private static final int RESULT_SAVE_PATH = 600;
     private static final int RESULT_SET_OK = 1000;
     private static final int MODIFY_REQUEST = 400;
     //是新加数据还是更新数据
     private static final String IS_ADD = "IS_ADD";
     private static final String CHANNEL_ID = "800";
+    //已选择的保存路径
+    private static final String SAVE_PATH = "SAVE_PATH";
     //权限请求码
     private static final int PERMISSION_REQUEST = 100;
     //打开文件管理器请求码
     private static final int OPEN_FILE_REQUEST = 200;
+    //打开选择保存目录
+    private static final int REQUEST_SHOW_DIRS = 500;
     //根据条件查询到的userBean数据
     private final String MESSAGE_BEAN = "MESSAGE_BEAN";
     private MessageBeanListAdapter msgAdapter;
@@ -382,6 +388,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String path = GetRealPathFromUriUtil.getPath(this, excelUri);
             Log.e(TAG, "realPath==" + path);
             addUserFromExcel(path);
+        } else if (requestCode == REQUEST_SHOW_DIRS && resultCode == RESULT_SAVE_PATH) {
+            String saveDir = data.getStringExtra(SAVE_PATH);
+            mUserDataViewModel.getAllUserData().observe(this, messageBeans -> {
+                new ExportUsersDateExcel(this, messageBeans, (ok, outputPath) -> {
+                    if (ok) {
+                        Looper.prepare();//加上避免报错：Can't toast on a thread that has not called Looper.prepare()
+
+                        Toast.makeText(MainActivity.this, "已保存至" + outputPath, Toast.LENGTH_LONG).show();
+                        Looper.loop();
+                    } else {
+                        Looper.prepare();
+                        Toast.makeText(MainActivity.this, "导出失败", Toast.LENGTH_LONG).show();
+                        Looper.loop();
+                    }
+                }, saveDir);
+            });
         }
 
     }
@@ -603,19 +625,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivityForResult(intent, OPEN_FILE_REQUEST);
                 break;
             case R.id.exportExcel:
-                mUserDataViewModel.getAllUserData().observe(this, messageBeans -> {
-                    new ExportUsersDateExcel(this, messageBeans, (ok, outputPath) -> {
-                        if (ok) {
-                            Looper.prepare();//加上避免报错：Can't toast on a thread that has not called Looper.prepare()
-                            Toast.makeText(MainActivity.this, "已保存至" + outputPath, Toast.LENGTH_LONG).show();
-                            Looper.loop();
-                        } else {
-                            Looper.prepare();
-                            Toast.makeText(MainActivity.this, "导出失败", Toast.LENGTH_LONG).show();
-                            Looper.loop();
-                        }
-                    });
-                });
+                Intent intentToShowDir = new Intent(this, ShowDirectoryActivity.class);
+                startActivityForResult(intentToShowDir, REQUEST_SHOW_DIRS);
                 break;
         }
         return true;
