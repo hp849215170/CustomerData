@@ -24,7 +24,7 @@ import m.hp.customerdata.adapter.SearchRVAdapter;
 import m.hp.customerdata.entity.UsersDataBean;
 import m.hp.customerdata.model.UserDataViewModel;
 
-public class SearchActivity extends AppCompatActivity implements View.OnClickListener {
+public class SearchActivity extends AppCompatActivity implements View.OnClickListener, MaterialSearchBar.OnSearchActionListener {
 
     private RecyclerView rvSearch;
     private SearchRVAdapter searchRVAdapter;
@@ -43,6 +43,7 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
 
     private void initView() {
         mSearchBar = findViewById(R.id.searchBar);
+        mSearchBar.setOnSearchActionListener(this);
         fabSearch = findViewById(R.id.fab_search);
         fabSearch.setOnClickListener(this);
         rvSearch = findViewById(R.id.rvSearch);
@@ -96,5 +97,20 @@ public class SearchActivity extends AppCompatActivity implements View.OnClickLis
                     .show();
         }
         searchRVAdapter.submitList(usersDataBeanList);
+    }
+
+    @Override
+    public void onSearchStateChanged(boolean enabled) {
+
+    }
+
+    @Override
+    public void onSearchConfirmed(CharSequence text) {
+        searchUserData();
+    }
+
+    @Override
+    public void onButtonClicked(int buttonCode) {
+
     }
 }
