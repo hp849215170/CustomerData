@@ -13,7 +13,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.CustomerData">
-        <activity android:name=".activity.ShowDirectoryActivity"></activity>
+        <activity android:name=".activity.SearchActivity"></activity>
+        <activity android:name=".activity.ShowDirectoryActivity" />
         <activity android:name=".activity.AddUserActivity" />
         <activity android:name=".activity.DetailedActivity" />
         <activity android:name=".activity.MainActivity">

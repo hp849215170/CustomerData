@@ -66,7 +66,7 @@ public class ShowDirectoryActivity extends AppCompatActivity implements View.OnC
         View actionBarView = LayoutInflater.from(this).inflate(R.layout.customacitonbar_layout, null);
         TextView tvTitle = actionBarView.findViewById(R.id.actionBarTile);
         ImageView ivBack = actionBarView.findViewById(R.id.ivBack);
-        ivBack.setVisibility(View.GONE);
+        ivBack.setOnClickListener(this);
         tvTitle.setText("选择要保存的目录");
         ActionBar supportActionBar = getSupportActionBar();
         supportActionBar.setCustomView(actionBarView, layoutParams);
@@ -145,6 +145,9 @@ public class ShowDirectoryActivity extends AppCompatActivity implements View.OnC
                 break;
             case R.id.checkOK:
                 getSavePath();
+                break;
+            case R.id.ivBack:
+                finish();
                 break;
         }
     }

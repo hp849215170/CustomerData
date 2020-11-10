@@ -92,6 +92,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int count_userName;
     //点击到期时间标题次数
     private int count_lastDate;
+    //当前数据库数据集合
+    private List<UsersDataBean> usersDataBeanList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,6 +170,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void initData() {
         mUserDataViewModel.getAllUserData().observe(this, messageBeans -> {
+            //传递当前查询到的数据给usersDataBeanList做数据重复校验
+            usersDataBeanList = messageBeans;
             msgAdapter.submitList(messageBeans);
         });
         msgAdapter.notifyDataSetChanged();
@@ -200,32 +204,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 按名字搜索相关数据
      */
     private void showSearchBar() {
-        mSearchBar.setVisibility(View.VISIBLE);
-        //获取搜索框输入的搜索信息
-        String text = mSearchBar.getText();
-        if (!TextUtils.isEmpty(text)) {
-            //开始查询
-            UsersDataBean userBean = mUserDataViewModel.getDataByUserName(text);
-            //提示用户找到查询结果
-            if (userBean == null) {
-                //没有查到
-                Toast.makeText(MainActivity.this, "未查询到相关信息", Toast.LENGTH_LONG).show();
-            } else {
-                //查到
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-                alertDialog.setTitle("提示").setMessage("找到[" + userBean.getUserName() + "]相关结果，是否查看详细信息？").setPositiveButton("确定", (dialog, which) -> {
-                    //跳转到详细信息页面
-                    Intent intent = new Intent(MainActivity.this, DetailedActivity.class);
-                    intent.putExtra(MESSAGE_BEAN, userBean);
-                    startActivity(intent);
-                    Toast.makeText(MainActivity.this, "查询完毕", Toast.LENGTH_LONG).show();
-                }).setNegativeButton("取消", null).show();
-            }
-
-        } else {
-            Toast.makeText(MainActivity.this, "请在搜索框输入投保人名字", Toast.LENGTH_LONG).show();
-        }
-
+        //跳转到搜索页面
+        Intent intent = new Intent(this, SearchActivity.class);
+        startActivity(intent);
     }
 
     /**
@@ -381,6 +362,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             boolean isAdd = data.getBooleanExtra(IS_ADD, true);
             updateUserData(isAdd);//更新数据
         } else if (requestCode == OPEN_FILE_REQUEST) {
+            //打开文件管理器选择Excel
             if (data == null) {
                 return;
             }
@@ -394,8 +376,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 new ExportUsersDateExcel(this, messageBeans, (ok, outputPath) -> {
                     if (ok) {
                         Looper.prepare();//加上避免报错：Can't toast on a thread that has not called Looper.prepare()
-
-                        Toast.makeText(MainActivity.this, "已保存至" + outputPath, Toast.LENGTH_LONG).show();
+                        new AlertDialog.Builder(this)
+                                .setTitle("导出成功").setMessage("已保存至：" + outputPath)
+                                .setPositiveButton("确定", null)
+                                .show();
                         Looper.loop();
                     } else {
                         Looper.prepare();
@@ -582,15 +566,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void addUserFromExcel(String filePath) {
 
+
         new ReadExcelByPOI(filePath, usersDataBeanList -> {
-            for (int i = 0; i < usersDataBeanList.size(); i++) {
-                //添加用户数据到数据库
-                mUserDataViewModel.insert(usersDataBeanList.get(i));
+            //导入成功数据的条数
+            int successCount = 0;
+            //总共数据数量
+            int total = usersDataBeanList.size();
+            //重复判断
+            boolean equals = false;
+            for (int i = 0; i < total; i++) {
+                //判断当前导入的Excel数据的投保人是否重复
+                for (int j = 0; j < this.usersDataBeanList.size(); j++) {
+                    equals = this.usersDataBeanList.get(j).getUserName().equals(usersDataBeanList.get(i).getUserName());
+                    if (equals) {
+                        Log.d(TAG, "the same is " + usersDataBeanList.get(i).getUserName());
+                        break;
+                    }
+                }
+                if (!equals) {//不重复
+                    //添加用户数据到数据库
+                    mUserDataViewModel.insert(usersDataBeanList.get(i));
+                    successCount++;
+                }
             }
-            runOnUiThread(() -> {
-
-            });
-
+            //解决Can't create handler inside thread Thread[Thread-3,5,main] that has not called Looper.prepare()
+            Looper.prepare();
+            //提示导入Excel结果
+            new AlertDialog.Builder(this)
+                    .setTitle("导入完成").setMessage("成功导入" + successCount + "条信息，" + (total - successCount) + "条信息重复未导入！")
+                    .setPositiveButton("确定", null)
+                    .show();
+            Looper.loop();
         });
         msgAdapter.notifyDataSetChanged();
     }

@@ -102,7 +102,7 @@ public class ReadExcelByPOI {
                 for (int c = 0; c < cellCount; c++) {
                     //获取每个单元格的数据
                     String value = getCellAsString(row, c, formulaEvaluator);
-                    System.out.println("第[" + r + "]行，第[" + c + "]个单元格：" + value);
+                   // System.out.println("第[" + r + "]行，第[" + c + "]个单元格：" + value);
 
                     switch (c) {
                         case 0:

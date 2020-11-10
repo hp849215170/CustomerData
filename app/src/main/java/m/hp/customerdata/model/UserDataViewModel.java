@@ -48,7 +48,7 @@ public class UserDataViewModel extends AndroidViewModel {
      *
      * @param userName
      */
-    public UsersDataBean getDataByUserName(String userName) {
+    public List<UsersDataBean> getDataByUserName(String userName) {
         return mRepository.getDataByName(userName);
     }
 

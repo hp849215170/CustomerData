@@ -28,9 +28,9 @@ public interface UserDataDao {
     @Query("SELECT * FROM users_table")
     LiveData<List<UsersDataBean>> getAllUserData();
 
-    //通过名字查数据
-    @Query("select * from users_table where user_name=:userName")
-    UsersDataBean getDataByUserName(String userName);
+    //通过名字模糊查数据
+    @Query("select * from users_table where user_name like :userName||'%'")
+    List<UsersDataBean> getDataByUserName(String userName);
 
     //更新数据
     @Update

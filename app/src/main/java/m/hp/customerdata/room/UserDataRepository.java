@@ -52,11 +52,6 @@ public class UserDataRepository {
             e.printStackTrace();
         }
         return 0;
-       /* UserDataRoomDatabase.databaseWriteExecutor.execute(() -> {
-            int result;
-            result = mUserDataDao.updateData(bean);
-            Log.e("info-->", "db update result:" + result);
-        });*/
     }
 
     /**
@@ -65,9 +60,9 @@ public class UserDataRepository {
      * @param userName 投保人名字
      * @return
      */
-    public UsersDataBean getDataByName(String userName) {
+    public List<UsersDataBean> getDataByName(String userName) {
         //线程池执行返回结果
-        Future<UsersDataBean> beanFuture = UserDataRoomDatabase.databaseWriteExecutor.submit(() ->
+        Future<List<UsersDataBean>> beanFuture = UserDataRoomDatabase.databaseWriteExecutor.submit(() ->
                 mUserDataDao.getDataByUserName(userName));
         try {
             return beanFuture.get();
