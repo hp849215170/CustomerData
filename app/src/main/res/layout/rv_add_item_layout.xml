@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:layout_weight="0.7"
         android:paddingRight="8dp"
-        android:textSize="20dp"
+        android:textSize="18sp"
         android:paddingBottom="8dp"
         android:gravity="right|bottom" />
 
