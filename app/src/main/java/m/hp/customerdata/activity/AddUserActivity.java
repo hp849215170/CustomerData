@@ -143,14 +143,7 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
                 if (!saveData()) {
                     return;
                 }
-                new AlertDialog.Builder(this)
-                        .setTitle("")
-                        .setPositiveButton("确定", (dialog, which) -> {
-
-                        })
-                        .setMessage("保存成功")
-                        .show();
-
+                finish();
                 break;
             case R.id.ivBack:
                 finish();
@@ -205,6 +198,16 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
         }
         if (!isAdd) {
             hashMap.put("id", String.valueOf(intent_bean.getId()));
+        }
+        if (isAdd&&MainActivity.instance.isTheSame(hashMap.get("投保人："))){
+            new android.app.AlertDialog.Builder(this)
+                    .setTitle("")
+                    .setPositiveButton("确定", (dialog, which) -> {
+
+                    })
+                    .setMessage(hashMap.get("投保人：")+"已存在，未添加！")
+                    .show();
+            return false;
         }
         intent.putExtra(SAVE_DATA, hashMap);
         intent.putExtra(IS_ADD, true);

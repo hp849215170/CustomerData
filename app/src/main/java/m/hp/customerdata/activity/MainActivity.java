@@ -97,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private int count_lastDate;
     //当前数据库数据集合
     private List<UsersDataBean> usersDataBeanList;
+    public static MainActivity instance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initView();
         //检查是否获取到需要的权限
         requestPermissions();
+        instance = this;
     }
 
     /**
@@ -305,6 +307,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //插入数据
         mUserDataViewModel.insert(bean);
         msgAdapter.notifyDataSetChanged();
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("")
+                .setPositiveButton("确定", (dialog, which) -> {
+
+                })
+                .setMessage("添加成功")
+                .show();
+    }
+
+    public boolean isTheSame(String userName) {
+        List<UsersDataBean> usersDataBeanList = this.usersDataBeanList;
+        for (int i = 0; i < usersDataBeanList.size(); i++) {
+            if (usersDataBeanList.get(i).getUserName().equals(userName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -312,7 +331,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void updateUserData(boolean isAdd) {
         UsersDataBean bean = getMessageBean(isAdd);
+
         int i = mUserDataViewModel.updateData(bean);
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("")
+                .setPositiveButton("确定", (dialog, which) -> {
+
+                })
+                .setMessage("保存成功")
+                .show();
         //Log.e("updateData==result===", i + "");
         msgAdapter.notifyDataSetChanged();
     }
@@ -621,17 +648,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             //总共数据数量
             int total = usersDataBeanList.size();
             //重复判断
-            boolean equals = false;
             for (int i = 0; i < total; i++) {
                 //判断当前导入的Excel数据的投保人是否重复
-                for (int j = 0; j < this.usersDataBeanList.size(); j++) {
-                    equals = this.usersDataBeanList.get(j).getUserName().equals(usersDataBeanList.get(i).getUserName());
-                    if (equals) {
-                        Log.d(TAG, "the same is " + usersDataBeanList.get(i).getUserName());
-                        break;
-                    }
-                }
-                if (!equals) {//不重复
+                boolean theSame = isTheSame(usersDataBeanList.get(i).getUserName());
+                if (!theSame) {//不重复
                     //添加用户数据到数据库
                     mUserDataViewModel.insert(usersDataBeanList.get(i));
                     successCount++;
