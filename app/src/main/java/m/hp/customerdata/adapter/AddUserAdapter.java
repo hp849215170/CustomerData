@@ -28,6 +28,7 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
     private static final String TAG = "AddUserAdapter";
     private HashMap<String, String> hashMap = new HashMap<>();//存放item数据
     public static AddUserAdapter instance;
+    public boolean isEnable = true;
 
     public AddUserAdapter(Context mContext, List<DetailedMsgBean> mList) {
         this.mContext = mContext;
@@ -101,7 +102,6 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
             holder.et_column_value.setText(mList.get(position).getDetailedMessage());
         }
     }
-
 
     private void addTextToList(int position, String s) {
         String title = mList.get(position).getDetailedTitle();

@@ -1,5 +1,7 @@
 package m.hp.customerdata.activity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -141,7 +143,14 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
                 if (!saveData()) {
                     return;
                 }
-                finish();
+                new AlertDialog.Builder(this)
+                        .setTitle("")
+                        .setPositiveButton("确定", (dialog, which) -> {
+
+                        })
+                        .setMessage("保存成功")
+                        .show();
+
                 break;
             case R.id.ivBack:
                 finish();

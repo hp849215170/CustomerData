@@ -83,11 +83,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String USER_BEAN = "USER_BEAN";
     private FloatingActionButton fab_add;
     private FloatingActionButton fab_search;
+    private FloatingActionButton fab_delete;
     private MaterialSearchBar mSearchBar;
     //投保人标题
     private TextView tv_userName;
     //到期时间标题
     private TextView tv_lastDate;
+    //全选标题
+    private TextView tvCheckAll;
     //点击投保人标题次数
     private int count_userName;
     //点击到期时间标题次数
@@ -130,6 +133,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      * 初始化控件
      */
     private void initView() {
+        //全选标题
+        tvCheckAll = findViewById(R.id.checkAll);
+        tvCheckAll.setOnClickListener(this);
         //到期时间标题
         tv_lastDate = findViewById(R.id.lastDate);
         tv_lastDate.setOnClickListener(this);
@@ -150,9 +156,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //初始化FloatingActionButton控件
         fab_add = findViewById(R.id.fab_add);
         fab_search = findViewById(R.id.fab_search);
+        fab_delete = findViewById(R.id.fab_delete);
         //监听FloatingActionButton点击
         fab_search.setOnClickListener(this);
         fab_add.setOnClickListener(this);
+        fab_delete.setOnClickListener(this);
         //MaterialSearchBar搜索框
         mSearchBar = findViewById(R.id.searchBar);
     }
@@ -197,7 +205,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //按时间排序功能
                 sortByDate();
                 break;
+            case R.id.fab_delete:
+                deleteUserByFab();
+                break;
+            case R.id.checkAll:
+                if (tvCheckAll.getText().toString().equals("全选")) {
+                    MessageBeanListAdapter.instance.checkAll(true);
+                    tvCheckAll.setText("全不选");
+                } else {
+                    MessageBeanListAdapter.instance.checkAll(false);
+                    tvCheckAll.setText("全选");
+                }
+                break;
         }
+    }
+
+    /**
+     * 通过名字删除
+     */
+    private void deleteUserByFab() {
+
+        new AlertDialog.Builder(this)
+                .setTitle("警告")
+                .setMessage("数据不可恢复，确定要删除吗？")
+                .setPositiveButton("确定", (dialog, which) -> {
+                    List<UsersDataBean> checkedUsers = MessageBeanListAdapter.instance.getCheckedUsers();
+                    for (int i = 0; i < checkedUsers.size(); i++) {
+                        mUserDataViewModel.delByName(checkedUsers.get(i).getUserName());
+                    }
+                    Toast.makeText(MainActivity.this, "删除成功", Toast.LENGTH_LONG).show();
+                })
+                .setNegativeButton("取消", null)
+                .show();
     }
 
     /**
@@ -401,7 +440,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case 1://修改按钮
+            case 1://修改菜单
                 Intent intent = new Intent(this, AddUserActivity.class);
                 UsersDataBean bean = item.getIntent().getParcelableExtra(USER_BEAN);
                 Bundle bundle = new Bundle();
@@ -410,16 +449,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intent.putExtras(bundle);
                 startActivityForResult(intent, MODIFY_REQUEST);
                 break;
-            case 2://删除按钮
+            case 2://删除菜单
                 String userName = item.getIntent().getStringExtra(USER_NAME);
-                AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
-                alertDialog.setTitle("警告").setMessage("数据不可恢复，确定要删除吗？").setPositiveButton("确定", (dialog, which) -> {
-                    mUserDataViewModel.delByName(userName);
-                    Toast.makeText(MainActivity.this, "删除成功", Toast.LENGTH_LONG).show();
-                }).setNegativeButton("取消", null).show();
+                deleteUserByName(userName);
+                break;
+            case 3://编辑菜单
+                tvCheckAll.setVisibility(View.VISIBLE);
+                MessageBeanListAdapter.instance.isVisible = true;
+                fab_delete.setVisibility(View.VISIBLE);
+                msgAdapter.notifyDataSetChanged();
                 break;
         }
         return true;
+    }
+
+    /**
+     * 通过名字删除
+     *
+     * @param userName
+     */
+    private void deleteUserByName(String userName) {
+        new AlertDialog.Builder(this)
+                .setTitle("警告")
+                .setMessage("数据不可恢复，确定要删除吗？")
+                .setPositiveButton("确定", (dialog, which) -> {
+                    mUserDataViewModel.delByName(userName);
+                    Toast.makeText(MainActivity.this, "删除成功", Toast.LENGTH_LONG).show();
+                })
+                .setNegativeButton("取消", null)
+                .show();
     }
 
     /**
@@ -487,16 +545,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .build();
 
         notificationManagerCompat.notify(SUMMARY_ID, summaryNotification);
-    }
-
-    @Override
-    public void onBackPressed() {
-        //关闭搜索框
-        if (mSearchBar.isShown()) {
-            mSearchBar.setVisibility(View.INVISIBLE);
-            return;
-        }
-        super.onBackPressed();
     }
 
     @Override
@@ -636,5 +684,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
         return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (tvCheckAll.getVisibility() == View.VISIBLE) {
+            tvCheckAll.setVisibility(View.GONE);
+            fab_delete.setVisibility(View.GONE);
+            MessageBeanListAdapter.instance.isVisible = false;
+            msgAdapter.notifyDataSetChanged();
+            return;
+        }
+        super.onBackPressed();
     }
 }

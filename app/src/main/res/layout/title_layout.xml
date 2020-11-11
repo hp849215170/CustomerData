@@ -3,8 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
     android:layout_marginTop="1dp"
+    android:orientation="horizontal"
     android:paddingTop="8dp"
     android:paddingBottom="8dp"
     tools:context=".activity.MainActivity">
@@ -12,7 +12,7 @@
     <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
+        android:layout_weight="0.5"
         android:gravity="center"
         android:text="序号"
         android:textColor="@color/black"
@@ -28,8 +28,8 @@
         android:textSize="18sp" />
 
     <TextView
-        android:layout_width="0dp"
         android:id="@+id/userName"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
@@ -39,13 +39,25 @@
 
 
     <TextView
+        android:id="@+id/lastDate"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:gravity="center"
         android:text="到期时间"
-        android:id="@+id/lastDate"
         android:textColor="@color/black"
         android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/checkAll"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.5"
+        android:gravity="center"
+        android:text="全选"
+        android:visibility="gone"
+        android:textColor="@color/black"
+        android:textSize="18sp" />
+
 
 </LinearLayout>

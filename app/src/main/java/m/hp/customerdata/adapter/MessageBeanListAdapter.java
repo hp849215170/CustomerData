@@ -2,11 +2,11 @@ package m.hp.customerdata.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,9 +14,14 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+
 import m.hp.customerdata.R;
 import m.hp.customerdata.activity.DetailedActivity;
 import m.hp.customerdata.entity.UsersDataBean;
+import m.hp.customerdata.view.MyCheckBox;
 
 public class MessageBeanListAdapter extends ListAdapter<UsersDataBean, MessageBeanListAdapter.MessageBeanViewHolder> {
 
@@ -26,11 +31,18 @@ public class MessageBeanListAdapter extends ListAdapter<UsersDataBean, MessageBe
     private final String MESSAGE_BEAN = "MESSAGE_BEAN";
     private final String USER_NAME = "USER_NAME";
     private static final String USER_BEAN = "USER_BEAN";
+    private HashMap<UsersDataBean, Boolean> checkMap;
+    public static MessageBeanListAdapter instance;
+    private static List<UsersDataBean> usersDataBeanList;
+    public boolean isVisible;
 
     public MessageBeanListAdapter(@NonNull DiffUtil.ItemCallback<UsersDataBean> diffCallback, Context mContext) {
         super(diffCallback);
         mInflater = LayoutInflater.from(mContext);
         this.mContext = mContext;
+        checkMap = new HashMap<>();
+        usersDataBeanList = new ArrayList<>();
+        instance = this;
     }
 
     @NonNull
@@ -51,15 +63,32 @@ public class MessageBeanListAdapter extends ListAdapter<UsersDataBean, MessageBe
         holder.tv_car_number.setText(carNumber);
         holder.tv_user_name.setText(userName);
         holder.tv_last_date.setText(lastDate);
+        //显示和隐藏
+        if (isVisible) {
+            holder.myCheckBox.setVisibility(View.VISIBLE);
+        }else {
+            holder.myCheckBox.setVisibility(View.GONE);
+        }
+        //检测已勾选的item
+        if (checkMap.containsKey(usersDataBean)) {
+            if (checkMap.get(usersDataBean)) {
+                holder.myCheckBox.setChecked(true);
+            } else {
+                holder.myCheckBox.setChecked(false);
+            }
+        } else {
+            holder.myCheckBox.setChecked(false);
+        }
     }
 
-    class MessageBeanViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnCreateContextMenuListener {
+    class MessageBeanViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnCreateContextMenuListener, CompoundButton.OnCheckedChangeListener {
 
 
         private TextView tv_serial_number;
         private TextView tv_user_name;
         private TextView tv_car_number;
         private TextView tv_last_date;
+        private MyCheckBox myCheckBox;
 
         public MessageBeanViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -67,6 +96,8 @@ public class MessageBeanListAdapter extends ListAdapter<UsersDataBean, MessageBe
             tv_user_name = itemView.findViewById(R.id.user_name);
             tv_car_number = itemView.findViewById(R.id.car_number);
             tv_last_date = itemView.findViewById(R.id.last_date);
+            myCheckBox = itemView.findViewById(R.id.checkUser);
+            myCheckBox.setOnCheckedChangeListener(this);
             //点击跳转信息详情
             itemView.setOnClickListener(this);
             //长按弹出操作菜单
@@ -77,11 +108,9 @@ public class MessageBeanListAdapter extends ListAdapter<UsersDataBean, MessageBe
         public void onClick(View v) {
             //跳转到详细信息界面
             UsersDataBean usersDataBean = getItem(getAdapterPosition());
-            Log.d(tag, "messageBean==" + usersDataBean.getUserName());
             Intent intent = new Intent(mContext, DetailedActivity.class);
             intent.putExtra(MESSAGE_BEAN, usersDataBean);
             mContext.startActivity(intent);
-
         }
 
 
@@ -96,21 +125,67 @@ public class MessageBeanListAdapter extends ListAdapter<UsersDataBean, MessageBe
             UsersDataBean bean = getItem(position);
             Intent intentBean = new Intent();
             intentBean.putExtra(USER_BEAN, bean);
+            menu.add(0, 3, 0, "编辑");
             menu.add(0, 1, 0, "修改").setIntent(intentBean);
             menu.add(0, 2, 0, "删除").setIntent(intent);
         }
+
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+            UsersDataBean usersDataBean = getItem(getAdapterPosition());
+
+            if (isChecked) {
+                checkMap.put(usersDataBean, true);
+                usersDataBeanList.add(usersDataBean);
+            } else {
+                usersDataBeanList.remove(usersDataBean);
+                checkMap.remove(usersDataBean);
+            }
+        }
     }
+
+    /**
+     * 是否全选
+     *
+     * @param checkedAll
+     */
+    public void checkAll(boolean checkedAll) {
+        List<UsersDataBean> currentList = getCurrentList();
+        if (checkedAll) {
+            for (int i = 0; i < currentList.size(); i++) {
+                checkMap.put(currentList.get(i), true);
+            }
+        } else {
+            for (int i = 0; i < currentList.size(); i++) {
+                checkMap.put(currentList.get(i), false);
+            }
+        }
+        notifyDataSetChanged();
+    }
+
 
     public static class MessageBeanDiff extends DiffUtil.ItemCallback<UsersDataBean> {
 
         @Override
         public boolean areItemsTheSame(@NonNull UsersDataBean oldItem, @NonNull UsersDataBean newItem) {
+            usersDataBeanList.clear();
             return oldItem == newItem;
         }
 
         @Override
         public boolean areContentsTheSame(@NonNull UsersDataBean oldItem, @NonNull UsersDataBean newItem) {
+            usersDataBeanList.clear();
             return oldItem.getUserName().equals(newItem.getUserName());
         }
+    }
+
+    /**
+     * 获取被勾选的客户数据
+     *
+     * @return
+     */
+    public List<UsersDataBean> getCheckedUsers() {
+        return usersDataBeanList;
     }
 }
