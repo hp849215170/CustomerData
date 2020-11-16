@@ -73,10 +73,10 @@ public class ExportUsersDateExcel {
                 if (r == 0) {
                     //标题栏
                     row.createCell(c).setCellValue(titles[c]);
-                } else {
-                    //数据栏
-                    row.createCell(c).setCellValue(value[c]);
                 }
+                //数据栏
+                row.createCell(c).setCellValue(value[c]);
+
             }
         }
         //导出Excel的文件名

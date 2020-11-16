@@ -210,7 +210,11 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
             return false;
         }
         intent.putExtra(SAVE_DATA, hashMap);
-        intent.putExtra(IS_ADD, true);
+        if (isAdd){
+            intent.putExtra(IS_ADD, true);
+        }else {
+            intent.putExtra(IS_ADD, false);
+        }
         intent.putExtras(intent);
         //Log.d(TAG, "重新绑定数据====" + intent);
         setResult(RESULT_SET_OK, intent);

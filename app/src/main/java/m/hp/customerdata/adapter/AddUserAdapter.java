@@ -54,11 +54,6 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-        /*//如果标题名字为id不显示，只用来作为更新的条件
-        if (mList.get(position).getDetailedTitle().equals("id")) {
-            holder.tv_column_name.setVisibility(View.GONE);
-            holder.et_column_value.setVisibility(View.GONE);
-        }*/
 
         holder.tv_column_name.setText(mList.get(position).getDetailedTitle());
 
@@ -78,8 +73,9 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                //光标移动到文字最后面
-                holder.et_column_value.setSelection(s.toString().length());
+                //光标移动到当前输入的文字后面
+                //System.out.println("getSelectionEnd---->"+holder.et_column_value.getSelectionEnd());
+                holder.et_column_value.setSelection(holder.et_column_value.getSelectionEnd());
             }
 
             @Override
@@ -114,7 +110,7 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
         if (title.equals("投保人：")) {
             holder.et_column_value.setInputType(InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
         }
-        if (title.equals("车牌：")) {
+        if (title.equals("车牌号：")) {
             holder.et_column_value.setInputType(InputType.TYPE_CLASS_TEXT);
         }
         if (title.equals("终保时间：")) {
@@ -149,6 +145,12 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
         }
         if (title.equals("返现：")) {
             holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
+        }
+        if (title.equals("客户来源：")) {
+            holder.et_column_value.setInputType(InputType.TYPE_CLASS_TEXT);
+        }
+        if (title.equals("备注：")) {
+            holder.et_column_value.setInputType(InputType.TYPE_CLASS_TEXT);
         }
     }
 
