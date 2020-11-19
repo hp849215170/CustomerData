@@ -53,6 +53,29 @@ public class UsersDataBean implements Parcelable, Comparable<UsersDataBean> {
     @Ignore
     List<UsersDataBean> usersDataBeanList;
 
+    public UsersDataBean() {
+    }
+
+    public UsersDataBean(String carNumber, @NonNull String userName, String lastDate, String buyTime,
+                         String carSerialNumber, String phone, double syPrice, double jqPrice, double jcPrice,
+                         double syRebate, double jqRebate, double jcRebate, double cashBack, String type, String remarks) {
+        this.carNumber = carNumber;
+        this.userName = userName;
+        this.lastDate = lastDate;
+        this.buyTime = buyTime;
+        this.carSerialNumber = carSerialNumber;
+        this.phone = phone;
+        this.syPrice = syPrice;
+        this.jqPrice = jqPrice;
+        this.jcPrice = jcPrice;
+        this.syRebate = syRebate;
+        this.jqRebate = jqRebate;
+        this.jcRebate = jcRebate;
+        this.cashBack = cashBack;
+        this.type = type;
+        this.remarks = remarks;
+    }
+
     public List<UsersDataBean> getUsersDataBeanList() {
         return usersDataBeanList;
     }

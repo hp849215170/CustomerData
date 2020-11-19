@@ -33,9 +33,13 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mancj.materialsearchbar.MaterialSearchBar;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -44,7 +48,9 @@ import java.util.List;
 
 import m.hp.customerdata.R;
 import m.hp.customerdata.adapter.MessageBeanListAdapter;
+import m.hp.customerdata.entity.UserJsonRoot;
 import m.hp.customerdata.entity.UsersDataBean;
+import m.hp.customerdata.http.ConnectMyServer;
 import m.hp.customerdata.model.UserDataViewModel;
 import m.hp.customerdata.poiexcel.ExportUsersDateExcel;
 import m.hp.customerdata.poiexcel.ReadExcelByPOI;
@@ -691,6 +697,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
+            //从服务器下载数据
+            case R.id.downloadServer:
+                downloadServer();
+                break;
+            //上传数据到服务器
+            case R.id.uploadServer:
+                uploadServer();
+                break;
+            //导入Excel数据
             case R.id.addFromExcel:
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.setType("*/*");
@@ -699,12 +714,109 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 startActivityForResult(intent, OPEN_FILE_REQUEST);
                 break;
+            //导出Excel数据
             case R.id.exportExcel:
                 Intent intentToShowDir = new Intent(this, ShowDirectoryActivity.class);
                 startActivityForResult(intentToShowDir, REQUEST_SHOW_DIRS);
                 break;
         }
         return true;
+    }
+
+    /**
+     * 从服务器下载数据
+     */
+    private void downloadServer() {
+
+        new Thread(() -> {
+            ConnectMyServer connectMyServer = new ConnectMyServer();
+            //发送json请求数据给服务器
+            UserJsonRoot userJsonRoot = new UserJsonRoot();
+            userJsonRoot.setOption("findAll");
+            userJsonRoot.setUserList(null);
+            String jsonString = JSONArray.toJSONString(userJsonRoot);
+            //获取服务器返回的json数据
+            String getData = connectMyServer.postData(jsonString);
+
+            Log.d("getData", "服务器返回的数据----" + getData);
+            if (TextUtils.isEmpty(getData)) {
+                return;
+            }
+            //解析json数据
+            JSONObject jsonObject = JSON.parseObject(getData);
+            JSONArray jsonArray = jsonObject.getJSONArray("userList");
+
+            String downloadMsg = "";
+            boolean thSame = false;
+            List<UsersDataBean> userList = new ArrayList<>();
+            userList.clear();
+            for (int i = 0; i < jsonArray.size(); i++) {
+                String buyTime = jsonArray.getJSONObject(i).getString("buyTime");
+                String carNumber = jsonArray.getJSONObject(i).getString("carNumber");
+                String carSerialNumber = jsonArray.getJSONObject(i).getString("carSerialNumber");
+                String lastDate = jsonArray.getJSONObject(i).getString("lastDate");
+                String type = jsonArray.getJSONObject(i).getString("type");
+                String userName = jsonArray.getJSONObject(i).getString("userName");
+                String phone = jsonArray.getJSONObject(i).getString("phone");
+                String remark = jsonArray.getJSONObject(i).getString("remarks");
+                Double cashBack = jsonArray.getJSONObject(i).getDouble("cashBack");
+                Double jcPrice = jsonArray.getJSONObject(i).getDouble("jcPrice");
+                Double jcRebate = jsonArray.getJSONObject(i).getDouble("jcRebate");
+                Double jqPrice = jsonArray.getJSONObject(i).getDouble("jqPrice");
+                Double jqRebate = jsonArray.getJSONObject(i).getDouble("jqRebate");
+                Double syPrice = jsonArray.getJSONObject(i).getDouble("syPrice");
+                Double syRebate = jsonArray.getJSONObject(i).getDouble("syRebate");
+
+                for (int j = 0; j < usersDataBeanList.size(); j++) {
+                    if (carSerialNumber.equals(usersDataBeanList.get(j).getCarSerialNumber())) {
+                        thSame = true;
+                        break;
+                    } else {
+                        thSame = false;
+                    }
+                }
+                if (!thSame) {
+                    UsersDataBean user = new UsersDataBean(carNumber, userName, lastDate, buyTime, carSerialNumber, phone, syPrice, jqPrice, jcPrice, syRebate, jqRebate, jcRebate, cashBack, type, remark);
+                    userList.add(user);
+                }
+
+            }
+            int count = 0;
+            for (int i = 0; i < userList.size(); i++) {
+                mUserDataViewModel.insert(userList.get(i));
+                count++;
+            }
+            Looper.prepare();
+            if (count == 0) {
+                new AlertDialog.Builder(this).setMessage("没有发现新数据").setPositiveButton("确定", null).show();
+
+            } else {
+                new AlertDialog.Builder(this).setMessage("更新了" + count + "条数据").setPositiveButton("确定", null).show();
+            }
+            Looper.loop();
+            runOnUiThread(() -> msgAdapter.notifyDataSetChanged());
+
+        }).start();
+    }
+
+    /**
+     * 上传数据到服务器
+     */
+    private void uploadServer() {
+        new Thread(() -> {
+            ConnectMyServer connectMyServer = new ConnectMyServer();
+            UserJsonRoot userJsonRoot = new UserJsonRoot();
+            userJsonRoot.setOption("insert");
+            userJsonRoot.setUserList(usersDataBeanList);
+            String jsonString = JSONArray.toJSONString(userJsonRoot);
+            String getData = connectMyServer.postData(jsonString);
+
+            Log.d("getData", "服务器返回的数据----" + getData);
+            // Log.d("jsonString", "jsonString----" + jsonString);
+            Looper.prepare();
+            new AlertDialog.Builder(this).setMessage(getData).setPositiveButton("确定", null).show();
+            Looper.loop();
+        }).start();
     }
 
     @Override
