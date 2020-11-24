@@ -13,8 +13,8 @@ import m.hp.customerdata.dao.UserDataDao;
 import m.hp.customerdata.entity.UsersDataBean;
 
 public class UserDataRepository {
-    private UserDataDao mUserDataDao;
-    private LiveData<List<UsersDataBean>> mAllUserData;
+    private final UserDataDao mUserDataDao;
+    private final LiveData<List<UsersDataBean>> mAllUserData;
 
     public UserDataRepository(Application application) {
         //获取数据库连接
@@ -35,30 +35,25 @@ public class UserDataRepository {
 
     //按名字删除数据
     public void delByName(String username) {
-        UserDataRoomDatabase.databaseWriteExecutor.execute(() -> {
-            mUserDataDao.delByName(username);
-        });
+        UserDataRoomDatabase.databaseWriteExecutor.execute(() -> mUserDataDao.delByName(username));
     }
 
     //更新数据
-    public int updateData(UsersDataBean bean) {
+    public void updateData(UsersDataBean bean) {
         Future<Integer> result_future = UserDataRoomDatabase.databaseWriteExecutor.submit((Callable<Integer>) () ->
                 mUserDataDao.updateData(bean));
         try {
-            return result_future.get();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+            result_future.get();
+        } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
-        return 0;
     }
 
     /**
      * 通过名字查询
      *
      * @param userName 投保人名字
-     * @return
+     * @return 通过投保人姓名查询到的信息
      */
     public List<UsersDataBean> getDataByName(String userName) {
         //线程池执行返回结果
@@ -66,9 +61,7 @@ public class UserDataRepository {
                 mUserDataDao.getDataByUserName(userName));
         try {
             return beanFuture.get();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
         return null;
@@ -77,17 +70,15 @@ public class UserDataRepository {
     /**
      * 查终保日期数据
      *
-     * @param lastDate
-     * @return
+     * @param lastDate 终保日期
+     * @return 通过终保日期查询到的客户信息
      */
     public List<UsersDataBean> getLastDateUsers(String lastDate) {
         Future<List<UsersDataBean>> beanFuture = UserDataRoomDatabase.databaseWriteExecutor.submit(() ->
                 mUserDataDao.getLastDateUsers(lastDate));
         try {
             return beanFuture.get();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }
         return null;

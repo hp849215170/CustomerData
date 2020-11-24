@@ -1,5 +1,6 @@
 package m.hp.customerdata.poiexcel;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
@@ -27,8 +28,8 @@ import m.hp.customerdata.entity.UsersDataBean;
  */
 public class ReadExcelByPOI {
 
-    private String excelFile;
-    private ReadFinish finishCallback;
+    private final String excelFile;
+    private final ReadFinish finishCallback;
 
     public ReadExcelByPOI(String excelFile, ReadFinish finishCallback) {
         this.excelFile = excelFile;
@@ -56,12 +57,11 @@ public class ReadExcelByPOI {
     /**
      * 解析Excel
      *
-     * @param excelFile
-     * @return
+     * @param excelFile Excel文件名
+     * @return 读取到的客户数据集合
      */
     public List<UsersDataBean> readExcel(String excelFile) {
         File file = new File(excelFile);
-
         if (!file.exists()) {
             Log.d("readExcel", "没有找到文件");
             return null;
@@ -70,9 +70,9 @@ public class ReadExcelByPOI {
         String extString = excelFile.substring(excelFile.indexOf("."));
         try {
             InputStream stream = new FileInputStream(file);
-            int rowCount = 0;
-            Sheet sheet = null;
-            FormulaEvaluator formulaEvaluator = null;
+            int rowCount;
+            Sheet sheet;
+            FormulaEvaluator formulaEvaluator;
             if (extString.equals(".xls")) {//xls格式Excel
                 HSSFWorkbook hssfWorkbook = new HSSFWorkbook(stream);
                 sheet = hssfWorkbook.getSheetAt(0);
@@ -102,7 +102,7 @@ public class ReadExcelByPOI {
                 for (int c = 0; c < cellCount; c++) {
                     //获取每个单元格的数据
                     String value = getCellAsString(row, c, formulaEvaluator);
-                   // System.out.println("第[" + r + "]行，第[" + c + "]个单元格：" + value);
+                    // System.out.println("第[" + r + "]行，第[" + c + "]个单元格：" + value);
 
                     switch (c) {
                         case 0:
@@ -124,25 +124,25 @@ public class ReadExcelByPOI {
                             usersDataBean.setPhone(value);
                             break;
                         case 6:
-                            usersDataBean.setSyPrice(Double.valueOf(value));
+                            usersDataBean.setSyPrice(Double.parseDouble(value));
                             break;
                         case 7:
-                            usersDataBean.setJqPrice(Double.valueOf(value));
+                            usersDataBean.setJqPrice(Double.parseDouble(value));
                             break;
                         case 8:
-                            usersDataBean.setJcPrice(Double.valueOf(value));
+                            usersDataBean.setJcPrice(Double.parseDouble(value));
                             break;
                         case 9:
-                            usersDataBean.setSyRebate(Double.valueOf(value));
+                            usersDataBean.setSyRebate(Double.parseDouble(value));
                             break;
                         case 10:
-                            usersDataBean.setJqRebate(Double.valueOf(value));
+                            usersDataBean.setJqRebate(Double.parseDouble(value));
                             break;
                         case 11:
-                            usersDataBean.setJcRebate(Double.valueOf(value));
+                            usersDataBean.setJcRebate(Double.parseDouble(value));
                             break;
                         case 12:
-                            usersDataBean.setCashBack(Double.valueOf(value));
+                            usersDataBean.setCashBack(Double.parseDouble(value));
                             break;
                         case 13:
                             usersDataBean.setType(value);
@@ -168,7 +168,7 @@ public class ReadExcelByPOI {
      *
      * @param row              行数
      * @param c                单元格
-     * @param formulaEvaluator
+     * @param formulaEvaluator 循环器
      * @return 以字符串保存的单元格数据
      */
     private String getCellAsString(Row row, int c, FormulaEvaluator formulaEvaluator) {
@@ -189,7 +189,7 @@ public class ReadExcelByPOI {
                 //判断单元格数值类型是否是日期
                 if (HSSFDateUtil.isCellDateFormatted(cell)) {
                     double date = cellValue.getNumberValue();
-                    SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+                    @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
                     value = format.format(HSSFDateUtil.getJavaDate(date));
                 } else {
                     value = "" + decimalFormat.format(numberValue);

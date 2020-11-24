@@ -25,16 +25,16 @@ import m.hp.customerdata.view.MyCheckBox;
 
 public class MessageBeanListAdapter extends ListAdapter<UsersDataBean, MessageBeanListAdapter.MessageBeanViewHolder> {
 
-    private Context mContext;
-    private LayoutInflater mInflater;
-    private String tag = getClass().getName();
-    private final String MESSAGE_BEAN = "MESSAGE_BEAN";
-    private final String USER_NAME = "USER_NAME";
+    private final Context mContext;
+    private final LayoutInflater mInflater;
     private static final String USER_BEAN = "USER_BEAN";
-    private HashMap<UsersDataBean, Boolean> checkMap;
-    public static MessageBeanListAdapter instance;
+    private final HashMap<UsersDataBean, Boolean> checkMap;
     private static List<UsersDataBean> usersDataBeanList;
-    public boolean isVisible;
+    private boolean isVisible;
+
+    public void setCheckBoxIsVisible(boolean isVisible) {
+        this.isVisible = isVisible;
+    }
 
     public MessageBeanListAdapter(@NonNull DiffUtil.ItemCallback<UsersDataBean> diffCallback, Context mContext) {
         super(diffCallback);
@@ -42,7 +42,6 @@ public class MessageBeanListAdapter extends ListAdapter<UsersDataBean, MessageBe
         this.mContext = mContext;
         checkMap = new HashMap<>();
         usersDataBeanList = new ArrayList<>();
-        instance = this;
     }
 
     @NonNull
@@ -66,16 +65,12 @@ public class MessageBeanListAdapter extends ListAdapter<UsersDataBean, MessageBe
         //显示和隐藏
         if (isVisible) {
             holder.myCheckBox.setVisibility(View.VISIBLE);
-        }else {
+        } else {
             holder.myCheckBox.setVisibility(View.GONE);
         }
         //检测已勾选的item
         if (checkMap.containsKey(usersDataBean)) {
-            if (checkMap.get(usersDataBean)) {
-                holder.myCheckBox.setChecked(true);
-            } else {
-                holder.myCheckBox.setChecked(false);
-            }
+            holder.myCheckBox.setChecked(checkMap.get(usersDataBean));
         } else {
             holder.myCheckBox.setChecked(false);
         }
@@ -84,11 +79,11 @@ public class MessageBeanListAdapter extends ListAdapter<UsersDataBean, MessageBe
     class MessageBeanViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnCreateContextMenuListener, CompoundButton.OnCheckedChangeListener {
 
 
-        private TextView tv_serial_number;
-        private TextView tv_user_name;
-        private TextView tv_car_number;
-        private TextView tv_last_date;
-        private MyCheckBox myCheckBox;
+        private final TextView tv_serial_number;
+        private final TextView tv_user_name;
+        private final TextView tv_car_number;
+        private final TextView tv_last_date;
+        private final MyCheckBox myCheckBox;
 
         public MessageBeanViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -109,6 +104,7 @@ public class MessageBeanListAdapter extends ListAdapter<UsersDataBean, MessageBe
             //跳转到详细信息界面
             UsersDataBean usersDataBean = getItem(getAdapterPosition());
             Intent intent = new Intent(mContext, DetailedActivity.class);
+            String MESSAGE_BEAN = "MESSAGE_BEAN";
             intent.putExtra(MESSAGE_BEAN, usersDataBean);
             mContext.startActivity(intent);
         }
@@ -120,6 +116,7 @@ public class MessageBeanListAdapter extends ListAdapter<UsersDataBean, MessageBe
 
             String userName = getItem(position).getUserName();
             Intent intent = new Intent();
+            String USER_NAME = "USER_NAME";
             intent.putExtra(USER_NAME, userName);
 
             UsersDataBean bean = getItem(position);
@@ -148,7 +145,7 @@ public class MessageBeanListAdapter extends ListAdapter<UsersDataBean, MessageBe
     /**
      * 是否全选
      *
-     * @param checkedAll
+     * @param checkedAll 是否全选
      */
     public void checkAll(boolean checkedAll) {
         List<UsersDataBean> currentList = getCurrentList();
@@ -183,7 +180,7 @@ public class MessageBeanListAdapter extends ListAdapter<UsersDataBean, MessageBe
     /**
      * 获取被勾选的客户数据
      *
-     * @return
+     * @return 被勾选的数据
      */
     public List<UsersDataBean> getCheckedUsers() {
         return usersDataBeanList;

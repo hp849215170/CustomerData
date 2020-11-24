@@ -17,7 +17,7 @@
         android:theme="@style/Theme.CustomerData">
         <activity android:name=".activity.SearchActivity"></activity>
         <activity android:name=".activity.ShowDirectoryActivity" />
-        <activity android:name=".activity.AddUserActivity" />
+        <activity android:name=".activity.AddUserActivity" android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity android:name=".activity.DetailedActivity" />
         <activity android:name=".activity.MainActivity">
             <intent-filter>

@@ -22,7 +22,7 @@ public interface UserDataDao {
 
     //根据名字删除数据
     @Query("delete from users_table where user_name = :username")
-    int delByName(String username);
+    void delByName(String username);
 
     //查询users_table表中所有数据
     @Query("SELECT * FROM users_table")

@@ -19,13 +19,10 @@ import m.hp.customerdata.entity.DirectoryBean;
 
 public class ShowDirectoryAdapter extends RecyclerView.Adapter<ShowDirectoryAdapter.MyViewHolder> {
 
-    private Context mContext;
-    private List<DirectoryBean> mList;
-    private LayoutInflater mInflater;
-    private String tag = getClass().getName();
+    private final List<DirectoryBean> mList;
+    private final LayoutInflater mInflater;
 
     public ShowDirectoryAdapter(Context mContext, List<DirectoryBean> mList) {
-        this.mContext = mContext;
         this.mList = mList;
         mInflater = LayoutInflater.from(mContext);
     }
@@ -41,7 +38,6 @@ public class ShowDirectoryAdapter extends RecyclerView.Adapter<ShowDirectoryAdap
 
         String dirName = mList.get(position).getDirName();
         String lastModifyTime = mList.get(position).getLastModifyTime();
-        /* int folderImg = mList.get(position).getFolderImgId();*/
         holder.tvDirName.setText(dirName);
         holder.tvLastModifyName.setText(lastModifyTime);
         holder.ivDirImg.setImageResource(R.drawable.ic_folder);
@@ -54,10 +50,10 @@ public class ShowDirectoryAdapter extends RecyclerView.Adapter<ShowDirectoryAdap
 
     class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-        private TextView tvDirName;
-        private TextView tvLastModifyName;
+        private final TextView tvDirName;
+        private final TextView tvLastModifyName;
 
-        private ImageView ivDirImg;
+        private final ImageView ivDirImg;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);

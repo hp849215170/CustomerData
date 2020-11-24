@@ -1,5 +1,6 @@
 package m.hp.customerdata.poiexcel;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import org.apache.poi.ss.usermodel.Row;
@@ -19,18 +20,14 @@ import m.hp.customerdata.entity.UsersDataBean;
 
 public class ExportUsersDateExcel {
     //标题
-    private String[] titles = {"车牌号码", "投保人", "终保时间", "承保时间", "车架号", "手机号", "商业险", "交强险", "驾乘险", "商业险费率", "交强险费率", "驾乘险费率", "返现", "客户来源", "备注"};
-    //数据
-    private String[] value;
-    private List<UsersDataBean> usersDataBeanList;
-    private Context context;
-    private ExportFinish exportFinish;
+    private final String[] titles = {"车牌号码", "投保人", "终保时间", "承保时间", "车架号", "手机号", "商业险", "交强险", "驾乘险", "商业险费率", "交强险费率", "驾乘险费率", "返现", "客户来源", "备注"};
+    private final List<UsersDataBean> usersDataBeanList;
+    private final ExportFinish exportFinish;
     private String outputPath;
-    private String savePath;
+    private final String savePath;
 
-    public ExportUsersDateExcel(Context context, List<UsersDataBean> usersDataBeanList, ExportFinish exportFinish, String savePath) {
+    public ExportUsersDateExcel(List<UsersDataBean> usersDataBeanList, ExportFinish exportFinish, String savePath) {
         this.usersDataBeanList = usersDataBeanList;
-        this.context = context;
         this.exportFinish = exportFinish;
         this.savePath = savePath;
         thread.start();
@@ -56,31 +53,35 @@ public class ExportUsersDateExcel {
     /**
      * 导出Excel数据
      *
-     * @return
+     * @return 导出结果
      */
     private boolean exportExcel() {
+
         XSSFWorkbook workbook = new XSSFWorkbook();
         //创建Excel表，工作表名为mysheet
         XSSFSheet sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName("mysheet"));
-        for (int r = 0; r < usersDataBeanList.size(); r++) {
-            //从数据库获取到要到出的数据
-            value = new String[]{usersDataBeanList.get(r).getCarNumber(), usersDataBeanList.get(r).getUserName(), usersDataBeanList.get(r).getLastDate(), usersDataBeanList.get(r).getBuyTime()
-                    , usersDataBeanList.get(r).getCarSerialNumber(), usersDataBeanList.get(r).getPhone(), String.valueOf(usersDataBeanList.get(r).getSyPrice()), String.valueOf(usersDataBeanList.get(r).getJqPrice())
-                    , String.valueOf(usersDataBeanList.get(r).getJcPrice()), String.valueOf(usersDataBeanList.get(r).getSyRebate()), String.valueOf(usersDataBeanList.get(r).getJqRebate())
-                    , String.valueOf(usersDataBeanList.get(r).getJcRebate()), String.valueOf(usersDataBeanList.get(r).getCashBack()), usersDataBeanList.get(r).getType(), usersDataBeanList.get(r).getRemarks()};
+        //加一行标题栏
+        for (int r = 0; r < usersDataBeanList.size() + 1; r++) {
+            //数据
+            String[] value;
+            if (r == 0) {
+                //标题栏
+                value = titles;
+            } else {
+                //从数据库获取到要到出的数据
+                value = new String[]{usersDataBeanList.get(r-1).getCarNumber(), usersDataBeanList.get(r-1).getUserName(), usersDataBeanList.get(r-1).getLastDate(), usersDataBeanList.get(r-1).getBuyTime()
+                        , usersDataBeanList.get(r-1).getCarSerialNumber(), usersDataBeanList.get(r-1).getPhone(), String.valueOf(usersDataBeanList.get(r-1).getSyPrice()), String.valueOf(usersDataBeanList.get(r-1).getJqPrice())
+                        , String.valueOf(usersDataBeanList.get(r-1).getJcPrice()), String.valueOf(usersDataBeanList.get(r-1).getSyRebate()), String.valueOf(usersDataBeanList.get(r-1).getJqRebate())
+                        , String.valueOf(usersDataBeanList.get(r-1).getJcRebate()), String.valueOf(usersDataBeanList.get(r-1).getCashBack()), usersDataBeanList.get(r-1).getType(), usersDataBeanList.get(r-1).getRemarks()};
+            }
             Row row = sheet.createRow(r);
             for (int c = 0; c < 14; c++) {
-                if (r == 0) {
-                    //标题栏
-                    row.createCell(c).setCellValue(titles[c]);
-                }
                 //数据栏
                 row.createCell(c).setCellValue(value[c]);
-
             }
         }
         //导出Excel的文件名
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd-hh-mm-ss");
         String formatDate = simpleDateFormat.format(new Date());
         //Excel文件名
         String outFileName = "user-data-" + formatDate + ".xlsx";

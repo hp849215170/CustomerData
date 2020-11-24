@@ -4,7 +4,6 @@ public class DirectoryBean {
     private String currentDir;
     private String dirName;
     private String lastModifyTime;
-    private int folderImgId;
 
     public String getCurrentDir() {
         return currentDir;
@@ -30,11 +29,4 @@ public class DirectoryBean {
         this.lastModifyTime = lastModifyTime;
     }
 
-    public int getFolderImgId() {
-        return folderImgId;
-    }
-
-    public void setFolderImgId(int folderImg) {
-        this.folderImgId = folderImgId;
-    }
 }

@@ -16,12 +16,10 @@ import m.hp.customerdata.entity.DetailedMsgBean;
 
 public class DetailedMsgAdapter extends RecyclerView.Adapter<DetailedMsgAdapter.MyViewHolder> {
 
-    private Context mContext;
-    private List<DetailedMsgBean> mList;
-    private LayoutInflater mInflater;
+    private final List<DetailedMsgBean> mList;
+    private final LayoutInflater mInflater;
 
     public DetailedMsgAdapter(Context mContext, List<DetailedMsgBean> mList) {
-        this.mContext = mContext;
         this.mList = mList;
         this.mInflater = LayoutInflater.from(mContext);
     }
@@ -45,10 +43,10 @@ public class DetailedMsgAdapter extends RecyclerView.Adapter<DetailedMsgAdapter.
         return mList.size();
     }
 
-    class MyViewHolder extends RecyclerView.ViewHolder {
+    static class MyViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView tv_detailedTitle;
-        private TextView tv_detailedMessage;
+        private final TextView tv_detailedTitle;
+        private final TextView tv_detailedMessage;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);

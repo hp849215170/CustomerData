@@ -20,11 +20,9 @@ import m.hp.customerdata.entity.UsersDataBean;
 
 public class SearchRVAdapter extends ListAdapter<UsersDataBean, SearchRVAdapter.MessageBeanViewHolder> {
 
-    private Context mContext;
-    private LayoutInflater mInflater;
-    private String tag = getClass().getName();
-    private final String MESSAGE_BEAN = "MESSAGE_BEAN";
-    private final String USER_NAME = "USER_NAME";
+    private final Context mContext;
+    private final LayoutInflater mInflater;
+    private final String tag = getClass().getName();
     private static final String USER_BEAN = "USER_BEAN";
 
     public SearchRVAdapter(@NonNull DiffUtil.ItemCallback<UsersDataBean> diffCallback, Context mContext) {
@@ -56,10 +54,10 @@ public class SearchRVAdapter extends ListAdapter<UsersDataBean, SearchRVAdapter.
     class MessageBeanViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnCreateContextMenuListener {
 
 
-        private TextView tv_serial_number;
-        private TextView tv_user_name;
-        private TextView tv_car_number;
-        private TextView tv_last_date;
+        private final TextView tv_serial_number;
+        private final TextView tv_user_name;
+        private final TextView tv_car_number;
+        private final TextView tv_last_date;
 
         public MessageBeanViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -79,6 +77,7 @@ public class SearchRVAdapter extends ListAdapter<UsersDataBean, SearchRVAdapter.
             UsersDataBean usersDataBean = getItem(getAdapterPosition());
             Log.d(tag, "messageBean==" + usersDataBean.getUserName());
             Intent intent = new Intent(mContext, DetailedActivity.class);
+            String MESSAGE_BEAN = "MESSAGE_BEAN";
             intent.putExtra(MESSAGE_BEAN, usersDataBean);
             mContext.startActivity(intent);
 
@@ -91,6 +90,7 @@ public class SearchRVAdapter extends ListAdapter<UsersDataBean, SearchRVAdapter.
 
             String userName = getItem(position).getUserName();
             Intent intent = new Intent();
+            String USER_NAME = "USER_NAME";
             intent.putExtra(USER_NAME, userName);
 
             UsersDataBean bean = getItem(position);

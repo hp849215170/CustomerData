@@ -1,14 +1,12 @@
 package m.hp.customerdata.activity;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,7 +15,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,21 +24,18 @@ import java.util.regex.Pattern;
 
 import m.hp.customerdata.R;
 import m.hp.customerdata.adapter.AddUserAdapter;
+import m.hp.customerdata.databinding.ActivityAddUserBinding;
 import m.hp.customerdata.entity.DetailedMsgBean;
 import m.hp.customerdata.entity.UsersDataBean;
 
-public class AddUserActivity extends AppCompatActivity implements View.OnClickListener {
+public class AddUserActivity extends AppCompatActivity {
 
     private static final String SAVE_DATA = "SAVE_DATA";
-    private static final String TAG = "AddUserActivity";
     private static final int RESULT_SET_OK = 1000;
     //添加还是更新数据的标识
     private static final String IS_ADD = "IS_ADD";
-    private RecyclerView rv_add_users;
     private AddUserAdapter adapter;
     private List<DetailedMsgBean> mList;
-    private Button bt_save;
-    private HashMap<String, String> hashMap = new HashMap<>();
     //是新加数据还是更新数据
     public boolean isAdd;
     //MainActivity传递过来的数据
@@ -49,11 +43,13 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
     private Intent intent;
     public static AddUserActivity instance;
     private UsersDataBean intent_bean = null;
+    private ActivityAddUserBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_user);
+        binding = ActivityAddUserBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         initView();
     }
 
@@ -62,11 +58,11 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
      */
     private void setCustomActionBar(String title) {
         ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.MATCH_PARENT);
-        View actionBarView = LayoutInflater.from(this).inflate(R.layout.customacitonbar_layout, null);
+        @SuppressLint("InflateParams") View actionBarView = LayoutInflater.from(this).inflate(R.layout.customacitonbar_layout, null);
         TextView tvTitle = actionBarView.findViewById(R.id.actionBarTile);
         //返回操作
         ImageView ivBack = actionBarView.findViewById(R.id.ivBack);
-        ivBack.setOnClickListener(this);
+        ivBack.setOnClickListener(v -> finish());
         tvTitle.setText(title);
         ActionBar supportActionBar = getSupportActionBar();
         supportActionBar.setCustomView(actionBarView, layoutParams);
@@ -80,14 +76,16 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void initView() {
-        rv_add_users = findViewById(R.id.rv_add);
-        bt_save = findViewById(R.id.save_data);
-        bt_save.setOnClickListener(this);
-
+        binding.saveData.setOnClickListener(v -> {
+            if (!saveData()) {
+                return;
+            }
+            finish();
+        });
         mList = new ArrayList<>();
         adapter = new AddUserAdapter(this, mList);
-        rv_add_users.setAdapter(adapter);
-        rv_add_users.setLayoutManager(new LinearLayoutManager(this));
+        binding.rvAdd.setAdapter(adapter);
+        binding.rvAdd.setLayoutManager(new LinearLayoutManager(this));
     }
 
     @Override
@@ -114,7 +112,7 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
                     "请输入交强险费用", "请输入驾乘险费用", "请输入商业险费率", "请输入交强险费率", "请输入驾乘险费率", "请输入返现", "请输入客户来源", "请输入备注"};
         } else {
             //更新上下文菜单按钮跳转过来传递的bean
-            intent_bean = intent.getParcelableExtra(USER_BEAN);
+            intent_bean = (UsersDataBean) intent.getSerializableExtra(USER_BEAN);
             column_value = new String[]{String.valueOf(intent_bean.getCarNumber()), intent_bean.getUserName(), intent_bean.getLastDate(), intent_bean.getBuyTime(),
                     intent_bean.getCarSerialNumber(), intent_bean.getPhone(), String.valueOf(intent_bean.getSyPrice()), String.valueOf(intent_bean.getJqPrice()), String.valueOf(intent_bean.getJcPrice()),
                     String.valueOf(intent_bean.getSyRebate()), String.valueOf(intent_bean.getJqRebate()), String.valueOf(intent_bean.getJcRebate()),
@@ -136,29 +134,13 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
         adapter.notifyDataSetChanged();
     }
 
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.save_data:
-                if (!saveData()) {
-                    return;
-                }
-                finish();
-                break;
-            case R.id.ivBack:
-                finish();
-                break;
-        }
-    }
-
-
     /**
      * 保存新添加的数据
      *
-     * @return
+     * @return 是否保存成功
      */
     private boolean saveData() {
-        hashMap = AddUserAdapter.instance.getHashMap();
+        HashMap<String, String> hashMap = AddUserAdapter.instance.getHashMap();
 
         if (TextUtils.isEmpty(hashMap.get("车牌号："))) {
             showToast("车牌不能为空");
@@ -199,22 +181,18 @@ public class AddUserActivity extends AppCompatActivity implements View.OnClickLi
         if (!isAdd) {
             hashMap.put("id", String.valueOf(intent_bean.getId()));
         }
-        if (isAdd&&MainActivity.instance.isTheSame(hashMap.get("投保人："))){
+        if (isAdd && MainActivity.instance.isTheSame(hashMap.get("投保人："))) {
             new android.app.AlertDialog.Builder(this)
                     .setTitle("")
                     .setPositiveButton("确定", (dialog, which) -> {
 
                     })
-                    .setMessage(hashMap.get("投保人：")+"已存在，未添加！")
+                    .setMessage(hashMap.get("投保人：") + "已存在，未添加！")
                     .show();
             return false;
         }
         intent.putExtra(SAVE_DATA, hashMap);
-        if (isAdd){
-            intent.putExtra(IS_ADD, true);
-        }else {
-            intent.putExtra(IS_ADD, false);
-        }
+        intent.putExtra(IS_ADD, isAdd);
         intent.putExtras(intent);
         //Log.d(TAG, "重新绑定数据====" + intent);
         setResult(RESULT_SET_OK, intent);

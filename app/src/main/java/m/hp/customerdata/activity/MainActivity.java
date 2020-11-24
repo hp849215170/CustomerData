@@ -1,12 +1,12 @@
 package m.hp.customerdata.activity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -31,33 +31,31 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.mancj.materialsearchbar.MaterialSearchBar;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 import m.hp.customerdata.R;
 import m.hp.customerdata.adapter.MessageBeanListAdapter;
+import m.hp.customerdata.databinding.ActivityMainBinding;
 import m.hp.customerdata.entity.UserJsonRoot;
 import m.hp.customerdata.entity.UsersDataBean;
 import m.hp.customerdata.http.ConnectMyServer;
 import m.hp.customerdata.model.UserDataViewModel;
 import m.hp.customerdata.poiexcel.ExportUsersDateExcel;
 import m.hp.customerdata.poiexcel.ReadExcelByPOI;
-import m.hp.customerdata.utils.GetRealPathFromUriUtil;
 import m.hp.customerdata.utils.MyCompareUtil;
+import m.hp.customerdata.utils.RealPathFromUriUtils;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     //一组通知消息
@@ -78,25 +76,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int OPEN_FILE_REQUEST = 200;
     //打开选择保存目录
     private static final int REQUEST_SHOW_DIRS = 500;
-    //根据条件查询到的userBean数据
-    private final String MESSAGE_BEAN = "MESSAGE_BEAN";
     private MessageBeanListAdapter msgAdapter;
-    private RecyclerView rv_msg;
     private UserDataViewModel mUserDataViewModel;
     private static final String SAVE_DATA = "SAVE_DATA";
-    private HashMap<String, String> hashMap = new HashMap<String, String>();
-    private final String USER_NAME = "USER_NAME";
+    private HashMap<String, String> hashMap = new HashMap<>();
     private static final String USER_BEAN = "USER_BEAN";
-    private FloatingActionButton fab_add;
-    private FloatingActionButton fab_search;
-    private FloatingActionButton fab_delete;
-    private MaterialSearchBar mSearchBar;
-    //投保人标题
-    private TextView tv_userName;
-    //到期时间标题
-    private TextView tv_lastDate;
-    //全选标题
-    private TextView tvCheckAll;
     //点击投保人标题次数
     private int count_userName;
     //点击到期时间标题次数
@@ -104,11 +88,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //当前数据库数据集合
     private List<UsersDataBean> usersDataBeanList;
     public static MainActivity instance;
+    private ActivityMainBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         setCustomActionBar();
         initView();
         //检查是否获取到需要的权限
@@ -121,12 +107,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void setCustomActionBar() {
         ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.MATCH_PARENT);
-        View actionBarView = LayoutInflater.from(this).inflate(R.layout.customacitonbar_layout, null);
+        @SuppressLint("InflateParams") View actionBarView = LayoutInflater.from(this).inflate(R.layout.customacitonbar_layout, null);
         TextView tvTitle = actionBarView.findViewById(R.id.actionBarTile);
         ImageView ivBack = actionBarView.findViewById(R.id.ivBack);
         ivBack.setVisibility(View.GONE);
         tvTitle.setText("承保清单列表");
         ActionBar supportActionBar = getSupportActionBar();
+        assert supportActionBar != null;
         supportActionBar.setCustomView(actionBarView, layoutParams);
         supportActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         supportActionBar.setDisplayShowHomeEnabled(true);
@@ -142,35 +129,46 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void initView() {
         //全选标题
-        tvCheckAll = findViewById(R.id.checkAll);
-        tvCheckAll.setOnClickListener(this);
+        binding.titles.checkAll.setOnClickListener(v -> {
+            if (binding.titles.checkAll.getText().toString().equals("全选")) {
+                msgAdapter.checkAll(true);
+                binding.titles.checkAll.setText("不选");
+            } else {
+                msgAdapter.checkAll(false);
+                binding.titles.checkAll.setText("全选");
+            }
+        });
         //到期时间标题
-        tv_lastDate = findViewById(R.id.lastDate);
-        tv_lastDate.setOnClickListener(this);
+        binding.titles.lastDate.setOnClickListener(v -> {
+            //按时间排序功能
+            sortByDate();
+        });
         //投保人标题
-        tv_userName = findViewById(R.id.userName);
-        tv_userName.setOnClickListener(this);
+        binding.titles.userName.setOnClickListener(v -> {
+            //按名字排序功能
+            sortByName();
+        });
         //获取ViewModel
         ViewModelProvider.AndroidViewModelFactory androidViewModelFactory = new ViewModelProvider.AndroidViewModelFactory(getApplication());
         mUserDataViewModel = new ViewModelProvider(this, androidViewModelFactory).get(UserDataViewModel.class);
-        //初始化RecycleView控件
-        rv_msg = findViewById(R.id.rv_msg);
         //创建RecycleView的适配器
-        //msgAdapter = new CustomerMsgAdapter(this, mList);
         msgAdapter = new MessageBeanListAdapter(new MessageBeanListAdapter.MessageBeanDiff(), this);
-        rv_msg.setAdapter(msgAdapter);
+        binding.rvMsg.setAdapter(msgAdapter);
         //设置RecycleView的布局
-        rv_msg.setLayoutManager(new LinearLayoutManager(this));
-        //初始化FloatingActionButton控件
-        fab_add = findViewById(R.id.fab_add);
-        fab_search = findViewById(R.id.fab_search);
-        fab_delete = findViewById(R.id.fab_delete);
+        binding.rvMsg.setLayoutManager(new LinearLayoutManager(this));
         //监听FloatingActionButton点击
-        fab_search.setOnClickListener(this);
-        fab_add.setOnClickListener(this);
-        fab_delete.setOnClickListener(this);
-        //MaterialSearchBar搜索框
-        mSearchBar = findViewById(R.id.searchBar);
+        binding.fabSearch.setOnClickListener(v -> {
+            //搜索功能
+            showSearchBar();
+        });
+        binding.fabAdd.setOnClickListener(v -> {
+            //添加数据功能
+            starAddUserActivity();
+        });
+        binding.fabDelete.setOnClickListener(v -> {
+            //删除数据功能
+            deleteUserByFab();
+        });
     }
 
     @Override
@@ -193,41 +191,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         msgAdapter.notifyDataSetChanged();
     }
 
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.fab_search:
-                //搜索功能
-                showSearchBar();
-                break;
-            case R.id.fab_add:
-                //添加数据功能
-                starAddUserActivity();
-                break;
-            case R.id.userName:
-                //按名字排序功能
-                sortByName();
-                break;
-            case R.id.lastDate:
-                //按时间排序功能
-                sortByDate();
-                break;
-            case R.id.fab_delete:
-                deleteUserByFab();
-                break;
-            case R.id.checkAll:
-                if (tvCheckAll.getText().toString().equals("全选")) {
-                    MessageBeanListAdapter.instance.checkAll(true);
-                    tvCheckAll.setText("全不选");
-                } else {
-                    MessageBeanListAdapter.instance.checkAll(false);
-                    tvCheckAll.setText("全选");
-                }
-                break;
-        }
-    }
-
     /**
      * 通过名字删除
      */
@@ -237,11 +200,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setTitle("警告")
                 .setMessage("数据不可恢复，确定要删除吗？")
                 .setPositiveButton("确定", (dialog, which) -> {
-                    List<UsersDataBean> checkedUsers = MessageBeanListAdapter.instance.getCheckedUsers();
+                    List<UsersDataBean> checkedUsers = msgAdapter.getCheckedUsers();
                     for (int i = 0; i < checkedUsers.size(); i++) {
                         mUserDataViewModel.delByName(checkedUsers.get(i).getUserName());
                     }
                     Toast.makeText(MainActivity.this, "删除成功", Toast.LENGTH_LONG).show();
+                    setCheckOptViewGone();
                 })
                 .setNegativeButton("取消", null)
                 .show();
@@ -276,10 +240,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mUserDataViewModel.getAllUserData().observe(this, messageBeans -> {
             if (count_userName % 2 == 0) {
                 //降序排序
-                Collections.sort(messageBeans, new MyCompareUtil(MyCompareUtil.SORT_DES, MyCompareUtil.COMPARE_NAME));
+                messageBeans.sort(new MyCompareUtil(MyCompareUtil.SORT_DES, MyCompareUtil.COMPARE_NAME));
             } else {
                 //升序排序
-                Collections.sort(messageBeans, new MyCompareUtil(MyCompareUtil.SORT_ASC, MyCompareUtil.COMPARE_NAME));
+                messageBeans.sort(new MyCompareUtil(MyCompareUtil.SORT_ASC, MyCompareUtil.COMPARE_NAME));
             }
             msgAdapter.submitList(messageBeans);
         });
@@ -294,10 +258,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mUserDataViewModel.getAllUserData().observe(this, messageBeans -> {
             if (count_lastDate % 2 == 0) {
                 //降序排序
-                Collections.sort(messageBeans, new MyCompareUtil(MyCompareUtil.SORT_DES, MyCompareUtil.COMPARE_DATE));
+                messageBeans.sort(new MyCompareUtil(MyCompareUtil.SORT_DES, MyCompareUtil.COMPARE_DATE));
             } else {
                 //升序排序
-                Collections.sort(messageBeans, new MyCompareUtil(MyCompareUtil.SORT_ASC, MyCompareUtil.COMPARE_DATE));
+                messageBeans.sort(new MyCompareUtil(MyCompareUtil.SORT_ASC, MyCompareUtil.COMPARE_DATE));
             }
             msgAdapter.submitList(messageBeans);
         });
@@ -338,7 +302,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void updateUserData(boolean isAdd) {
         UsersDataBean bean = getMessageBean(isAdd);
 
-        int i = mUserDataViewModel.updateData(bean);
+        mUserDataViewModel.updateData(bean);
         new android.app.AlertDialog.Builder(this)
                 .setTitle("")
                 .setPositiveButton("确定", (dialog, which) -> {
@@ -353,7 +317,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * 获取保存之后的bean实体数据
      *
-     * @return
+     * @return 返回是添加数据，还是更新数据返回的数据
      */
     private UsersDataBean getMessageBean(boolean isAdd) {
         String[] keys = {"车牌号：", "投保人：", "终保时间：", "承保时间：", "车架号：", "手机号：", "商业险费用：",
@@ -371,42 +335,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (TextUtils.isEmpty(hashMap.get(keys[6]))) {
             bean.setSyPrice(0.0);
         } else {
-            bean.setSyPrice(Double.parseDouble(hashMap.get(keys[6])));
+            bean.setSyPrice(Double.parseDouble(Objects.requireNonNull(hashMap.get(keys[6]))));
         }
         if (TextUtils.isEmpty(hashMap.get(keys[7]))) {
             bean.setJqPrice(0.0);
         } else {
-            bean.setJqPrice(Double.parseDouble(hashMap.get(keys[7])));
+            bean.setJqPrice(Double.parseDouble(Objects.requireNonNull(hashMap.get(keys[7]))));
         }
         if (TextUtils.isEmpty(hashMap.get(keys[8]))) {
             bean.setJcPrice(0.0);
         } else {
-            bean.setJcPrice(Double.parseDouble(hashMap.get(keys[8])));
+            bean.setJcPrice(Double.parseDouble(Objects.requireNonNull(hashMap.get(keys[8]))));
         }
         if (TextUtils.isEmpty(hashMap.get(keys[9]))) {
             bean.setJcPrice(0.0);
         } else {
-            bean.setSyRebate(Double.parseDouble(hashMap.get(keys[9])));
+            bean.setSyRebate(Double.parseDouble(Objects.requireNonNull(hashMap.get(keys[9]))));
         }
         if (TextUtils.isEmpty(hashMap.get(keys[10]))) {
             bean.setJqRebate(0.0);
         } else {
-            bean.setJqRebate(Double.parseDouble(hashMap.get(keys[10])));
+            bean.setJqRebate(Double.parseDouble(Objects.requireNonNull(hashMap.get(keys[10]))));
         }
         if (TextUtils.isEmpty(hashMap.get(keys[11]))) {
             bean.setJqRebate(0.0);
         } else {
-            bean.setJcRebate(Double.parseDouble(hashMap.get(keys[11])));
+            bean.setJcRebate(Double.parseDouble(Objects.requireNonNull(hashMap.get(keys[11]))));
         }
         if (TextUtils.isEmpty(hashMap.get(keys[12]))) {
             bean.setCashBack(0.0);
         } else {
-            bean.setCashBack(Double.parseDouble(hashMap.get(keys[12])));
+            bean.setCashBack(Double.parseDouble(Objects.requireNonNull(hashMap.get(keys[12]))));
         }
         bean.setType(hashMap.get(keys[13]));
         bean.setRemarks(hashMap.get(keys[14]));
         if (!isAdd) {
-            bean.setId(Integer.valueOf(hashMap.get("id")));
+            bean.setId(Integer.parseInt(Objects.requireNonNull(hashMap.get("id"))));
         }
         return bean;
     }
@@ -414,10 +378,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * 启动Activity之后返回的结果处理
      *
-     * @param requestCode
-     * @param resultCode
-     * @param data
+     * @param requestCode 请求跳转的结果码
+     * @param resultCode  跳转activity之后返回的结果码
+     * @param data        activity传递的intent数据
      */
+    @SuppressWarnings("unchecked")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -425,11 +390,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (requestCode == REQUEST_OK && resultCode == RESULT_SET_OK) {
             //获取需要添加的数据
+            assert data != null;
             hashMap = (HashMap<String, String>) data.getSerializableExtra(SAVE_DATA);
             boolean isAdd = data.getBooleanExtra(IS_ADD, true);
             insertUserData(isAdd);
         } else if (requestCode == MODIFY_REQUEST && resultCode == RESULT_SET_OK) {
             //获取需要修改的数据
+            assert data != null;
             hashMap = (HashMap<String, String>) data.getSerializableExtra(SAVE_DATA);
             boolean isAdd = data.getBooleanExtra(IS_ADD, true);
             updateUserData(isAdd);//更新数据
@@ -439,28 +406,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return;
             }
             Uri excelUri = data.getData();
-            String path = GetRealPathFromUriUtil.getPath(this, excelUri);
+            String path = RealPathFromUriUtils.getRealPathFromUri(this,excelUri);;
             Log.e(TAG, "realPath==" + path);
             addUserFromExcel(path);
         } else if (requestCode == REQUEST_SHOW_DIRS && resultCode == RESULT_SAVE_PATH) {
             //导出Excel表格
+            assert data != null;//断言，data不能为空
             String saveDir = data.getStringExtra(SAVE_PATH);
-            mUserDataViewModel.getAllUserData().observe(this, messageBeans -> {
-                new ExportUsersDateExcel(this, messageBeans, (ok, outputPath) -> {
-                    if (ok) {
-                        Looper.prepare();//加上避免报错：Can't toast on a thread that has not called Looper.prepare()
-                        new AlertDialog.Builder(this)
-                                .setTitle("导出成功").setMessage("已保存至：" + outputPath)
-                                .setPositiveButton("确定", null)
-                                .show();
-                        Looper.loop();
-                    } else {
-                        Looper.prepare();
-                        Toast.makeText(MainActivity.this, "导出失败", Toast.LENGTH_LONG).show();
-                        Looper.loop();
-                    }
-                }, saveDir);
-            });
+            mUserDataViewModel.getAllUserData().observe(this, messageBeans -> new ExportUsersDateExcel(messageBeans, (ok, outputPath) -> {
+                if (ok) {
+                    Looper.prepare();//加上避免报错：Can't toast on a thread that has not called Looper.prepare()
+                    new AlertDialog.Builder(this)
+                            .setTitle("导出成功").setMessage("已保存至：" + outputPath)
+                            .setPositiveButton("确定", null)
+                            .show();
+                    Looper.loop();
+                } else {
+                    Looper.prepare();
+                    Toast.makeText(MainActivity.this, "导出失败", Toast.LENGTH_LONG).show();
+                    Looper.loop();
+                }
+            }, saveDir));
         }
 
     }
@@ -468,18 +434,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * 上下文菜单点击监听回调
      *
-     * @param item
-     * @return
+     * @param item 菜单控件
+     * @return 自己处理上下文菜单
      */
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
+        String USER_NAME = "USER_NAME";
         switch (item.getItemId()) {
             case 1://修改菜单
                 Intent intent = new Intent(this, AddUserActivity.class);
-                UsersDataBean bean = item.getIntent().getParcelableExtra(USER_BEAN);
+                UsersDataBean bean = (UsersDataBean) item.getIntent().getSerializableExtra(USER_BEAN);
                 Bundle bundle = new Bundle();
                 bundle.putBoolean(IS_ADD, false);
-                bundle.putParcelable(USER_BEAN, bean);
+                bundle.putSerializable(USER_BEAN, bean);
                 intent.putExtras(bundle);
                 startActivityForResult(intent, MODIFY_REQUEST);
                 break;
@@ -488,9 +455,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 deleteUserByName(userName);
                 break;
             case 3://编辑菜单
-                tvCheckAll.setVisibility(View.VISIBLE);
-                MessageBeanListAdapter.instance.isVisible = true;
-                fab_delete.setVisibility(View.VISIBLE);
+                binding.titles.checkAll.setVisibility(View.VISIBLE);
+                msgAdapter.setCheckBoxIsVisible(true);
+                binding.fabDelete.setVisibility(View.VISIBLE);
                 msgAdapter.notifyDataSetChanged();
                 break;
         }
@@ -500,7 +467,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * 通过名字删除
      *
-     * @param userName
+     * @param userName 投保人姓名
      */
     private void deleteUserByName(String userName) {
         new AlertDialog.Builder(this)
@@ -554,6 +521,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Intent intent = new Intent(this, DetailedActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             //传递数据
+            //根据条件查询到的userBean数据
+            String MESSAGE_BEAN = "MESSAGE_BEAN";
             intent.putExtra(MESSAGE_BEAN, lastDateUsers.get(i));
             //i表示传递数据id，PendingIntent.FLAG_UPDATE_CURRENT表示更新当前的数据
             PendingIntent pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -595,51 +564,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (msgAdapter != null) {
             msgAdapter = null;
         }
+        if (binding != null) {
+            binding = null;
+        }
     }
 
     /**
      * 申请权限
      */
     private void requestPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-                && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-        } else {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST);
-            }
+            ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST);
         }
     }
 
     /**
      * 权限申请处理结果
      *
-     * @param requestCode
-     * @param permissions
-     * @param grantResults
+     * @param requestCode  申请权限的请求码
+     * @param permissions  申请的权限集合
+     * @param grantResults 申请权限的结果集合
      */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-
-            case PERMISSION_REQUEST:
-                //判断用户是否同意了全部权限
-                int length = permissions.length;
-                //假设全部同意
-                boolean result = true;
-                if (length == grantResults.length) {
-                    for (int i = 0; i < length; i++) {
-                        if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-                            result = false;
-                            break;
-                        }
-                    }
-                    if (result) {
-
+        if (requestCode == PERMISSION_REQUEST) {//判断用户是否同意了全部权限
+            int length = permissions.length;
+            //假设全部同意
+            if (length == grantResults.length) {
+                for (int i = 0; i < length; i++) {
+                    if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                        break;
                     }
                 }
-                break;
+            }
         }
     }
 
@@ -679,8 +639,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * 创建右上角菜单按钮
      *
-     * @param menu
-     * @return
+     * @param menu 创建的Toolbar菜单
+     * @return 成功创建菜单让上下文处理
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -691,9 +651,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     /**
      * 右上角菜单点击监听
      *
-     * @param item
-     * @return
+     * @param item 菜单item
+     * @return 菜单被点击了
      */
+    @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
@@ -746,7 +707,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             JSONObject jsonObject = JSON.parseObject(getData);
             JSONArray jsonArray = jsonObject.getJSONArray("userList");
 
-            String downloadMsg = "";
             boolean thSame = false;
             List<UsersDataBean> userList = new ArrayList<>();
             userList.clear();
@@ -821,13 +781,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onBackPressed() {
-        if (tvCheckAll.getVisibility() == View.VISIBLE) {
-            tvCheckAll.setVisibility(View.GONE);
-            fab_delete.setVisibility(View.GONE);
-            MessageBeanListAdapter.instance.isVisible = false;
-            msgAdapter.notifyDataSetChanged();
+        if (binding.titles.checkAll.getVisibility() == View.VISIBLE) {
+            //按返回之后选择操作恢复初始状态
+            setCheckOptViewGone();
             return;
         }
         super.onBackPressed();
+    }
+
+    /**
+     * 设置编辑操作view不可见
+     */
+    private void setCheckOptViewGone() {
+        binding.titles.checkAll.setVisibility(View.GONE);
+        binding.fabDelete.setVisibility(View.GONE);
+        msgAdapter.setCheckBoxIsVisible(false);
+        msgAdapter.checkAll(false);
+        binding.titles.checkAll.setText("全选");
+        msgAdapter.notifyDataSetChanged();
     }
 }

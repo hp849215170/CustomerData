@@ -13,8 +13,8 @@ import m.hp.customerdata.room.UserDataRepository;
 
 public class UserDataViewModel extends AndroidViewModel {
 
-    private LiveData<List<UsersDataBean>> allUserData;
-    private UserDataRepository mRepository;
+    private final LiveData<List<UsersDataBean>> allUserData;
+    private final UserDataRepository mRepository;
 
 
     public UserDataViewModel(@NonNull Application application) {
@@ -39,14 +39,14 @@ public class UserDataViewModel extends AndroidViewModel {
     }
 
     //更新数据
-    public int updateData(UsersDataBean bean) {
-        return mRepository.updateData(bean);
+    public void updateData(UsersDataBean bean) {
+        mRepository.updateData(bean);
     }
 
     /**
      * 通过名字查
      *
-     * @param userName
+     * @param userName 投保人姓名
      */
     public List<UsersDataBean> getDataByUserName(String userName) {
         return mRepository.getDataByName(userName);
@@ -55,8 +55,8 @@ public class UserDataViewModel extends AndroidViewModel {
     /**
      * 查终保日期
      *
-     * @param lastDate
-     * @return
+     * @param lastDate 终保日期
+     * @return 客户信息结合
      */
     public List<UsersDataBean> getLastDateUsers(String lastDate) {
         return mRepository.getLastDateUsers(lastDate);

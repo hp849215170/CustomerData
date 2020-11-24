@@ -1,5 +1,7 @@
 package m.hp.customerdata.utils;
 
+import android.annotation.SuppressLint;
+
 import java.text.Collator;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -21,9 +23,9 @@ public class MyCompareUtil implements Comparator<UsersDataBean> {
     //降序排序
     public static final int SORT_DES = 1;
     //排序顺序
-    private int sortFlag;
+    private final int sortFlag;
     //排序方式
-    private String compareType;
+    private final String compareType;
 
     public MyCompareUtil(int sortFlag, String compareType) {
         this.sortFlag = sortFlag;
@@ -33,7 +35,7 @@ public class MyCompareUtil implements Comparator<UsersDataBean> {
     @Override
     public int compare(UsersDataBean bean1, UsersDataBean bean2) {
         //名字排序
-        if (compareType == COMPARE_NAME) {
+        if (compareType.equals(COMPARE_NAME)) {
             String userName1 = bean1.getUserName();
             String userName2 = bean2.getUserName();
             Collator collator = Collator.getInstance(Locale.CHINA);
@@ -51,8 +53,8 @@ public class MyCompareUtil implements Comparator<UsersDataBean> {
                     return -1;
                 }
             }
-        } else if (compareType == COMPARE_DATE) {//时间排序
-            SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");//设定时间格式
+        } else if (compareType.equals(COMPARE_DATE)) {//时间排序
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");//设定时间格式
             String date1 = bean1.getLastDate();
             String date2 = bean2.getLastDate();
 

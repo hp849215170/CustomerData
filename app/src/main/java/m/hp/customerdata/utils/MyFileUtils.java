@@ -1,5 +1,7 @@
 package m.hp.customerdata.utils;
 
+import android.annotation.SuppressLint;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -12,16 +14,15 @@ public class MyFileUtils {
     public List<DirectoryBean> getDirs(String dir) {
 
         File file = new File(dir);
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
         //DirectoryBean list 集合
         List<DirectoryBean> directoryBeanList = new ArrayList<>();
         //当前是文件夹
         if (file.isDirectory()) {
             //文件夹列表
             String[] files = file.list();
-            for (int i = 0; i < files.length; i++) {
+            for (String filesName : files) {
                 //文件夹名
-                String filesName = files[i];
                 File dirFile = new File(filesName);
                 //当前是文件还是文件夹
                 File testFile = new File(dir + "/" + filesName);

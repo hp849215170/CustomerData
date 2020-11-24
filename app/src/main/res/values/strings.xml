@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">承保清单</string>
+    <string name="save_data">保存</string>
+    <string name="fab_add_user">添加客户信息</string>
+    <string name="fab_search_user">查询客户信息</string>
+    <string name="fab_delete_user">删除客户信息</string>
+    <string name="check_ok">选择当前目录</string>
+    <string name="back_to_previous_dir">返回上一级目录</string>
+    <string name="dir_image">文件夹图标</string>
 </resources>

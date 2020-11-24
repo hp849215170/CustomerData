@@ -1,5 +1,6 @@
 package m.hp.customerdata.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.Editable;
 import android.text.InputType;
@@ -22,16 +23,13 @@ import m.hp.customerdata.entity.DetailedMsgBean;
 
 public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHolder> {
 
-    private Context mContext;
-    private List<DetailedMsgBean> mList;
-    private LayoutInflater mInflater;
-    private static final String TAG = "AddUserAdapter";
-    private HashMap<String, String> hashMap = new HashMap<>();//存放item数据
+    private final List<DetailedMsgBean> mList;
+    private final LayoutInflater mInflater;
+    private final HashMap<String, String> hashMap = new HashMap<>();//存放item数据
+    @SuppressLint("StaticFieldLeak")
     public static AddUserAdapter instance;
-    public boolean isEnable = true;
 
     public AddUserAdapter(Context mContext, List<DetailedMsgBean> mList) {
-        this.mContext = mContext;
         this.mList = mList;
         mInflater = LayoutInflater.from(mContext);
         instance = this;
@@ -40,7 +38,7 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
     /**
      * 用于传递输入的数据
      *
-     * @return
+     * @return 返回用户数据集合
      */
     public HashMap<String, String> getHashMap() {
         return hashMap;
@@ -160,10 +158,10 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
         return mList.size();
     }
 
-    class MyViewHolder extends RecyclerView.ViewHolder {
+    static class MyViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView tv_column_name;
-        private EditText et_column_value;
+        private final TextView tv_column_name;
+        private final EditText et_column_value;
 
         public MyViewHolder(@NonNull View itemView) {
             super(itemView);

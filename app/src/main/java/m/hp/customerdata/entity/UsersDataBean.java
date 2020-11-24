@@ -1,21 +1,19 @@
 package m.hp.customerdata.entity;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-import com.hannesdorfmann.parcelableplease.annotation.ParcelablePlease;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
+import java.io.Serializable;
 
 @Entity(tableName = "users_table")//数据库表名
-@ParcelablePlease
-public class UsersDataBean implements Parcelable, Comparable<UsersDataBean> {
+public class UsersDataBean implements Serializable, Comparable<UsersDataBean> {
+    @Ignore
+    public static final long serialVersionUID = 1L;
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     int id;//序号
@@ -50,10 +48,10 @@ public class UsersDataBean implements Parcelable, Comparable<UsersDataBean> {
     String type;//客户来源
     @ColumnInfo(name = "remark")
     String remarks;//备注
-    @Ignore
-    List<UsersDataBean> usersDataBeanList;
 
+    @Ignore
     public UsersDataBean() {
+        userName = null;
     }
 
     public UsersDataBean(String carNumber, @NonNull String userName, String lastDate, String buyTime,
@@ -76,18 +74,6 @@ public class UsersDataBean implements Parcelable, Comparable<UsersDataBean> {
         this.remarks = remarks;
     }
 
-    public List<UsersDataBean> getUsersDataBeanList() {
-        return usersDataBeanList;
-    }
-
-    public void setUsersDataBeanList(List<UsersDataBean> usersDataBeanList) {
-        this.usersDataBeanList = usersDataBeanList;
-    }
-
-    public static Creator<UsersDataBean> getCREATOR() {
-        return CREATOR;
-    }
-
     public int getId() {
         return id;
     }
@@ -104,11 +90,12 @@ public class UsersDataBean implements Parcelable, Comparable<UsersDataBean> {
         this.carNumber = carNumber;
     }
 
+    @NotNull
     public String getUserName() {
         return userName;
     }
 
-    public void setUserName(String userName) {
+    public void setUserName(@NotNull String userName) {
         this.userName = userName;
     }
 
@@ -217,37 +204,10 @@ public class UsersDataBean implements Parcelable, Comparable<UsersDataBean> {
     }
 
     /**
-     * 序列化对象传递数据
-     *
-     * @return
-     */
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        UsersDataBeanParcelablePlease.writeToParcel(this, dest, flags);
-    }
-
-    public static final Creator<UsersDataBean> CREATOR = new Creator<UsersDataBean>() {
-        public UsersDataBean createFromParcel(Parcel source) {
-            UsersDataBean target = new UsersDataBean();
-            UsersDataBeanParcelablePlease.readFromParcel(target, source);
-            return target;
-        }
-
-        public UsersDataBean[] newArray(int size) {
-            return new UsersDataBean[size];
-        }
-    };
-
-    /**
      * 排序
      *
-     * @param usersDataBean
-     * @return
+     * @param usersDataBean 客户信息实体
+     * @return 排序规则标志
      */
 
     @Override

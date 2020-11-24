@@ -1,5 +1,6 @@
 package m.hp.customerdata.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
@@ -12,19 +13,17 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import m.hp.customerdata.R;
 import m.hp.customerdata.adapter.ShowDirectoryAdapter;
+import m.hp.customerdata.databinding.ActivityShowDirectoryBinding;
 import m.hp.customerdata.entity.DirectoryBean;
 import m.hp.customerdata.utils.MyFileUtils;
 
-public class ShowDirectoryActivity extends AppCompatActivity implements View.OnClickListener {
+public class ShowDirectoryActivity extends AppCompatActivity {
 
     //SD卡根目录
     private static final String EXT_STORAGE_DIR = Environment.getExternalStorageDirectory().getAbsolutePath();
@@ -36,25 +35,17 @@ public class ShowDirectoryActivity extends AppCompatActivity implements View.OnC
     private ShowDirectoryAdapter showDirectoryAdapter;
     //文件夹信息实体
     private List<DirectoryBean> directoryBeanList;
-    //RecycleView
-    private RecyclerView dirRecyclerView;
-    //当前文件夹路径
-    private TextView currentDir;
-    //返回上一个目录
-    private FloatingActionButton floatingActionButton;
-    //选择当前目录
-    private FloatingActionButton fabChecked;
-    //单例
-    public static ShowDirectoryActivity instance;
     //当前选择的目录
     private String currentDirFromAdapter;
+    public static ShowDirectoryActivity instance;
+    ActivityShowDirectoryBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_show_directory);
+        binding = ActivityShowDirectoryBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         setCustomActionBar();
-        instance = this;
         initView();
     }
 
@@ -63,10 +54,10 @@ public class ShowDirectoryActivity extends AppCompatActivity implements View.OnC
      */
     private void setCustomActionBar() {
         ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.MATCH_PARENT);
-        View actionBarView = LayoutInflater.from(this).inflate(R.layout.customacitonbar_layout, null);
+        @SuppressLint("InflateParams") View actionBarView = LayoutInflater.from(this).inflate(R.layout.customacitonbar_layout, null);
         TextView tvTitle = actionBarView.findViewById(R.id.actionBarTile);
         ImageView ivBack = actionBarView.findViewById(R.id.ivBack);
-        ivBack.setOnClickListener(this);
+        ivBack.setOnClickListener(v -> finish());
         tvTitle.setText("选择要保存的目录");
         ActionBar supportActionBar = getSupportActionBar();
         supportActionBar.setCustomView(actionBarView, layoutParams);
@@ -83,23 +74,19 @@ public class ShowDirectoryActivity extends AppCompatActivity implements View.OnC
      * 初始化View控件
      */
     private void initView() {
+        instance = this;
         //选择当前目录
-        fabChecked = findViewById(R.id.checkOK);
-        fabChecked.setOnClickListener(this);
+        binding.checkOK.setOnClickListener(v -> getSavePath());
         //返回上一级目录按钮
-        floatingActionButton = findViewById(R.id.previousDir);
-        floatingActionButton.setOnClickListener(this);
-        currentDir = findViewById(R.id.currentDir);
+        binding.previousDir.setOnClickListener(v -> previousDir());
         //实例化directoryBeanList
         directoryBeanList = new ArrayList<>();
-        //RecycleView R.id
-        dirRecyclerView = findViewById(R.id.rvShowDir);
         //初始化适配器
         showDirectoryAdapter = new ShowDirectoryAdapter(this, directoryBeanList);
         //加载适配器
-        dirRecyclerView.setAdapter(showDirectoryAdapter);
+        binding.rvShowDir.setAdapter(showDirectoryAdapter);
         //设置RecycleView布局加载方式
-        dirRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        binding.rvShowDir.setLayoutManager(new LinearLayoutManager(this));
     }
 
     @Override
@@ -118,38 +105,22 @@ public class ShowDirectoryActivity extends AppCompatActivity implements View.OnC
     /**
      * 列出所有的目录
      *
-     * @param path
+     * @param path 当前选择的路径
      */
     public void getCurrentDir(String path) {
-        directoryBeanList.clear();
+        if (directoryBeanList != null) {
+            directoryBeanList.clear();
+        }
         //实例化MyFileUtils
         MyFileUtils myFileUtils = new MyFileUtils();
         //赋值结果给directoryBeanList
         List<DirectoryBean> list = myFileUtils.getDirs(path);
         //显示当前所在目录
-        currentDir.setText(path);
-        for (int i = 0; i < list.size(); i++) {
-            directoryBeanList.add(list.get(i));
-        }
+        binding.currentDir.setText(path);
+        directoryBeanList.addAll(list);
         //刷新适配器
         showDirectoryAdapter.notifyDataSetChanged();
         currentDirFromAdapter = path;
-    }
-
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.previousDir:
-                previousDir();
-                break;
-            case R.id.checkOK:
-                getSavePath();
-                break;
-            case R.id.ivBack:
-                finish();
-                break;
-        }
     }
 
     /**
@@ -157,7 +128,7 @@ public class ShowDirectoryActivity extends AppCompatActivity implements View.OnC
      */
     private void getSavePath() {
         //获取当前保存的路径
-        String savePath = currentDir.getText().toString();
+        String savePath = binding.currentDir.getText().toString();
         //返回给MainActivity
         Intent intent = getIntent();
         intent.putExtra(SAVE_PATH, savePath);

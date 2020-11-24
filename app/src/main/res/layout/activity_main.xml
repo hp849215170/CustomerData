@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <include layout="@layout/title_layout" />
+        <include layout="@layout/title_layout" android:id="@+id/titles"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -28,21 +28,24 @@
         android:id="@+id/fab_add"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginRight="8dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
-        android:src="@drawable/ic_add" />
+        android:src="@drawable/ic_add"
+        android:contentDescription="@string/fab_add_user"
+        tools:ignore="RelativeOverlap" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_search"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginLeft="8dp"
+        android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
-        android:src="@drawable/ic_search" />
+        android:src="@drawable/ic_search"
+        android:contentDescription="@string/fab_search_user" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_delete"
@@ -52,6 +55,7 @@
         android:layout_centerHorizontal="true"
         android:visibility="gone"
         android:layout_marginBottom="8dp"
-        android:src="@drawable/ic_delete" />
+        android:src="@drawable/ic_delete"
+        android:contentDescription="@string/fab_delete_user" />
 
 </RelativeLayout>

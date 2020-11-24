@@ -1,5 +1,6 @@
 package m.hp.customerdata.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,28 +12,26 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import m.hp.customerdata.R;
 import m.hp.customerdata.adapter.DetailedMsgAdapter;
+import m.hp.customerdata.databinding.ActivityDetailedBinding;
 import m.hp.customerdata.entity.DetailedMsgBean;
 import m.hp.customerdata.entity.UsersDataBean;
 
-public class DetailedActivity extends AppCompatActivity implements View.OnClickListener {
+public class DetailedActivity extends AppCompatActivity  {
 
-    private RecyclerView rv_detail;
-    private DetailedMsgAdapter adapter;
     private List<DetailedMsgBean> mList;
-    private final String MESSAGE_BEAN = "MESSAGE_BEAN";
-    private String tag = getClass().getName();
+    private ActivityDetailedBinding binding;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_detailed);
+        binding = ActivityDetailedBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
         setCustomActionBar();
         initView();
     }
@@ -42,11 +41,11 @@ public class DetailedActivity extends AppCompatActivity implements View.OnClickL
      */
     private void setCustomActionBar() {
         ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.MATCH_PARENT);
-        View actionBarView = LayoutInflater.from(this).inflate(R.layout.customacitonbar_layout, null);
+        @SuppressLint("InflateParams") View actionBarView = LayoutInflater.from(this).inflate(R.layout.customacitonbar_layout, null);
         TextView tvTitle = actionBarView.findViewById(R.id.actionBarTile);
         //返回操作
         ImageView ivBack = actionBarView.findViewById(R.id.ivBack);
-        ivBack.setOnClickListener(this);
+        ivBack.setOnClickListener(v -> finish());
         tvTitle.setText("详细信息");
         ActionBar supportActionBar = getSupportActionBar();
         supportActionBar.setCustomView(actionBarView, layoutParams);
@@ -63,11 +62,10 @@ public class DetailedActivity extends AppCompatActivity implements View.OnClickL
      * 初始化控件
      */
     private void initView() {
-        rv_detail = findViewById(R.id.rv_detailed_msg);
         mList = new ArrayList<>();
-        adapter = new DetailedMsgAdapter(this, mList);
-        rv_detail.setAdapter(adapter);
-        rv_detail.setLayoutManager(new LinearLayoutManager(this));
+        DetailedMsgAdapter adapter = new DetailedMsgAdapter(this, mList);
+        binding.rvDetailedMsg.setAdapter(adapter);
+        binding.rvDetailedMsg.setLayoutManager(new LinearLayoutManager(this));
     }
 
     @Override
@@ -84,7 +82,9 @@ public class DetailedActivity extends AppCompatActivity implements View.OnClickL
         mList.clear();
         //拿到MainActivity通过Intent传来的数据
         Intent intent = getIntent();
-        UsersDataBean usersDataBean = intent.getParcelableExtra(MESSAGE_BEAN);
+
+        String MESSAGE_BEAN = "MESSAGE_BEAN";
+        UsersDataBean usersDataBean = (UsersDataBean) intent.getSerializableExtra((MESSAGE_BEAN));
         //把数据加载到当前Activity
         DetailedMsgBean detailedMsgBean;
         // DetailedMsgBean serialNumber = new DetailedMsgBean();
@@ -103,10 +103,5 @@ public class DetailedActivity extends AppCompatActivity implements View.OnClickL
             mList.add(detailedMsgBean);
         }
 
-    }
-
-    @Override
-    public void onClick(View v) {
-        finish();
     }
 }
