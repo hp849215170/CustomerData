@@ -1,6 +1,5 @@
 package m.hp.customerdata.adapter;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.Editable;
 import android.text.InputType;
@@ -18,7 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import m.hp.customerdata.R;
-import m.hp.customerdata.activity.AddUserActivity;
 import m.hp.customerdata.entity.DetailedMsgBean;
 
 public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHolder> {
@@ -26,13 +24,16 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
     private final List<DetailedMsgBean> mList;
     private final LayoutInflater mInflater;
     private final HashMap<String, String> hashMap = new HashMap<>();//存放item数据
-    @SuppressLint("StaticFieldLeak")
-    public static AddUserAdapter instance;
+    private boolean isAdd = true;
 
     public AddUserAdapter(Context mContext, List<DetailedMsgBean> mList) {
         this.mList = mList;
         mInflater = LayoutInflater.from(mContext);
-        instance = this;
+
+    }
+
+    public void isAdd(boolean isAdd) {
+        this.isAdd = isAdd;
     }
 
     /**
@@ -52,19 +53,17 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
 
     @Override
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
-
         holder.tv_column_name.setText(mList.get(position).getDetailedTitle());
-
-        holder.et_column_value.setHint(mList.get(position).getDetailedMessage());
-
         //解决EditText数据错乱问题
         //1、先移除ViewHolder里Item条目EditText的监听TextWatcher
         if (holder.et_column_value.getTag() != null && holder.et_column_value.getTag() instanceof TextWatcher) {
-            //判断当前EditText的标记是否是我们标记过的，如果不是就移除原来的监听
+            //销毁TextWatcher实例
             holder.et_column_value.removeTextChangedListener((TextWatcher) holder.et_column_value.getTag());
         }
+
         //2、新建TextWatcher监听
         TextWatcher textWatcher = new TextWatcher() {
+
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
@@ -82,19 +81,24 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
                 addTextToList(position, s.toString());
             }
         };
-
         //设置输入数据类型
-        setInputType(holder, mList.get(position).getDetailedTitle());
+        //setMyInputType(holder, mList.get(position).getDetailedTitle());
         //4、把保存了位置的数据显示在对应的位置上
         holder.et_column_value.setText(hashMap.get(holder.tv_column_name.getText().toString()));
         //5、给EditText添加新建的TextWatcher监听
         holder.et_column_value.addTextChangedListener(textWatcher);
         //6、标记EditText
         holder.et_column_value.setTag(textWatcher);
-        //更新数据时显示要改的数据
-        if (!AddUserActivity.instance.isAdd) {
+
+        if (!isAdd) {
+            //更新数据
             holder.et_column_value.setText(mList.get(position).getDetailedMessage());
+        } else {
+            //添加新数据
+            holder.et_column_value.setHint(mList.get(position).getDetailedMessage());
         }
+        //设置EditText输入数据类型
+        setMyInputType(holder, mList.get(position).getDetailedTitle());
     }
 
     private void addTextToList(int position, String s) {
@@ -104,50 +108,51 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
         getHashMap();
     }
 
-    private void setInputType(MyViewHolder holder, String title) {
-        if (title.equals("投保人：")) {
+    private void setMyInputType(MyViewHolder holder, String title) {
+
+        if (title.equals("投保人")) {
             holder.et_column_value.setInputType(InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
         }
-        if (title.equals("车牌号：")) {
+        if (title.equals("车牌号")) {
             holder.et_column_value.setInputType(InputType.TYPE_CLASS_TEXT);
         }
-        if (title.equals("终保时间：")) {
+        if (title.equals("终保时间")) {
             holder.et_column_value.setInputType(InputType.TYPE_DATETIME_VARIATION_DATE);
         }
-        if (title.equals("承保时间：")) {
+        if (title.equals("承保时间")) {
             holder.et_column_value.setInputType(InputType.TYPE_DATETIME_VARIATION_DATE);
         }
-        if (title.equals("车架号：")) {
+        if (title.equals("车架号")) {
             holder.et_column_value.setInputType(InputType.TYPE_CLASS_TEXT);
         }
-        if (title.equals("手机号：")) {
+        if (title.equals("手机号")) {
             holder.et_column_value.setInputType(InputType.TYPE_TEXT_VARIATION_PHONETIC | InputType.TYPE_CLASS_PHONE);
         }
-        if (title.equals("商业险费用：")) {
+        if (title.equals("商业险费用")) {
             holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
         }
-        if (title.equals("交强险费用：")) {
+        if (title.equals("交强险费用")) {
             holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
         }
-        if (title.equals("驾乘险费用：")) {
+        if (title.equals("驾乘险费用")) {
             holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
         }
-        if (title.equals("商业险费率：")) {
+        if (title.equals("商业险费率")) {
             holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
         }
-        if (title.equals("交强险费率：")) {
+        if (title.equals("交强险费率")) {
             holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
         }
-        if (title.equals("驾乘险费率：")) {
+        if (title.equals("驾乘险费率")) {
             holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
         }
-        if (title.equals("返现：")) {
+        if (title.equals("返现")) {
             holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
         }
-        if (title.equals("客户来源：")) {
+        if (title.equals("客户来源")) {
             holder.et_column_value.setInputType(InputType.TYPE_CLASS_TEXT);
         }
-        if (title.equals("备注：")) {
+        if (title.equals("备注")) {
             holder.et_column_value.setInputType(InputType.TYPE_CLASS_TEXT);
         }
     }

@@ -11,6 +11,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ import m.hp.customerdata.databinding.ActivityDetailedBinding;
 import m.hp.customerdata.entity.DetailedMsgBean;
 import m.hp.customerdata.entity.UsersDataBean;
 
-public class DetailedActivity extends AppCompatActivity  {
+public class DetailedActivity extends AppCompatActivity {
 
     private List<DetailedMsgBean> mList;
     private ActivityDetailedBinding binding;
@@ -65,6 +66,8 @@ public class DetailedActivity extends AppCompatActivity  {
         mList = new ArrayList<>();
         DetailedMsgAdapter adapter = new DetailedMsgAdapter(this, mList);
         binding.rvDetailedMsg.setAdapter(adapter);
+        //设置RecycleView默认分割线
+        binding.rvDetailedMsg.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
         binding.rvDetailedMsg.setLayoutManager(new LinearLayoutManager(this));
     }
 

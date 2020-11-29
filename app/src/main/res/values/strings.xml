@@ -7,4 +7,5 @@
     <string name="check_ok">选择当前目录</string>
     <string name="back_to_previous_dir">返回上一级目录</string>
     <string name="dir_image">文件夹图标</string>
+    <string name="split_word">：</string>
 </resources>

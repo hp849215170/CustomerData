@@ -16,6 +16,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.mancj.materialsearchbar.MaterialSearchBar;
@@ -50,6 +51,7 @@ public class SearchActivity extends AppCompatActivity {
         binding.fabSearch.setOnClickListener(v -> searchUserData(false));
         searchRVAdapter = new SearchRVAdapter(new SearchRVAdapter.MessageBeanDiff(), this);
         binding.rvSearch.setAdapter(searchRVAdapter);
+        binding.rvSearch.addItemDecoration(new DividerItemDecoration(this,LinearLayoutManager.VERTICAL));
         binding.rvSearch.setLayoutManager(new LinearLayoutManager(this));
         //键盘搜索键点击监听事件
         binding.searchBar.setOnSearchActionListener(new MaterialSearchBar.OnSearchActionListener() {

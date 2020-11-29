@@ -30,6 +30,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.alibaba.fastjson.JSON;
@@ -154,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
         //创建RecycleView的适配器
         msgAdapter = new MessageBeanListAdapter(new MessageBeanListAdapter.MessageBeanDiff(), this);
         binding.rvMsg.setAdapter(msgAdapter);
+        binding.rvMsg.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
         //设置RecycleView的布局
         binding.rvMsg.setLayoutManager(new LinearLayoutManager(this));
         //监听FloatingActionButton点击
@@ -320,8 +322,8 @@ public class MainActivity extends AppCompatActivity {
      * @return 返回是添加数据，还是更新数据返回的数据
      */
     private UsersDataBean getMessageBean(boolean isAdd) {
-        String[] keys = {"车牌号：", "投保人：", "终保时间：", "承保时间：", "车架号：", "手机号：", "商业险费用：",
-                "交强险费用：", "驾乘险费用：", "商业险费率：", "交强险费率：", "驾乘险费率：", "返现：", "客户来源：", "备注："};
+        String[] keys = {"车牌号", "投保人", "终保时间", "承保时间", "车架号", "手机号", "商业险费用",
+                "交强险费用", "驾乘险费用", "商业险费率", "交强险费率", "驾乘险费率", "返现", "客户来源", "备注"};
 
         UsersDataBean bean = new UsersDataBean();
 
@@ -406,7 +408,8 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
             Uri excelUri = data.getData();
-            String path = RealPathFromUriUtils.getRealPathFromUri(this,excelUri);;
+            String path = RealPathFromUriUtils.getRealPathFromUri(this, excelUri);
+            ;
             Log.e(TAG, "realPath==" + path);
             addUserFromExcel(path);
         } else if (requestCode == REQUEST_SHOW_DIRS && resultCode == RESULT_SAVE_PATH) {

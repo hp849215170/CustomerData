@@ -11,7 +11,7 @@ import okhttp3.Response;
 public class ConnectMyServer {
     public static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
     //本地局域网
-    //public static final String URL = "http://192.168.1.166:8080/MyLocalServer_war_exploded/SyncUserDataServlet";
+    //public static final String URL = "http://192.168.1.166:8080/MyLocalServer/SyncUserDataServlet";
     //外网
     public static final String URL = "http://81.70.210.5:8080/MyLocalServer/SyncUserDataServlet";
 

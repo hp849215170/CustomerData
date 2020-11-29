@@ -51,7 +51,6 @@ public class UsersDataBean implements Serializable, Comparable<UsersDataBean> {
 
     @Ignore
     public UsersDataBean() {
-        userName = null;
     }
 
     public UsersDataBean(String carNumber, @NonNull String userName, String lastDate, String buyTime,

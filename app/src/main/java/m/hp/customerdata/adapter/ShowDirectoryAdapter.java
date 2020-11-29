@@ -1,6 +1,9 @@
 package m.hp.customerdata.adapter;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,10 +24,12 @@ public class ShowDirectoryAdapter extends RecyclerView.Adapter<ShowDirectoryAdap
 
     private final List<DirectoryBean> mList;
     private final LayoutInflater mInflater;
+    private final Handler currentDirHandler;
 
-    public ShowDirectoryAdapter(Context mContext, List<DirectoryBean> mList) {
+    public ShowDirectoryAdapter(Context mContext, List<DirectoryBean> mList, Handler setCurrentDirHandler) {
         this.mList = mList;
         mInflater = LayoutInflater.from(mContext);
+        currentDirHandler = setCurrentDirHandler;
     }
 
     @NonNull
@@ -66,8 +71,12 @@ public class ShowDirectoryAdapter extends RecyclerView.Adapter<ShowDirectoryAdap
         @Override
         public void onClick(View v) {
             String currentDir = mList.get(getAdapterPosition()).getCurrentDir();
-            Log.d("currentDir", currentDir);
-            ShowDirectoryActivity.instance.getCurrentDir(currentDir);
+            //handler把当前路径发送给ShowDirectoryActivity去显示
+            Message message = Message.obtain();
+            Bundle bundle = new Bundle();
+            bundle.putString("DIR", currentDir);
+            message.setData(bundle);
+            currentDirHandler.sendMessage(message);
         }
     }
 }

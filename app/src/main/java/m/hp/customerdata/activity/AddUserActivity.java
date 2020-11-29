@@ -41,7 +41,6 @@ public class AddUserActivity extends AppCompatActivity {
     //MainActivity传递过来的数据
     private static final String USER_BEAN = "USER_BEAN";
     private Intent intent;
-    public static AddUserActivity instance;
     private UsersDataBean intent_bean = null;
     private ActivityAddUserBinding binding;
 
@@ -95,7 +94,6 @@ public class AddUserActivity extends AppCompatActivity {
         intent = getIntent();
         //判断是新增数据还是修改数据
         isAdd = intent.getBooleanExtra(IS_ADD, true);
-        instance = this;
         if (isAdd) {
             setCustomActionBar("添加用户数据");
         } else {
@@ -111,6 +109,8 @@ public class AddUserActivity extends AppCompatActivity {
             column_value = new String[]{"请输入车牌号", "请输入投保人", "请输入终保时间", "请输入承保时间", "请输入车架号", "请输入手机号", "请输入商业险费用",
                     "请输入交强险费用", "请输入驾乘险费用", "请输入商业险费率", "请输入交强险费率", "请输入驾乘险费率", "请输入返现", "请输入客户来源", "请输入备注"};
         } else {
+            //修改信息标识
+            adapter.isAdd(false);
             //更新上下文菜单按钮跳转过来传递的bean
             intent_bean = (UsersDataBean) intent.getSerializableExtra(USER_BEAN);
             column_value = new String[]{String.valueOf(intent_bean.getCarNumber()), intent_bean.getUserName(), intent_bean.getLastDate(), intent_bean.getBuyTime(),
@@ -121,8 +121,8 @@ public class AddUserActivity extends AppCompatActivity {
         if (mList != null) {
             mList.clear();
         }
-        String[] column_name = {"车牌号：", "投保人：", "终保时间：", "承保时间：", "车架号：", "手机号：", "商业险费用：",
-                "交强险费用：", "驾乘险费用：", "商业险费率：", "交强险费率：", "驾乘险费率：", "返现：", "客户来源：", "备注："};
+        String[] column_name = {"车牌号", "投保人", "终保时间", "承保时间", "车架号", "手机号", "商业险费用",
+                "交强险费用", "驾乘险费用", "商业险费率", "交强险费率", "驾乘险费率", "返现", "客户来源", "备注"};
         DetailedMsgBean bean;
         for (int i = 0; i < column_name.length; i++) {
 
@@ -140,40 +140,40 @@ public class AddUserActivity extends AppCompatActivity {
      * @return 是否保存成功
      */
     private boolean saveData() {
-        HashMap<String, String> hashMap = AddUserAdapter.instance.getHashMap();
+        HashMap<String, String> hashMap = adapter.getHashMap();
 
-        if (TextUtils.isEmpty(hashMap.get("车牌号："))) {
+        if (TextUtils.isEmpty(hashMap.get("车牌号"))) {
             showToast("车牌不能为空");
             return false;
         }
-        if (TextUtils.isEmpty(hashMap.get("投保人："))) {
+        if (TextUtils.isEmpty(hashMap.get("投保人"))) {
             showToast("投保人不能为空");
             return false;
         }
 
 
-        if (TextUtils.isEmpty(hashMap.get("车架号："))) {
+        if (TextUtils.isEmpty(hashMap.get("车架号"))) {
             showToast("车架号不能为空");
             return false;
-        } else if (hashMap.get("车架号：").length() != 17) {
-            Log.e("hashMap.get(\"车架号：\")", hashMap.get("车架号："));
+        } else if (hashMap.get("车架号").length() != 17) {
+            Log.e("hashMap.get(\"车架号\")", hashMap.get("车架号"));
             showToast("车架号为17位");
             return false;
         } else {
             //判断车架号是否已大写字母开头并且是字母和数字组合
             Pattern p = Pattern.compile("^[A-Z]");
-            Matcher m = p.matcher(hashMap.get("车架号："));
+            Matcher m = p.matcher(hashMap.get("车架号"));
             boolean b = m.find();
             if (!b) {
                 showToast("车架号应当由大写字母开头");
                 return false;
             }
         }
-        if (!TextUtils.isEmpty(hashMap.get("手机号："))) {
-            if (hashMap.get("手机号：").length() != 11) {
+        if (!TextUtils.isEmpty(hashMap.get("手机号"))) {
+            if (hashMap.get("手机号").length() != 11) {
                 showToast("请输入十一位数字有效手机号");
                 return false;
-            } else if (!hashMap.get("手机号：").startsWith("1")) {
+            } else if (!hashMap.get("手机号").startsWith("1")) {
                 showToast("请输有效手机号");
                 return false;
             }
@@ -181,13 +181,13 @@ public class AddUserActivity extends AppCompatActivity {
         if (!isAdd) {
             hashMap.put("id", String.valueOf(intent_bean.getId()));
         }
-        if (isAdd && MainActivity.instance.isTheSame(hashMap.get("投保人："))) {
+        if (isAdd && MainActivity.instance.isTheSame(hashMap.get("投保人"))) {
             new android.app.AlertDialog.Builder(this)
                     .setTitle("")
                     .setPositiveButton("确定", (dialog, which) -> {
 
                     })
-                    .setMessage(hashMap.get("投保人：") + "已存在，未添加！")
+                    .setMessage(hashMap.get("投保人") + "已存在，未添加！")
                     .show();
             return false;
         }

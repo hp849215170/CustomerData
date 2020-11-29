@@ -4,11 +4,15 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -37,7 +41,6 @@ public class ShowDirectoryActivity extends AppCompatActivity {
     private List<DirectoryBean> directoryBeanList;
     //当前选择的目录
     private String currentDirFromAdapter;
-    public static ShowDirectoryActivity instance;
     ActivityShowDirectoryBinding binding;
 
     @Override
@@ -74,7 +77,6 @@ public class ShowDirectoryActivity extends AppCompatActivity {
      * 初始化View控件
      */
     private void initView() {
-        instance = this;
         //选择当前目录
         binding.checkOK.setOnClickListener(v -> getSavePath());
         //返回上一级目录按钮
@@ -82,7 +84,7 @@ public class ShowDirectoryActivity extends AppCompatActivity {
         //实例化directoryBeanList
         directoryBeanList = new ArrayList<>();
         //初始化适配器
-        showDirectoryAdapter = new ShowDirectoryAdapter(this, directoryBeanList);
+        showDirectoryAdapter = new ShowDirectoryAdapter(this, directoryBeanList, setCurrentDirHandler);
         //加载适配器
         binding.rvShowDir.setAdapter(showDirectoryAdapter);
         //设置RecycleView布局加载方式
@@ -147,4 +149,15 @@ public class ShowDirectoryActivity extends AppCompatActivity {
         }
         getCurrentDir(previousPath);
     }
+
+    /**
+     * 接收ShowDirectoryAdapter发送来的路径数据
+     */
+    private Handler setCurrentDirHandler = new Handler(Looper.myLooper()) {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            getCurrentDir(msg.getData().getString("DIR"));
+        }
+    };
 }

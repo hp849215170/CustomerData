@@ -75,7 +75,7 @@ public class ExportUsersDateExcel {
                         , String.valueOf(usersDataBeanList.get(r-1).getJcRebate()), String.valueOf(usersDataBeanList.get(r-1).getCashBack()), usersDataBeanList.get(r-1).getType(), usersDataBeanList.get(r-1).getRemarks()};
             }
             Row row = sheet.createRow(r);
-            for (int c = 0; c < 14; c++) {
+            for (int c = 0; c < 15; c++) {
                 //数据栏
                 row.createCell(c).setCellValue(value[c]);
             }

@@ -9,16 +9,24 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="0.7"
-        android:paddingRight="8dp"
+        android:paddingEnd="8dp"
         android:textSize="18sp"
         android:paddingBottom="8dp"
-        android:gravity="right|bottom" />
+        android:gravity="end|bottom" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:textSize="18sp"
+        android:gravity="center_vertical"
+        android:layout_height="match_parent"
+        android:text="@string/split_word" />
 
     <EditText
         android:id="@+id/column_value"
+        android:maxLines="1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="left"
+        android:layout_gravity="start"
         android:layout_weight="1" />
 
 </LinearLayout>
