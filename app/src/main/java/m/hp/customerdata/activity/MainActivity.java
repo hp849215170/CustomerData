@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -607,6 +608,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
+     * list集合去重复数据
+     *
+     * @param list 要去重复的集合
+     * @return 去重复之后的集合
+     */
+    public List<UsersDataBean> noRepeatList(List<UsersDataBean> list) {
+        HashSet<UsersDataBean> hashSet = new HashSet<>(list);
+        list.clear();
+        list.addAll(hashSet);
+        Log.d("noRepeatList", "noRepeatList is " + list.size());
+        return list;
+    }
+
+    ;
+
+    /**
      * 从Excel文件添加用户数据
      */
     private void addUserFromExcel(String filePath) {
@@ -615,15 +632,17 @@ public class MainActivity extends AppCompatActivity {
         new ReadExcelByPOI(filePath, usersDataBeanList -> {
             //导入成功数据的条数
             int successCount = 0;
-            //总共数据数量
-            int total = usersDataBeanList.size();
+            //总共不重复数据数量
+            List<UsersDataBean> noRepeatList = noRepeatList(usersDataBeanList);
+            int total = noRepeatList.size();
             //重复判断
             for (int i = 0; i < total; i++) {
                 //判断当前导入的Excel数据的投保人是否重复
-                boolean theSame = isTheSame(usersDataBeanList.get(i).getUserName());
+                boolean theSame = isTheSame(noRepeatList.get(i).getUserName());
                 if (!theSame) {//不重复
+
                     //添加用户数据到数据库
-                    mUserDataViewModel.insert(usersDataBeanList.get(i));
+                    mUserDataViewModel.insert(noRepeatList.get(i));
                     successCount++;
                 }
             }
@@ -744,9 +763,13 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             }
+            //去重复List数据
+            List<UsersDataBean> noRepeatList = noRepeatList(userList);
+
+            //记录更新条数
             int count = 0;
-            for (int i = 0; i < userList.size(); i++) {
-                mUserDataViewModel.insert(userList.get(i));
+            for (int i = 0; i < noRepeatList.size(); i++) {
+                mUserDataViewModel.insert(noRepeatList.get(i));
                 count++;
             }
             Looper.prepare();

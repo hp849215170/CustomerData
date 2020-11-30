@@ -9,6 +9,7 @@ import androidx.room.PrimaryKey;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @Entity(tableName = "users_table")//数据库表名
 public class UsersDataBean implements Serializable, Comparable<UsersDataBean> {
@@ -212,5 +213,33 @@ public class UsersDataBean implements Serializable, Comparable<UsersDataBean> {
     @Override
     public int compareTo(UsersDataBean usersDataBean) {
         return this.userName.compareTo(usersDataBean.getUserName());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UsersDataBean that = (UsersDataBean) o;
+        return id == that.id &&
+                Double.compare(that.syPrice, syPrice) == 0 &&
+                Double.compare(that.jqPrice, jqPrice) == 0 &&
+                Double.compare(that.jcPrice, jcPrice) == 0 &&
+                Double.compare(that.syRebate, syRebate) == 0 &&
+                Double.compare(that.jqRebate, jqRebate) == 0 &&
+                Double.compare(that.jcRebate, jcRebate) == 0 &&
+                Double.compare(that.cashBack, cashBack) == 0 &&
+                Objects.equals(carNumber, that.carNumber) &&
+                userName.equals(that.userName) &&
+                Objects.equals(lastDate, that.lastDate) &&
+                Objects.equals(buyTime, that.buyTime) &&
+                Objects.equals(carSerialNumber, that.carSerialNumber) &&
+                Objects.equals(phone, that.phone) &&
+                Objects.equals(type, that.type) &&
+                Objects.equals(remarks, that.remarks);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, carNumber, userName, lastDate, buyTime, carSerialNumber, phone, syPrice, jqPrice, jcPrice, syRebate, jqRebate, jcRebate, cashBack, type, remarks);
     }
 }
