@@ -181,6 +181,7 @@ public class AddUserActivity extends AppCompatActivity {
         if (!isAdd) {
             hashMap.put("id", String.valueOf(intent_bean.getId()));
         }
+
         if (isAdd && MainActivity.instance.isTheSame(hashMap.get("投保人"))) {
             new android.app.AlertDialog.Builder(this)
                     .setTitle("")

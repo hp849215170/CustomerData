@@ -35,7 +35,7 @@ public abstract class UserDataRoomDatabase extends RoomDatabase {
         if (INSTANCE == null) {
             synchronized (UserDataRoomDatabase.class) {
                 if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(), UserDataRoomDatabase.class, DB_NAME).allowMainThreadQueries().addCallback(callback).build();
+                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(), UserDataRoomDatabase.class, DB_NAME).addCallback(callback).build();
                 }
             }
         }

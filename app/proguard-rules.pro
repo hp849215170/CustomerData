@@ -226,6 +226,17 @@
 -keep class org.etsi.uri.x01903.v13.** {*;}
 -keep class org.openxmlformats.schemas.** {*;}
 -keep class org.w3.x2000.x09.xmldsig.** {*;}
+#eventbus
+-keepattributes *Annotation*
+-keepclassmembers class * {
+    @org.greenrobot.eventbus.Subscribe <methods>;
+}
+-keep enum org.greenrobot.eventbus.ThreadMode { *; }
+
+# And if you use AsyncExecutor:
+-keepclassmembers class * extends org.greenrobot.eventbus.util.ThrowableFailureEvent {
+    <init>(java.lang.Throwable);
+}
 
 
 -dontwarn javax.xml.**

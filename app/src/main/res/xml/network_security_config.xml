@@ -3,6 +3,8 @@
 
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="true">192.168.1.166</domain> <!-- Debug port -->
-        <domain includeSubdomains="true">81.70.210.5</domain> <!-- 外网 port -->
+        <domain includeSubdomains="true">150.158.162.186</domain> <!-- 腾讯轻量服务器 port -->
+        <domain includeSubdomains="true">103.46.128.21</domain> <!-- 花生壳外网 port -->
+        <domain includeSubdomains="true">286238c447.picp.vip</domain> <!-- 花生壳外网 port -->
     </domain-config>
 </network-security-config>

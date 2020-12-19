@@ -3,9 +3,12 @@ package m.hp.customerdata.activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Looper;
@@ -48,13 +51,16 @@ import java.util.Objects;
 import m.hp.customerdata.R;
 import m.hp.customerdata.adapter.MessageBeanListAdapter;
 import m.hp.customerdata.databinding.ActivityMainBinding;
+import m.hp.customerdata.databinding.SwitchServerLayoutBinding;
 import m.hp.customerdata.entity.UserJsonRoot;
 import m.hp.customerdata.entity.UsersDataBean;
 import m.hp.customerdata.http.ConnectMyServer;
 import m.hp.customerdata.model.UserDataViewModel;
 import m.hp.customerdata.poiexcel.ExportUsersDateExcel;
 import m.hp.customerdata.poiexcel.ReadExcelByPOI;
+import m.hp.customerdata.utils.Constant;
 import m.hp.customerdata.utils.MyCompareUtil;
+import m.hp.customerdata.utils.MySharedPreferenceUtils;
 import m.hp.customerdata.utils.RealPathFromUriUtils;
 
 public class MainActivity extends AppCompatActivity {
@@ -69,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int MODIFY_REQUEST = 400;
     //是新加数据还是更新数据
     private static final String IS_ADD = "IS_ADD";
-    private static final String CHANNEL_ID = "800";
+    private static final String CHANNEL_ID = "0x111";
     //已选择的保存路径
     private static final String SAVE_PATH = "SAVE_PATH";
     //权限请求码
@@ -91,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
     private List<UsersDataBean> usersDataBeanList;
     public static MainActivity instance;
     private ActivityMainBinding binding;
+    private MySharedPreferenceUtils spUtils;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,12 +109,16 @@ public class MainActivity extends AppCompatActivity {
         //检查是否获取到需要的权限
         requestPermissions();
         instance = this;
+        //查询当天是否有可续保的客户
+        notificeCanBuy();
+        spUtils = new MySharedPreferenceUtils(this, "server_url", MODE_PRIVATE);
     }
 
     /**
      * 自定义ActionBar
      */
     private void setCustomActionBar() {
+
         ActionBar.LayoutParams layoutParams = new ActionBar.LayoutParams(ActionBar.LayoutParams.MATCH_PARENT, ActionBar.LayoutParams.MATCH_PARENT);
         @SuppressLint("InflateParams") View actionBarView = LayoutInflater.from(this).inflate(R.layout.customacitonbar_layout, null);
         TextView tvTitle = actionBarView.findViewById(R.id.actionBarTile);
@@ -124,6 +135,47 @@ public class MainActivity extends AppCompatActivity {
         //去两边空白
         parent.setPadding(0, 0, 0, 0);
         parent.setContentInsetsAbsolute(0, 0);
+        //切换服务器
+        final int[] clickCount = {0};
+        parent.setOnClickListener(v -> {
+            clickCount[0]++;
+            Log.d("clickCount", "clickCount = " + clickCount[0]);
+            if (clickCount[0] == 5) {
+                View view = LayoutInflater.from(MainActivity.this).inflate(R.layout.switch_server_layout, null, false);
+                SwitchServerLayoutBinding switchServerBinding = SwitchServerLayoutBinding.bind(view);
+                //查找上次选择的服务器
+                String url = spUtils.getSPString("url", Constant.NATIVE_SERVER_URL);
+                if (url.equals(Constant.NATIVE_SERVER_URL)) {
+                    switchServerBinding.nativeServer.setChecked(true);
+                } else if (url.equals(Constant.TENCENT_LIGHT_SERVER_URL)) {
+                    switchServerBinding.tencentServer.setChecked(true);
+                } else if (url.equals(Constant.PHDDNS_SERVER_URL)) {
+                    switchServerBinding.phddnsServer.setChecked(true);
+                }
+                //选择服务器对话框
+                AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this)
+                        .setView(view)
+                        .show();
+                //
+                switchServerBinding.radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
+                    if (checkedId == R.id.nativeServer) {
+                        spUtils.saveSPString("url", Constant.NATIVE_SERVER_URL);
+                    } else if (checkedId == R.id.tencentServer) {
+                        spUtils.saveSPString("url", Constant.TENCENT_LIGHT_SERVER_URL);
+                    } else if (checkedId == R.id.phddnsServer) {
+                        spUtils.saveSPString("url", Constant.PHDDNS_SERVER_URL);
+                    }
+                });
+                //确定按钮
+                switchServerBinding.okBt.setOnClickListener(v1 -> alertDialog.dismiss());
+                //取消按钮
+                switchServerBinding.cancelBt.setOnClickListener(v1 -> {
+                    spUtils.saveSPString("url", url);
+                    alertDialog.dismiss();
+                });
+                clickCount[0] = 0;
+            }
+        });
     }
 
     /**
@@ -178,8 +230,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         initData();
-        //查询当天是否有可续保的客户
-        notificeCanBuy();
     }
 
     /**
@@ -410,7 +460,6 @@ public class MainActivity extends AppCompatActivity {
             }
             Uri excelUri = data.getData();
             String path = RealPathFromUriUtils.getRealPathFromUri(this, excelUri);
-            ;
             Log.e(TAG, "realPath==" + path);
             addUserFromExcel(path);
         } else if (requestCode == REQUEST_SHOW_DIRS && resultCode == RESULT_SAVE_PATH) {
@@ -495,14 +544,14 @@ public class MainActivity extends AppCompatActivity {
         calendar.setTime(new Date());
         //今天的日期几号
         int day = calendar.get(Calendar.DAY_OF_MONTH);
-        //29天即可续保几号
+        //30天内即可续保几号
         calendar.set(Calendar.DAY_OF_MONTH, day + 29);
-        //29天后的日期
+        //30天内后的日期
         int dayAfter29 = calendar.get(Calendar.DATE);
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH) + 1;
         String canBuyDate = year + "/" + month + "/" + dayAfter29;
-
+        Log.d("MainActivity", "canBuyDate is " + canBuyDate);
         //开始查数据
         List<UsersDataBean> lastDateUsers = mUserDataViewModel.getLastDateUsers(canBuyDate);
         showCanBuyNotification(lastDateUsers);
@@ -515,21 +564,29 @@ public class MainActivity extends AppCompatActivity {
         if (lastDateUsers.size() == 0) {
             return;
         }
+
+
         Notification notification;
         int notificeid = 1;//通知消息id
         int SUMMARY_ID = 0;//通知消息组id
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(this);
+        //创建自定义渠道通知
+        NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "my_channel", NotificationManager.IMPORTANCE_DEFAULT);
+        channel.enableLights(true);//桌面icon右上角展示小红点
+        channel.setLightColor(Color.GREEN);//小红点颜色
+        channel.setShowBadge(true);//长按桌面图标时显示此渠道的通知
+        notificationManagerCompat.createNotificationChannel(channel);
         int size = lastDateUsers.size();
         for (int i = 0; i < size; i++) {
             //点击通知消息跳转到详细信息页面
             Intent intent = new Intent(this, DetailedActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             //传递数据
             //根据条件查询到的userBean数据
             String MESSAGE_BEAN = "MESSAGE_BEAN";
             intent.putExtra(MESSAGE_BEAN, lastDateUsers.get(i));
             //i表示传递数据id，PendingIntent.FLAG_UPDATE_CURRENT表示更新当前的数据
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_IMMUTABLE);
             //创建多个通知
             notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic__notifications)
@@ -543,6 +600,7 @@ public class MainActivity extends AppCompatActivity {
             notificationManagerCompat.notify(notificeid + i, notification);
 
         }
+
         //创建消息组
         Notification summaryNotification = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentText("没有更多消息了")
@@ -620,8 +678,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d("noRepeatList", "noRepeatList is " + list.size());
         return list;
     }
-
-    ;
 
     /**
      * 从Excel文件添加用户数据
@@ -710,9 +766,11 @@ public class MainActivity extends AppCompatActivity {
      * 从服务器下载数据
      */
     private void downloadServer() {
-
+        String url = spUtils.getSPString("url", Constant.NATIVE_SERVER_URL);
+        Log.d("url", "当前服务器是" + url);
         new Thread(() -> {
             ConnectMyServer connectMyServer = new ConnectMyServer();
+            connectMyServer.setUrl(url);
             //发送json请求数据给服务器
             UserJsonRoot userJsonRoot = new UserJsonRoot();
             userJsonRoot.setOption("findAll");
@@ -723,6 +781,9 @@ public class MainActivity extends AppCompatActivity {
 
             Log.d("getData", "服务器返回的数据----" + getData);
             if (TextUtils.isEmpty(getData)) {
+                Looper.prepare();
+                Toast.makeText(this, "未查询到信息，请检查网络是否连接", Toast.LENGTH_LONG).show();
+                Looper.loop();
                 return;
             }
             //解析json数据
@@ -789,13 +850,19 @@ public class MainActivity extends AppCompatActivity {
      * 上传数据到服务器
      */
     private void uploadServer() {
+
+        String url = spUtils.getSPString("url", Constant.NATIVE_SERVER_URL);
         new Thread(() -> {
             ConnectMyServer connectMyServer = new ConnectMyServer();
+            connectMyServer.setUrl(url);
             UserJsonRoot userJsonRoot = new UserJsonRoot();
             userJsonRoot.setOption("insert");
             userJsonRoot.setUserList(usersDataBeanList);
             String jsonString = JSONArray.toJSONString(userJsonRoot);
             String getData = connectMyServer.postData(jsonString);
+            if (TextUtils.isEmpty(getData)) {
+                getData = "上传失败，请检查网络是否连接";
+            }
 
             Log.d("getData", "服务器返回的数据----" + getData);
             // Log.d("jsonString", "jsonString----" + jsonString);

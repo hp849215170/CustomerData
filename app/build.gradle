@@ -34,7 +34,7 @@ android {
     }
 
     buildFeatures {
-        viewBinding = true;
+        viewBinding = true
     }
 }
 
@@ -50,9 +50,6 @@ dependencies {
     testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-    //自动parcelable
-    annotationProcessor 'com.hannesdorfmann.parcelableplease:processor:1.0.2'
-    implementation 'com.hannesdorfmann.parcelableplease:annotation:1.0.2'
 
     implementation "androidx.appcompat:appcompat:$rootProject.appCompatVersion"
 
@@ -69,18 +66,6 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata:$rootProject.lifecycleVersion"
     implementation "androidx.lifecycle:lifecycle-common-java8:$rootProject.lifecycleVersion"
 
-    // UI
-    implementation "androidx.constraintlayout:constraintlayout:$rootProject.constraintLayoutVersion"
-    implementation "com.google.android.material:material:$rootProject.materialVersion"
-
-    // Testing
-    testImplementation "junit:junit:$rootProject.junitVersion"
-    androidTestImplementation "androidx.arch.core:core-testing:$rootProject.coreTestingVersion"
-    androidTestImplementation("androidx.test.espresso:espresso-core:$rootProject.espressoVersion", {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
-    androidTestImplementation "androidx.test.ext:junit:$rootProject.androidxJunitVersion"
-
     implementation 'com.github.mancj:MaterialSearchBar:0.6'
 
     //noinspection GradleCompatible
@@ -89,4 +74,5 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
 
     implementation 'com.alibaba:fastjson:1.2.75'
+
 }
