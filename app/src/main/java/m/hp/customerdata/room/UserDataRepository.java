@@ -55,9 +55,9 @@ public class UserDataRepository {
      * @param userName 投保人名字
      * @return 通过投保人姓名查询到的信息
      */
-    public List<UsersDataBean> getDataByName(String userName) {
+    public LiveData<List<UsersDataBean>> getDataByName(String userName) {
         //线程池执行返回结果
-        Future<List<UsersDataBean>> beanFuture = UserDataRoomDatabase.databaseWriteExecutor.submit(() ->
+        Future<LiveData<List<UsersDataBean>>> beanFuture = UserDataRoomDatabase.databaseWriteExecutor.submit(() ->
                 mUserDataDao.getDataByUserName(userName));
         try {
             return beanFuture.get();
@@ -73,11 +73,26 @@ public class UserDataRepository {
      * @param lastDate 终保日期
      * @return 通过终保日期查询到的客户信息
      */
-    public List<UsersDataBean> getLastDateUsers(String lastDate) {
-        Future<List<UsersDataBean>> beanFuture = UserDataRoomDatabase.databaseWriteExecutor.submit(() ->
+    public LiveData<List<UsersDataBean>> getLastDateUsers(String lastDate) {
+        Future<LiveData<List<UsersDataBean>>> beanFuture = UserDataRoomDatabase.databaseWriteExecutor.submit(() ->
                 mUserDataDao.getLastDateUsers(lastDate));
         try {
             return beanFuture.get();
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * @param lastDate 查询的月份
+     */
+    public LiveData<List<UsersDataBean>> getUsersByMonth(String lastDate) {
+        Future<LiveData<List<UsersDataBean>>> monthData = UserDataRoomDatabase.databaseWriteExecutor.submit(() -> {
+            return mUserDataDao.getUsersByMonth(lastDate);
+        });
+        try {
+            return monthData.get();
         } catch (ExecutionException | InterruptedException e) {
             e.printStackTrace();
         }

@@ -3,6 +3,7 @@ package m.hp.customerdata.activity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -46,7 +47,9 @@ public class DetailedActivity extends AppCompatActivity {
         TextView tvTitle = actionBarView.findViewById(R.id.actionBarTile);
         //返回操作
         ImageView ivBack = actionBarView.findViewById(R.id.ivBack);
-        ivBack.setOnClickListener(v -> finish());
+        ivBack.setOnClickListener(v -> {
+            finish();
+        });
         tvTitle.setText("详细信息");
         ActionBar supportActionBar = getSupportActionBar();
         supportActionBar.setCustomView(actionBarView, layoutParams);
@@ -77,20 +80,23 @@ public class DetailedActivity extends AppCompatActivity {
         initData();
     }
 
+    UsersDataBean usersDataBean;
+    Intent intent;
     /**
      * 初始化数据
      */
     private void initData() {
 
+
         mList.clear();
         //拿到MainActivity通过Intent传来的数据
-        Intent intent = getIntent();
+
+        intent = getIntent();
 
         String MESSAGE_BEAN = "MESSAGE_BEAN";
-        UsersDataBean usersDataBean = (UsersDataBean) intent.getSerializableExtra((MESSAGE_BEAN));
+        usersDataBean = (UsersDataBean) intent.getSerializableExtra((MESSAGE_BEAN));
         //把数据加载到当前Activity
         DetailedMsgBean detailedMsgBean;
-        // DetailedMsgBean serialNumber = new DetailedMsgBean();
         String[] titles = {"序号", "车牌号", "投保人", "终保时间", "承保时间", "车架号", "手机号", "商业险费用",
                 "交强险费用", "驾乘险费用", "商业险费率", "交强险费率", "驾乘险费率", "返现", "客户来源", "备注"};
         String[] messages = {String.valueOf(usersDataBean.getId()), usersDataBean.getCarNumber(), usersDataBean.getUserName(),

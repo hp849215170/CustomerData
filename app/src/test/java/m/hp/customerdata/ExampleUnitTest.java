@@ -2,6 +2,7 @@ package m.hp.customerdata;
 
 import org.junit.Test;
 
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -101,11 +102,12 @@ public class ExampleUnitTest {
 
     @Test
     public void testNotification() {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+        SimpleDateFormat format = new SimpleDateFormat("yyyy/M/d");
         long timeMillis = System.currentTimeMillis();
-        String lastDate = "2020/12/03";
+        String lastDate = "2020/02/23";
         try {
             Date date = format.parse(lastDate);
+            System.out.println("相差的时间===" + format.format(date));
             long day = date.getTime();
             double leftTime = ((day - timeMillis) / 1000.0 / 60 / 60 / 24);
 
@@ -124,5 +126,9 @@ public class ExampleUnitTest {
     @Test
     public void testExcelPOI() {
        System.out.println(10^6);
+    }
+    @Test
+    public void testDateFormat(){
+        SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
     }
 }

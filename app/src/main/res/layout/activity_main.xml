@@ -6,56 +6,53 @@
     tools:context=".activity.MainActivity">
 
     <LinearLayout
+        android:id="@+id/ll_bottom"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/teal_200"
+        android:orientation="horizontal">
 
-        <include layout="@layout/title_layout" android:id="@+id/titles"/>
-
-        <LinearLayout
+        <RadioGroup
+            android:id="@+id/radioGroup"
             android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="#E9E9E9" />
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rv_msg"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            <RadioButton
+                android:id="@+id/allDataPage"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:button="@null"
+                android:gravity="center"
+                android:text="总数据" />
+
+            <RadioButton
+                android:id="@+id/monthDay"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:button="@null"
+                android:gravity="center"
+                android:text="月数据" />
+
+            <RadioButton
+                android:id="@+id/mys"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:button="@null"
+                android:gravity="center"
+                android:text="我的" />
+        </RadioGroup>
+
     </LinearLayout>
 
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_add"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:src="@drawable/ic_add"
-        android:contentDescription="@string/fab_add_user"
-        tools:ignore="RelativeOverlap" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_search"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="8dp"
-        android:layout_marginBottom="8dp"
-        android:src="@drawable/ic_search"
-        android:contentDescription="@string/fab_search_user" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_delete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:visibility="gone"
-        android:layout_marginBottom="8dp"
-        android:src="@drawable/ic_delete"
-        android:contentDescription="@string/fab_delete_user" />
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/mainVP"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/ll_bottom" />
 
 </RelativeLayout>

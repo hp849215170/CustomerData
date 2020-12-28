@@ -54,9 +54,10 @@ public class UsersDataBean implements Serializable, Comparable<UsersDataBean> {
     public UsersDataBean() {
     }
 
-    public UsersDataBean(String carNumber, @NonNull String userName, String lastDate, String buyTime,
+    public UsersDataBean(int id,String carNumber, @NonNull String userName, String lastDate, String buyTime,
                          String carSerialNumber, String phone, double syPrice, double jqPrice, double jcPrice,
                          double syRebate, double jqRebate, double jcRebate, double cashBack, String type, String remarks) {
+        this.id = id;
         this.carNumber = carNumber;
         this.userName = userName;
         this.lastDate = lastDate;

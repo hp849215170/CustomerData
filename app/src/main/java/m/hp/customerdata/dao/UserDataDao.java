@@ -30,7 +30,7 @@ public interface UserDataDao {
 
     //通过名字模糊查数据
     @Query("select * from users_table where user_name like :userName||'%'")
-    List<UsersDataBean> getDataByUserName(String userName);
+    LiveData<List<UsersDataBean>> getDataByUserName(String userName);
 
     //更新数据
     @Update
@@ -38,5 +38,9 @@ public interface UserDataDao {
 
     //通过终保日期查
     @Query("select * from users_table where last_date=:lastDate")
-    List<UsersDataBean> getLastDateUsers(String lastDate);
+    LiveData<List<UsersDataBean>> getLastDateUsers(String lastDate);
+
+    //按月查询数据
+    @Query("select * from users_table where last_date like '%/'||:lastDate||'/%'")
+    LiveData<List<UsersDataBean>> getUsersByMonth(String lastDate);
 }

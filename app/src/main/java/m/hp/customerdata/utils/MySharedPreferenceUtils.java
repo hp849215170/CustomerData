@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 public class MySharedPreferenceUtils {
-    private SharedPreferences sp;
-    private SharedPreferences.Editor edit;
+    private final SharedPreferences sp;
+    private final SharedPreferences.Editor edit;
 
     public MySharedPreferenceUtils(Context context, String spName, int mode) {
         sp = context.getSharedPreferences(spName, mode);

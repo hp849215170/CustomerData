@@ -189,7 +189,7 @@ public class ReadExcelByPOI {
                 //判断单元格数值类型是否是日期
                 if (HSSFDateUtil.isCellDateFormatted(cell)) {
                     double date = cellValue.getNumberValue();
-                    @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+                    @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("yyyy/M/d");
                     value = format.format(HSSFDateUtil.getJavaDate(date));
                 } else {
                     value = "" + decimalFormat.format(numberValue);

@@ -16,6 +16,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +31,9 @@ import m.hp.customerdata.adapter.AddUserAdapter;
 import m.hp.customerdata.databinding.ActivityAddUserBinding;
 import m.hp.customerdata.entity.DetailedMsgBean;
 import m.hp.customerdata.entity.UsersDataBean;
+import m.hp.customerdata.myevents.SendCarSerialNumber;
+import m.hp.customerdata.myevents.SendIsSame;
+import m.hp.customerdata.utils.DateFormatUtil;
 
 public class AddUserActivity extends AppCompatActivity {
 
@@ -43,6 +50,7 @@ public class AddUserActivity extends AppCompatActivity {
     private Intent intent;
     private UsersDataBean intent_bean = null;
     private ActivityAddUserBinding binding;
+    private boolean isSame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,7 +149,7 @@ public class AddUserActivity extends AppCompatActivity {
      */
     private boolean saveData() {
         HashMap<String, String> hashMap = adapter.getHashMap();
-
+        EventBus.getDefault().post(new SendCarSerialNumber(hashMap.get("车架号")));
         if (TextUtils.isEmpty(hashMap.get("车牌号"))) {
             showToast("车牌不能为空");
             return false;
@@ -178,11 +186,25 @@ public class AddUserActivity extends AppCompatActivity {
                 return false;
             }
         }
+
+        try {
+            String buyTime = hashMap.get("承保时间");
+            String lastDate = hashMap.get("终保时间");
+            String formatBuyTime = DateFormatUtil.getFormatDate(buyTime, "yyyy/M/d");
+            String formatLastDate = DateFormatUtil.getFormatDate(lastDate, "yyyy/M/d");
+            hashMap.replace("承保时间", formatBuyTime);
+            hashMap.replace("终保时间", formatLastDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+            showToast("日期格式错误");
+            return false;
+        }
+
         if (!isAdd) {
             hashMap.put("id", String.valueOf(intent_bean.getId()));
         }
 
-        if (isAdd && MainActivity.instance.isTheSame(hashMap.get("投保人"))) {
+        if (isAdd && isSame) {
             new android.app.AlertDialog.Builder(this)
                     .setTitle("")
                     .setPositiveButton("确定", (dialog, which) -> {
@@ -200,8 +222,30 @@ public class AddUserActivity extends AppCompatActivity {
         return true;
     }
 
+
+    //判断车架号是否相同
+    @Subscribe
+    public void isTheSame(SendIsSame isSame) {
+        this.isSame = isSame.isSame();
+    }
+
     private void showToast(String msg) {
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (!EventBus.getDefault().isRegistered(AddUserActivity.this)) {
+            EventBus.getDefault().register(AddUserActivity.this);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (EventBus.getDefault().isRegistered(AddUserActivity.this)) {
+            EventBus.getDefault().unregister(AddUserActivity.this);
+        }
+    }
 }

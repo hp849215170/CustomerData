@@ -153,7 +153,7 @@ public class ShowDirectoryActivity extends AppCompatActivity {
     /**
      * 接收ShowDirectoryAdapter发送来的路径数据
      */
-    private Handler setCurrentDirHandler = new Handler(Looper.myLooper()) {
+    private final Handler setCurrentDirHandler = new Handler(Looper.myLooper()) {
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);

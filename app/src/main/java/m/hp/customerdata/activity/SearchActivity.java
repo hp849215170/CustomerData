@@ -21,8 +21,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.mancj.materialsearchbar.MaterialSearchBar;
 
-import java.util.List;
-
 import m.hp.customerdata.R;
 import m.hp.customerdata.adapter.SearchRVAdapter;
 import m.hp.customerdata.databinding.ActivitySearchBinding;
@@ -51,7 +49,7 @@ public class SearchActivity extends AppCompatActivity {
         binding.fabSearch.setOnClickListener(v -> searchUserData(false));
         searchRVAdapter = new SearchRVAdapter(new SearchRVAdapter.MessageBeanDiff(), this);
         binding.rvSearch.setAdapter(searchRVAdapter);
-        binding.rvSearch.addItemDecoration(new DividerItemDecoration(this,LinearLayoutManager.VERTICAL));
+        binding.rvSearch.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
         binding.rvSearch.setLayoutManager(new LinearLayoutManager(this));
         //键盘搜索键点击监听事件
         binding.searchBar.setOnSearchActionListener(new MaterialSearchBar.OnSearchActionListener() {
@@ -102,15 +100,18 @@ public class SearchActivity extends AppCompatActivity {
         ViewModelProvider.AndroidViewModelFactory androidViewModelFactory = new ViewModelProvider.AndroidViewModelFactory(getApplication());
         UserDataViewModel mUserDataViewModel = new ViewModelProvider(this, androidViewModelFactory).get(UserDataViewModel.class);
         String inputText = binding.searchBar.getText();
-        List<UsersDataBean> usersDataBeanList = mUserDataViewModel.getDataByUserName(inputText);
-        if (usersDataBeanList.size() == 0 && !afterOperate) {
-            new AlertDialog.Builder(this)
-                    .setTitle("搜索结果").setMessage("未找到相关数据")
-                    .setPositiveButton("确定", null)
-                    .show();
-        }
-        searchRVAdapter.submitList(usersDataBeanList);
-        searchRVAdapter.notifyDataSetChanged();
+        mUserDataViewModel.getDataByUserName(inputText)
+                .observe(this, usersDataBeanList -> {
+                    if (usersDataBeanList.size() == 0 && !afterOperate) {
+                        new AlertDialog.Builder(this)
+                                .setTitle("搜索结果").setMessage("未找到相关数据")
+                                .setPositiveButton("确定", null)
+                                .show();
+                    }
+                    searchRVAdapter.submitList(usersDataBeanList);
+                    searchRVAdapter.notifyDataSetChanged();
+                });
+
     }
 
     /**

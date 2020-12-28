@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +16,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import m.hp.customerdata.R;
-import m.hp.customerdata.activity.ShowDirectoryActivity;
 import m.hp.customerdata.entity.DirectoryBean;
 
 public class ShowDirectoryAdapter extends RecyclerView.Adapter<ShowDirectoryAdapter.MyViewHolder> {

@@ -54,7 +54,7 @@ public class MyCompareUtil implements Comparator<UsersDataBean> {
                 }
             }
         } else if (compareType.equals(COMPARE_DATE)) {//时间排序
-            @SuppressLint("SimpleDateFormat") SimpleDateFormat date = new SimpleDateFormat("yyyy/MM/dd");//设定时间格式
+            @SuppressLint("SimpleDateFormat") SimpleDateFormat date = new SimpleDateFormat("yyyy/M/d");//设定时间格式
             String date1 = bean1.getLastDate();
             String date2 = bean2.getLastDate();
 

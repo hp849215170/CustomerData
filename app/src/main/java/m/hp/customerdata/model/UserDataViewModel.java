@@ -16,7 +16,6 @@ public class UserDataViewModel extends AndroidViewModel {
     private final LiveData<List<UsersDataBean>> allUserData;
     private final UserDataRepository mRepository;
 
-
     public UserDataViewModel(@NonNull Application application) {
         super(application);
         mRepository = new UserDataRepository(application);
@@ -48,7 +47,7 @@ public class UserDataViewModel extends AndroidViewModel {
      *
      * @param userName 投保人姓名
      */
-    public List<UsersDataBean> getDataByUserName(String userName) {
+    public LiveData<List<UsersDataBean>> getDataByUserName(String userName) {
         return mRepository.getDataByName(userName);
     }
 
@@ -58,7 +57,11 @@ public class UserDataViewModel extends AndroidViewModel {
      * @param lastDate 终保日期
      * @return 客户信息结合
      */
-    public List<UsersDataBean> getLastDateUsers(String lastDate) {
+    public LiveData<List<UsersDataBean>> getLastDateUsers(String lastDate) {
         return mRepository.getLastDateUsers(lastDate);
+    }
+
+    public LiveData<List<UsersDataBean>> getUsersByMonth(String lastDate) {
+        return mRepository.getUsersByMonth(lastDate);
     }
 }
