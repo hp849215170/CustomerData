@@ -3,7 +3,6 @@ package m.hp.customerdata.fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,7 +22,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,12 +31,10 @@ import m.hp.customerdata.adapter.MessageBeanListAdapter;
 import m.hp.customerdata.databinding.MainfragmentLayoutBinding;
 import m.hp.customerdata.entity.UsersDataBean;
 import m.hp.customerdata.model.UserDataViewModel;
+import m.hp.customerdata.myevents.SendAllDataList;
 import m.hp.customerdata.myevents.SendCarSerialNumber;
 import m.hp.customerdata.myevents.SendIsSame;
 import m.hp.customerdata.utils.MyCompareUtil;
-import m.hp.customerdata.utils.MySharedPreferenceUtils;
-
-import static android.content.Context.MODE_PRIVATE;
 
 public class MainFragment extends Fragment {
 
@@ -224,6 +220,7 @@ public class MainFragment extends Fragment {
             //传递当前查询到的数据给usersDataBeanList做数据重复校验
             usersDataBeanList = messageBeans;
             msgAdapter.submitList(messageBeans);
+            EventBus.getDefault().post(new SendAllDataList(messageBeans));
         });
         msgAdapter.notifyDataSetChanged();
     }

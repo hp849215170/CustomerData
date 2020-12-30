@@ -5,23 +5,31 @@
     android:layout_height="match_parent"
     tools:context=".activity.MainActivity">
 
+    <m.hp.customerdata.view.MySectorView
+        android:id="@+id/sectorView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <Spinner
+        android:visibility="gone"
         android:id="@+id/selectMonth"
-        android:spinnerMode="dialog"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:gravity="center" />
+        android:gravity="center"
+        android:spinnerMode="dialog" />
 
     <LinearLayout
-        android:orientation="horizontal"
+        android:visibility="gone"
         android:id="@+id/llTop"
-        android:layout_below="@id/selectMonth"
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:background="#E9E9E9" />
+        android:layout_below="@id/selectMonth"
+        android:background="#E9E9E9"
+        android:orientation="horizontal" />
 
     <LinearLayout
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/llTop"
