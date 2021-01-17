@@ -161,19 +161,18 @@ public class AddUserActivity extends AppCompatActivity {
 
 
         if (TextUtils.isEmpty(hashMap.get("车架号"))) {
-            showToast("车架号不能为空");
-            return false;
-        } else if (hashMap.get("车架号").length() != 17) {
+
+        } else if (!TextUtils.isEmpty(hashMap.get("车架号")) && hashMap.get("车架号").length() != 17) {
             Log.e("hashMap.get(\"车架号\")", hashMap.get("车架号"));
             showToast("车架号为17位");
             return false;
         } else {
             //判断车架号是否已大写字母开头并且是字母和数字组合
-            Pattern p = Pattern.compile("^[A-Z]");
+            Pattern p = Pattern.compile("^[A-Z0-9]");
             Matcher m = p.matcher(hashMap.get("车架号"));
             boolean b = m.find();
             if (!b) {
-                showToast("车架号应当由大写字母开头");
+                showToast("车架号首位是大写字母或数字");
                 return false;
             }
         }

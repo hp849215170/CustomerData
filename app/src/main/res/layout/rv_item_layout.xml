@@ -6,6 +6,7 @@
 
 
     <LinearLayout
+        android:layout_gravity="center_vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -38,7 +39,11 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="黄平"
-            android:textSize="15sp" />
+            android:marqueeRepeatLimit="marquee_forever"
+            android:focusableInTouchMode="true"
+            android:ellipsize="marquee"
+            android:textSize="15sp"
+            android:singleLine="true" />
 
 
         <TextView

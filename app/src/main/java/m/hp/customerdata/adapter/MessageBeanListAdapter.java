@@ -61,6 +61,7 @@ public class MessageBeanListAdapter extends ListAdapter<UsersDataBean, MessageBe
         holder.tv_serial_number.setText(String.valueOf(id));
         holder.tv_car_number.setText(carNumber);
         holder.tv_user_name.setText(userName);
+        holder.tv_user_name.setSelected(true);
         holder.tv_last_date.setText(lastDate);
         //显示和隐藏
         if (isVisible) {
