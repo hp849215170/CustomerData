@@ -4,9 +4,11 @@ import android.content.Context;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -25,6 +27,29 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
     private final LayoutInflater mInflater;
     private final HashMap<String, String> hashMap = new HashMap<>();//存放item数据
     private boolean isAdd = true;
+    //edittext的焦点位置
+    private int etFocusPosition = -1;
+    //edittext里的文字内容集合
+    private SparseArray<String> etTextArray = new SparseArray<>();
+
+    TextWatcher textWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            //保存修改后的文字
+            etTextArray.put(etFocusPosition, s.toString());
+            addTextToList(etFocusPosition, s.toString());
+        }
+    };
 
     public AddUserAdapter(Context mContext, List<DetailedMsgBean> mList) {
         this.mList = mList;
@@ -45,6 +70,7 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
         return hashMap;
     }
 
+
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -52,53 +78,46 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
+    public synchronized void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         holder.tv_column_name.setText(mList.get(position).getDetailedTitle());
-        //解决EditText数据错乱问题
-        //1、先移除ViewHolder里Item条目EditText的监听TextWatcher
-        if (holder.et_column_value.getTag() != null && holder.et_column_value.getTag() instanceof TextWatcher) {
-            //销毁TextWatcher实例
-            holder.et_column_value.removeTextChangedListener((TextWatcher) holder.et_column_value.getTag());
-        }
+        holder.et_column_value.setHint(mList.get(position).getDetailedMessage());
 
-        //2、新建TextWatcher监听
-        TextWatcher textWatcher = new TextWatcher() {
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        holder.et_column_value.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                etFocusPosition = position;
             }
+        });
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                //光标移动到当前输入的文字后面
-                //System.out.println("getSelectionEnd---->"+holder.et_column_value.getSelectionEnd());
-                holder.et_column_value.setSelection(holder.et_column_value.getSelectionEnd());
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                //3、保存当前数据的数据和item的位置Position
-                addTextToList(position, s.toString());
-            }
-        };
-        //设置输入数据类型
-        //setMyInputType(holder, mList.get(position).getDetailedTitle());
-        //4、把保存了位置的数据显示在对应的位置上
-        holder.et_column_value.setText(hashMap.get(holder.tv_column_name.getText().toString()));
-        //5、给EditText添加新建的TextWatcher监听
-        holder.et_column_value.addTextChangedListener(textWatcher);
-        //6、标记EditText
-        holder.et_column_value.setTag(textWatcher);
 
         if (!isAdd) {
             //更新数据
-            holder.et_column_value.setText(mList.get(position).getDetailedMessage());
+            holder.et_column_value.setHint(mList.get(position).getDetailedMessage());
         } else {
             //添加新数据
-            holder.et_column_value.setHint(mList.get(position).getDetailedMessage());
+            holder.et_column_value.setText(etTextArray.get(position));
         }
         //设置EditText输入数据类型
         setMyInputType(holder, mList.get(position).getDetailedTitle());
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(@NonNull MyViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        holder.et_column_value.removeTextChangedListener(textWatcher);
+        holder.et_column_value.clearFocus();
+        if (etFocusPosition == holder.getAdapterPosition()) {
+
+        }
+    }
+
+    @Override
+    public void onViewAttachedToWindow(@NonNull MyViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        holder.et_column_value.addTextChangedListener(textWatcher);
+        if (etFocusPosition == holder.getAdapterPosition()) {
+            holder.et_column_value.requestFocus();
+            holder.et_column_value.setSelection(holder.et_column_value.getText().length());
+        }
     }
 
     private void addTextToList(int position, String s) {

@@ -2,7 +2,6 @@ package m.hp.customerdata;
 
 import org.junit.Test;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -12,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import m.hp.customerdata.entity.UsersDataBean;
+import m.hp.customerdata.utils.DateFormatUtil;
 import m.hp.customerdata.utils.MyCompareUtil;
 
 import static org.junit.Assert.assertEquals;
@@ -125,10 +125,17 @@ public class ExampleUnitTest {
 
     @Test
     public void testExcelPOI() {
-       System.out.println(10^6);
+        System.out.println(10 ^ 6);
     }
+
     @Test
-    public void testDateFormat(){
+    public void testDateFormat() {
         SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd");
+    }
+
+    @Test
+    public void testCurrentDate() {
+        String currentDate = DateFormatUtil.getCurrentDate();
+        System.out.println(currentDate);
     }
 }

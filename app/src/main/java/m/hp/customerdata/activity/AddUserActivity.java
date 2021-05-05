@@ -189,10 +189,19 @@ public class AddUserActivity extends AppCompatActivity {
         try {
             String buyTime = hashMap.get("承保时间");
             String lastDate = hashMap.get("终保时间");
+            if (TextUtils.isEmpty(buyTime)) {
+                showToast("承保时间未输入，将默认为当前日期");
+                buyTime = DateFormatUtil.getCurrentDate();
+            }
+            if (TextUtils.isEmpty(lastDate)) {
+                showToast("终保时间未输入，将默认为当前日期");
+                lastDate = DateFormatUtil.getCurrentDate();
+            }
             String formatBuyTime = DateFormatUtil.getFormatDate(buyTime, "yyyy/M/d");
             String formatLastDate = DateFormatUtil.getFormatDate(lastDate, "yyyy/M/d");
             hashMap.replace("承保时间", formatBuyTime);
             hashMap.replace("终保时间", formatLastDate);
+            Log.e("formatBuyTime",formatBuyTime);
         } catch (ParseException e) {
             e.printStackTrace();
             showToast("日期格式错误");
