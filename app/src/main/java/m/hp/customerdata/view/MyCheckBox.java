@@ -6,6 +6,9 @@ import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.Gravity;
 
+/**
+ * @author huangping
+ */
 public class MyCheckBox extends androidx.appcompat.widget.AppCompatCheckBox {
 
     public MyCheckBox(Context context) {

@@ -23,6 +23,9 @@ import m.hp.customerdata.activity.DetailedActivity;
 import m.hp.customerdata.entity.UsersDataBean;
 import m.hp.customerdata.view.MyCheckBox;
 
+/**
+ * @author huangping
+ */
 public class MessageBeanListAdapter extends ListAdapter<UsersDataBean, MessageBeanListAdapter.MessageBeanViewHolder> {
 
     private final Context mContext;

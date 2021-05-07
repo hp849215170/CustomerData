@@ -1,5 +1,8 @@
 package m.hp.customerdata.entity;
 
+/**
+ * @author huangping
+ */
 public class DirectoryBean {
     private String currentDir;
     private String dirName;

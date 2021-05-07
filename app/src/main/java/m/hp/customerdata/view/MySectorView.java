@@ -19,12 +19,17 @@ import java.util.List;
 
 import m.hp.customerdata.R;
 
+/**
+ * @author huangping
+ */
 public class MySectorView extends View {
-    private Paint mPaint;
+    private final Paint mPaint;
     private int mViewHeight;
     private int mViewWidth;
-    private String gravity;
-    private int mSectorRadius;//扇形图半径
+    /**
+     * 扇形图半径
+     */
+    private int mSectorRadius;
     private List<SectorParams> mSectorParams;
     private String title;
 
@@ -52,7 +57,7 @@ public class MySectorView extends View {
         super(context, attrs, defStyleAttr);
         mPaint = new Paint();
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.MySectorView);
-        gravity = typedArray.getString(R.styleable.MySectorView_android_gravity);
+        String gravity = typedArray.getString(R.styleable.MySectorView_android_gravity);
         typedArray.recycle();
     }
 
@@ -60,10 +65,10 @@ public class MySectorView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        DrawSector(canvas);
+        drawSector(canvas);
     }
 
-    private void DrawSector(Canvas canvas) {
+    private void drawSector(Canvas canvas) {
 
         int scaleN = mSectorRadius;
 
@@ -85,7 +90,7 @@ public class MySectorView extends View {
         //扇形矩阵
         RectF rectF = new RectF(left, top, right, bottom);
         int inCreateH = 0;
-        if (mSectorParams==null){
+        if (mSectorParams == null) {
             return;
         }
         for (int i = 0; i < mSectorParams.size(); i++) {

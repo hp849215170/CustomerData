@@ -12,6 +12,9 @@ import android.provider.MediaStore;
 import android.util.Log;
 
 
+/**
+ * @author huangping
+ */
 public class RealPathFromUriUtils {
     /**
      * 根据Uri获取图片的绝对路径
@@ -22,10 +25,12 @@ public class RealPathFromUriUtils {
      */
     public static String getRealPathFromUri(Context context, Uri uri) {
         int sdkVersion = Build.VERSION.SDK_INT;
-        if (sdkVersion >= 19) { // api >= 19
+        if (sdkVersion >= Build.VERSION_CODES.KITKAT) {
+            // api >= 19
             return getRealPathFromUriAboveApi19(context, uri);
-        } else { // api < 19
-            return getRealPathFromUriBelowAPI19(context, uri);
+        } else {
+            // api < 19
+            return getRealPathFromUriBelowApi19(context, uri);
         }
     }
 
@@ -36,7 +41,7 @@ public class RealPathFromUriUtils {
      * @param uri     图片的Uri
      * @return 如果Uri对应的图片存在, 那么返回该图片的绝对路径, 否则返回null
      */
-    private static String getRealPathFromUriBelowAPI19(Context context, Uri uri) {
+    private static String getRealPathFromUriBelowApi19(Context context, Uri uri) {
         return getDataColumn(context, uri, null, null);
     }
 
@@ -53,26 +58,29 @@ public class RealPathFromUriUtils {
         if (DocumentsContract.isDocumentUri(context, uri)) {
             // 如果是document类型的 uri, 则通过document id来进行处理
             String documentId = DocumentsContract.getDocumentId(uri);
-            if (isMediaDocument(uri)) { // MediaProvider
+            if (isMediaDocument(uri)) {
+                // MediaProvider
                 // 使用':'分割
                 String id = documentId.split(":")[1];
 
                 String selection = MediaStore.Images.Media._ID + "=?";
                 String[] selectionArgs = {id};
                 filePath = getDataColumn(context, MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection, selectionArgs);
-            } else if (isDownloadsDocument(uri)) { // DownloadsProvider
+            } else if (isDownloadsDocument(uri)) {
+                // DownloadsProvider
                 Uri contentUri = ContentUris.withAppendedId(Uri.parse("content://downloads/public_downloads"), Long.parseLong(documentId));
                 filePath = getDataColumn(context, contentUri, null, null);
-            } else if (isExternalStorageDocument(uri)) {//外部存储文档
+            } else if (isExternalStorageDocument(uri)) {
+                //外部存储文档
                 String[] split = documentId.split(":");
-                if ("primary".equalsIgnoreCase(split[0])) {
+                if (Constant.DOC_KEY_PRIMARY.equalsIgnoreCase(split[0])) {
                     filePath = Environment.getExternalStorageDirectory() + "/" + split[1];
                 }
             }
-        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
+        } else if (Constant.DOC_KEY_CONTENT.equalsIgnoreCase(uri.getScheme())) {
             // 如果是 content 类型的 Uri
             filePath = getDataColumn(context, uri, null, null);
-        } else if ("file".equals(uri.getScheme())) {
+        } else if (Constant.DOC_KEY_FILE.equals(uri.getScheme())) {
             // 如果是 file 类型的 Uri,直接获取图片对应的路径
             filePath = uri.getPath();
         }

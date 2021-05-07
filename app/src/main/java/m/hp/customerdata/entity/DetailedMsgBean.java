@@ -1,5 +1,8 @@
 package m.hp.customerdata.entity;
 
+/**
+ * @author huangping
+ */
 public class DetailedMsgBean {
     private String detailedTitle;
     private String detailedMessage;

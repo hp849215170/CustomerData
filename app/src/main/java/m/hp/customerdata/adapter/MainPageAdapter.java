@@ -7,9 +7,12 @@ import androidx.fragment.app.FragmentPagerAdapter;
 
 import java.util.List;
 
+/**
+ * @author huangping
+ */
 public class MainPageAdapter extends FragmentPagerAdapter {
 
-    private List<Fragment> fragmentActivities;
+    private final List<Fragment> fragmentActivities;
 
     public MainPageAdapter(@NonNull FragmentManager fm, int behavior, List<Fragment> fragments) {
         super(fm, behavior);

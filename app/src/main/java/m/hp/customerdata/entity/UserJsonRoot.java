@@ -3,10 +3,16 @@ package m.hp.customerdata.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author huangping
+ */
 public class UserJsonRoot {
     String option;
     List<UsersDataBean> userList = new ArrayList<>();
-    //不能删，fastjson结构用到
+
+    /**
+     * 不能删，fastjson结构用到
+     */
     public String getOption() {
         return option;
     }
@@ -14,7 +20,10 @@ public class UserJsonRoot {
     public void setOption(String option) {
         this.option = option;
     }
-    //不能删，fastjson结构用到
+
+    /**
+     * 不能删，fastjson结构用到
+     */
     public List<UsersDataBean> getUserList() {
         return userList;
     }

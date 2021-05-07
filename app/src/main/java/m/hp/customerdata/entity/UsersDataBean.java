@@ -11,50 +11,101 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 import java.util.Objects;
 
-@Entity(tableName = "users_table")//数据库表名
+/**
+ * @author huangping
+ */
+@Entity(tableName = "users_table")
 public class UsersDataBean implements Serializable, Comparable<UsersDataBean> {
     @Ignore
     public static final long serialVersionUID = 1L;
+    /**
+     * 序号
+     */
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    int id;//序号
+    int id;
+    /**
+     * 车牌号
+     */
     @ColumnInfo(name = "car_number")
-    String carNumber;//车牌号
+    String carNumber;
+    /**
+     * 投保人
+     */
     @NonNull
     @ColumnInfo(name = "user_name")
-    String userName;//投保人
+    String userName;
+    /**
+     * 终保时间
+     */
     @ColumnInfo(name = "last_date")
-    String lastDate;//终保时间
+    String lastDate;
+    /**
+     * 承保时间
+     */
     @ColumnInfo(name = "by_time")
-    String buyTime;//承保时间
+    String buyTime;
+    /**
+     * 车架号
+     */
     @ColumnInfo(name = "car_serial_number")
-    String carSerialNumber;//车架号
+    String carSerialNumber;
+    /**
+     * 手机号
+     */
     @ColumnInfo(name = "phone")
-    String phone;//手机号
+    String phone;
+    /**
+     * 商业险费用
+     */
     @ColumnInfo(name = "sy_price")
-    double syPrice;//商业险费用
+    double syPrice;
+    /**
+     * 交强险费用
+     */
     @ColumnInfo(name = "jq_price")
-    double jqPrice;//交强险费用
+    double jqPrice;
+    /**
+     * 驾乘险费用
+     */
     @ColumnInfo(name = "jc_price")
-    double jcPrice;//驾乘险费用
+    double jcPrice;
+    /**
+     * 商业险费率
+     */
     @ColumnInfo(name = "s_rebate")
-    double syRebate;//商业险费率
+    double syRebate;
+    /**
+     * 交强险费率
+     */
     @ColumnInfo(name = "jq_rebate")
-    double jqRebate;//交强险费率
+    double jqRebate;
+    /**
+     * 驾乘险费率
+     */
     @ColumnInfo(name = "jc_rebate")
-    double jcRebate;//驾乘险费率
+    double jcRebate;
+    /**
+     * 返现多少
+     */
     @ColumnInfo(name = "cash_back")
-    double cashBack;//返现多少
+    double cashBack;
+    /**
+     * 客户来源
+     */
     @ColumnInfo(name = "type")
-    String type;//客户来源
+    String type;
+    /**
+     * 备注
+     */
     @ColumnInfo(name = "remark")
-    String remarks;//备注
+    String remarks;
 
     @Ignore
     public UsersDataBean() {
     }
 
-    public UsersDataBean(int id,String carNumber, @NonNull String userName, String lastDate, String buyTime,
+    public UsersDataBean(int id, String carNumber, @NonNull String userName, String lastDate, String buyTime,
                          String carSerialNumber, String phone, double syPrice, double jqPrice, double jcPrice,
                          double syRebate, double jqRebate, double jcRebate, double cashBack, String type, String remarks) {
         this.id = id;
@@ -218,8 +269,12 @@ public class UsersDataBean implements Serializable, Comparable<UsersDataBean> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         UsersDataBean that = (UsersDataBean) o;
         return id == that.id &&
                 Double.compare(that.syPrice, syPrice) == 0 &&

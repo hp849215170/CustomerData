@@ -3,7 +3,6 @@ package m.hp.customerdata.activity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -23,7 +22,11 @@ import m.hp.customerdata.adapter.DetailedMsgAdapter;
 import m.hp.customerdata.databinding.ActivityDetailedBinding;
 import m.hp.customerdata.entity.DetailedMsgBean;
 import m.hp.customerdata.entity.UsersDataBean;
+import m.hp.customerdata.utils.Constant;
 
+/**
+ * @author huangping
+ */
 public class DetailedActivity extends AppCompatActivity {
 
     private List<DetailedMsgBean> mList;
@@ -47,11 +50,10 @@ public class DetailedActivity extends AppCompatActivity {
         TextView tvTitle = actionBarView.findViewById(R.id.actionBarTile);
         //返回操作
         ImageView ivBack = actionBarView.findViewById(R.id.ivBack);
-        ivBack.setOnClickListener(v -> {
-            finish();
-        });
+        ivBack.setOnClickListener(v -> finish());
         tvTitle.setText("详细信息");
         ActionBar supportActionBar = getSupportActionBar();
+        assert supportActionBar != null;
         supportActionBar.setCustomView(actionBarView, layoutParams);
         supportActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         supportActionBar.setDisplayShowHomeEnabled(true);
@@ -82,6 +84,7 @@ public class DetailedActivity extends AppCompatActivity {
 
     UsersDataBean usersDataBean;
     Intent intent;
+
     /**
      * 初始化数据
      */
@@ -93,8 +96,8 @@ public class DetailedActivity extends AppCompatActivity {
 
         intent = getIntent();
 
-        String MESSAGE_BEAN = "MESSAGE_BEAN";
-        usersDataBean = (UsersDataBean) intent.getSerializableExtra((MESSAGE_BEAN));
+        String messageBean = "MESSAGE_BEAN";
+        usersDataBean = (UsersDataBean) intent.getSerializableExtra((messageBean));
         //把数据加载到当前Activity
         DetailedMsgBean detailedMsgBean;
         String[] titles = {"序号", "车牌号", "投保人", "终保时间", "承保时间", "车架号", "手机号", "商业险费用",
@@ -105,7 +108,7 @@ public class DetailedActivity extends AppCompatActivity {
                 String.valueOf(usersDataBean.getSyRebate()), String.valueOf(usersDataBean.getJqRebate()), String.valueOf(usersDataBean.getJcRebate()),
                 String.valueOf(usersDataBean.getCashBack()), usersDataBean.getType(), usersDataBean.getRemarks()};
 
-        for (int i = 0; i <= 15; i++) {
+        for (int i = 0; i <= Constant.TITLE_LENGTH; i++) {
             detailedMsgBean = new DetailedMsgBean();
             detailedMsgBean.setDetailedTitle(titles[i]);
             detailedMsgBean.setDetailedMessage(messages[i]);

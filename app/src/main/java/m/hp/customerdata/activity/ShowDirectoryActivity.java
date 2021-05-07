@@ -25,21 +25,36 @@ import m.hp.customerdata.R;
 import m.hp.customerdata.adapter.ShowDirectoryAdapter;
 import m.hp.customerdata.databinding.ActivityShowDirectoryBinding;
 import m.hp.customerdata.entity.DirectoryBean;
+import m.hp.customerdata.utils.Constant;
 import m.hp.customerdata.utils.MyFileUtils;
 
+/**
+ * @author huangping
+ */
 public class ShowDirectoryActivity extends AppCompatActivity {
-
-    //SD卡根目录
+    /**
+     * SD卡根目录
+     */
     private static final String EXT_STORAGE_DIR = Environment.getExternalStorageDirectory().getAbsolutePath();
-    //已选择的保存路径
+    /**
+     * 已选择的保存路径
+     */
     private static final String SAVE_PATH = "SAVE_PATH";
-    //选择保存路径完成结果码
+    /**
+     * 选择保存路径完成结果码
+     */
     private static final int RESULT_SAVE_PATH = 600;
-    //RecycleView适配器
+    /**
+     * RecycleView适配器
+     */
     private ShowDirectoryAdapter showDirectoryAdapter;
-    //文件夹信息实体
+    /**
+     * 文件夹信息实体
+     */
     private List<DirectoryBean> directoryBeanList;
-    //当前选择的目录
+    /**
+     * 当前选择的目录
+     */
     private String currentDirFromAdapter;
     ActivityShowDirectoryBinding binding;
 
@@ -63,6 +78,7 @@ public class ShowDirectoryActivity extends AppCompatActivity {
         ivBack.setOnClickListener(v -> finish());
         tvTitle.setText("选择要保存的目录");
         ActionBar supportActionBar = getSupportActionBar();
+        assert supportActionBar != null;
         supportActionBar.setCustomView(actionBarView, layoutParams);
         supportActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         supportActionBar.setDisplayShowHomeEnabled(true);
@@ -144,7 +160,7 @@ public class ShowDirectoryActivity extends AppCompatActivity {
     private void previousDir() {
         String previousPath = currentDirFromAdapter.substring(0, currentDirFromAdapter.lastIndexOf("/"));
         //根目录是/storage/emulated/0
-        if (previousPath.equals("/storage/emulated")) {
+        if (Constant.START_DIR.equals(previousPath)) {
             return;
         }
         getCurrentDir(previousPath);

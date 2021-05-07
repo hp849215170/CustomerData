@@ -1,5 +1,6 @@
 package m.hp.customerdata.fragment;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -28,6 +29,10 @@ import com.tencent.bugly.beta.Beta;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import m.hp.customerdata.R;
 import m.hp.customerdata.activity.ShowDirectoryActivity;
@@ -45,22 +50,37 @@ import m.hp.customerdata.utils.RealPathFromUriUtils;
 
 import static android.content.Context.MODE_PRIVATE;
 
+/**
+ * @author huangping
+ */
 public class MysFragment extends Fragment implements View.OnClickListener {
-    //打开文件管理器请求码
+    /**
+     * 打开文件管理器请求码
+     */
     private static final int OPEN_FILE_REQUEST = 200;
     private MysfragmentLayoutBinding binding;
-    //查找上次选择的服务器
+    /**
+     * 查找上次选择的服务器
+     */
     private String url;
-    //选择服务器对话框
+    /**
+     * 选择服务器对话框
+     */
     private AlertDialog alertDialog;
     private MySharedPreferenceUtils spUtils;
     private UserDataViewModel mUserDataViewModel;
     private List<UsersDataBean> allUsers;
-    //打开选择保存目录
+    /**
+     * 打开选择保存目录
+     */
     private static final int REQUEST_SHOW_DIRS = 500;
-    //选择保存路径完成结果码
+    /**
+     * 选择保存路径完成结果码
+     */
     private static final int RESULT_SAVE_PATH = 600;
-    //已选择的保存路径
+    /**
+     * 已选择的保存路径
+     */
     private static final String SAVE_PATH = "SAVE_PATH";
 
     @Nullable
@@ -73,8 +93,8 @@ public class MysFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onStart() {
         super.onStart();
-        spUtils = new MySharedPreferenceUtils(getContext(), "server_url", MODE_PRIVATE);
-        url = spUtils.getSPString("url", Constant.NATIVE_SERVER_URL);
+        spUtils = new MySharedPreferenceUtils(Objects.requireNonNull(getContext()), "server_url", MODE_PRIVATE);
+        url = spUtils.getspstring("url", Constant.NATIVE_SERVER_URL);
         initView();
     }
 
@@ -82,11 +102,9 @@ public class MysFragment extends Fragment implements View.OnClickListener {
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         //获取ViewModel
-        ViewModelProvider.AndroidViewModelFactory androidViewModelFactory = new ViewModelProvider.AndroidViewModelFactory(getActivity().getApplication());
+        ViewModelProvider.AndroidViewModelFactory androidViewModelFactory = new ViewModelProvider.AndroidViewModelFactory(Objects.requireNonNull(getActivity()).getApplication());
         mUserDataViewModel = new ViewModelProvider(this, androidViewModelFactory).get(UserDataViewModel.class);
-        mUserDataViewModel.getAllUserData().observe(this, usersDataBeanList -> {
-            allUsers = usersDataBeanList;
-        });
+        mUserDataViewModel.getAllUserData().observe(this, usersDataBeanList -> allUsers = usersDataBeanList);
     }
 
     private void initView() {
@@ -101,11 +119,12 @@ public class MysFragment extends Fragment implements View.OnClickListener {
 
     }
 
+    @SuppressLint("SetTextI18n")
     private void getAppVersion() {
-        PackageManager packageManager = getContext().getPackageManager();
+        PackageManager packageManager = Objects.requireNonNull(getContext()).getPackageManager();
         try {
             PackageInfo packageInfo = packageManager.getPackageInfo(getContext().getPackageName(), 0);
-            binding.appVersion.setText("Version " + packageInfo.versionName);
+            binding.appVersion.setText(getString(R.string.version) + " " + packageInfo.versionName);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -113,12 +132,18 @@ public class MysFragment extends Fragment implements View.OnClickListener {
     }
 
     private void showCurrentServer() {
-        if (url.equals(Constant.NATIVE_SERVER_URL)) {
-            binding.currentServer.setText("当前服务器：" + "局域网服务器");
-        } else if (url.equals(Constant.TENCENT_LIGHT_SERVER_URL)) {
-            binding.currentServer.setText("当前服务器：" + "腾讯服务器");
-        } else if (url.equals(Constant.PHDDNS_SERVER_URL)) {
-            binding.currentServer.setText("当前服务器：" + "花生壳服务器");
+        switch (url) {
+            case Constant.NATIVE_SERVER_URL:
+                binding.currentServer.setText("当前服务器：局域网服务器");
+                break;
+            case Constant.TENCENT_LIGHT_SERVER_URL:
+                binding.currentServer.setText("当前服务器：腾讯服务器");
+                break;
+            case Constant.PHDDNS_SERVER_URL:
+                binding.currentServer.setText("当前服务器：花生壳服务器");
+                break;
+            default:
+                break;
         }
     }
 
@@ -132,15 +157,21 @@ public class MysFragment extends Fragment implements View.OnClickListener {
         SwitchServerLayoutBinding switchServerBinding;
         switchServerBinding = SwitchServerLayoutBinding.bind(view);
 
-        if (url.equals(Constant.NATIVE_SERVER_URL)) {
-            switchServerBinding.nativeServer.setChecked(true);
-        } else if (url.equals(Constant.TENCENT_LIGHT_SERVER_URL)) {
-            switchServerBinding.tencentServer.setChecked(true);
-        } else if (url.equals(Constant.PHDDNS_SERVER_URL)) {
-            switchServerBinding.phddnsServer.setChecked(true);
+        switch (url) {
+            case Constant.NATIVE_SERVER_URL:
+                switchServerBinding.nativeServer.setChecked(true);
+                break;
+            case Constant.TENCENT_LIGHT_SERVER_URL:
+                switchServerBinding.tencentServer.setChecked(true);
+                break;
+            case Constant.PHDDNS_SERVER_URL:
+                switchServerBinding.phddnsServer.setChecked(true);
+                break;
+            default:
+                break;
         }
 
-        alertDialog = new AlertDialog.Builder(getContext())
+        alertDialog = new AlertDialog.Builder(Objects.requireNonNull(getContext()))
                 .setCancelable(false)
                 .setView(view)
                 .show();
@@ -163,11 +194,11 @@ public class MysFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onClick(View v) {
         if (v.getId() == R.id.ok_bt) {
-            spUtils.saveSPString("url", url);
+            spUtils.savespstring("url", url);
             alertDialog.dismiss();
             showCurrentServer();
         } else if (v.getId() == R.id.cancel_bt) {
-            url = spUtils.getSPString("url", Constant.NATIVE_SERVER_URL);
+            url = spUtils.getspstring("url", Constant.NATIVE_SERVER_URL);
             alertDialog.dismiss();
         } else if (v.getId() == R.id.switchServer) {
             switchServer();
@@ -203,12 +234,12 @@ public class MysFragment extends Fragment implements View.OnClickListener {
             addUserFromExcel(path);
         } else if (requestCode == REQUEST_SHOW_DIRS && resultCode == RESULT_SAVE_PATH) {
             //导出Excel表格
-            assert data != null;//断言，data不能为空
+            assert data != null;
             String saveDir = data.getStringExtra(SAVE_PATH);
             mUserDataViewModel.getAllUserData().observe(this, messageBeans -> new ExportUsersDateExcel(messageBeans, (ok, outputPath) -> {
                 if (ok) {
                     Looper.prepare();//加上避免报错：Can't toast on a thread that has not called Looper.prepare()
-                    new AlertDialog.Builder(getContext())
+                    new AlertDialog.Builder(Objects.requireNonNull(getContext()))
                             .setTitle("导出成功").setMessage("已保存至：" + outputPath)
                             .setPositiveButton("确定", null)
                             .show();
@@ -247,7 +278,7 @@ public class MysFragment extends Fragment implements View.OnClickListener {
             //解决Can't create handler inside thread Thread[Thread-3,5,main] that has not called Looper.prepare()
             Looper.prepare();
             //提示导入Excel结果
-            new AlertDialog.Builder(getActivity())
+            new AlertDialog.Builder(Objects.requireNonNull(getActivity()))
                     .setTitle("导入完成").setMessage("成功导入" + successCount + "条信息，" + (total - successCount) + "条信息重复未导入！")
                     .setPositiveButton("确定", null)
                     .show();
@@ -264,12 +295,18 @@ public class MysFragment extends Fragment implements View.OnClickListener {
         return false;
     }
 
+
     /**
      * 上传数据到服务器
      */
     private void uploadServer() {
 
-        String url = spUtils.getSPString("url", Constant.NATIVE_SERVER_URL);
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                60L, TimeUnit.SECONDS,
+                new SynchronousQueue<>(), r -> new Thread(r, "update"));
+
+        executor.execute(new MyUploadDataTask());
+/*
         new Thread(() -> {
             ConnectMyServer connectMyServer = new ConnectMyServer();
             connectMyServer.setUrl(url);
@@ -287,7 +324,7 @@ public class MysFragment extends Fragment implements View.OnClickListener {
             Looper.prepare();
             new AlertDialog.Builder(getContext()).setMessage(getData).setPositiveButton("确定", null).show();
             Looper.loop();
-        }).start();
+        }).start();*/
     }
 
 
@@ -295,9 +332,38 @@ public class MysFragment extends Fragment implements View.OnClickListener {
      * 从服务器下载数据
      */
     private void downloadServer() {
-        String url = spUtils.getSPString("url", Constant.NATIVE_SERVER_URL);
+        String url = spUtils.getspstring("url", Constant.NATIVE_SERVER_URL);
         Log.d("url", "当前服务器是" + url);
-        new Thread(() -> {
+
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                60L, TimeUnit.SECONDS,
+                new SynchronousQueue<>(), r -> new Thread(r, "downloaddata"));
+
+        executor.execute(new MyDownloadDataTask());
+    }
+
+    /**
+     * list集合去重复数据
+     *
+     * @param list 要去重复的集合
+     * @return 去重复之后的集合
+     */
+    public List<UsersDataBean> noRepeatList(List<UsersDataBean> list) {
+        HashSet<UsersDataBean> hashSet = new HashSet<>(list);
+        list.clear();
+        list.addAll(hashSet);
+        Log.d("noRepeatList", "noRepeatList is " + list.size());
+        return list;
+    }
+
+    /**
+     * 下载数据任务
+     */
+    class MyDownloadDataTask implements Runnable {
+        String url = spUtils.getspstring("url", Constant.NATIVE_SERVER_URL);
+
+        @Override
+        public void run() {
             ConnectMyServer connectMyServer = new ConnectMyServer();
             connectMyServer.setUrl(url);
             //发送json请求数据给服务器
@@ -315,7 +381,7 @@ public class MysFragment extends Fragment implements View.OnClickListener {
                 Looper.loop();
                 return;
             }
-            if (getData.startsWith("<html>")) {
+            if (getData.startsWith(Constant.HTML_START)) {
                 return;
             }
             //解析json数据
@@ -369,26 +435,40 @@ public class MysFragment extends Fragment implements View.OnClickListener {
             }
             Looper.prepare();
             if (count == 0) {
-                new AlertDialog.Builder(getContext()).setMessage("没有发现新数据").setPositiveButton("确定", null).show();
+                new AlertDialog.Builder(Objects.requireNonNull(getContext())).setMessage("没有发现新数据").setPositiveButton("确定", null).show();
 
             } else {
-                new AlertDialog.Builder(getContext()).setMessage("更新了" + count + "条数据").setPositiveButton("确定", null).show();
+                new AlertDialog.Builder(Objects.requireNonNull(getContext())).setMessage("更新了" + count + "条数据").setPositiveButton("确定", null).show();
             }
             Looper.loop();
-        }).start();
+        }
     }
 
     /**
-     * list集合去重复数据
-     *
-     * @param list 要去重复的集合
-     * @return 去重复之后的集合
+     * 上传数据任务
      */
-    public List<UsersDataBean> noRepeatList(List<UsersDataBean> list) {
-        HashSet<UsersDataBean> hashSet = new HashSet<>(list);
-        list.clear();
-        list.addAll(hashSet);
-        Log.d("noRepeatList", "noRepeatList is " + list.size());
-        return list;
+    class MyUploadDataTask implements Runnable {
+        String url = spUtils.getspstring("url", Constant.NATIVE_SERVER_URL);
+
+        @Override
+        public void run() {
+            ConnectMyServer connectMyServer = new ConnectMyServer();
+            connectMyServer.setUrl(url);
+            UserJsonRoot userJsonRoot = new UserJsonRoot();
+            userJsonRoot.setOption("insert");
+            userJsonRoot.setUserList(allUsers);
+            String jsonString = JSONArray.toJSONString(userJsonRoot);
+            String getData = connectMyServer.postData(jsonString);
+            if (TextUtils.isEmpty(getData)) {
+                getData = "上传失败，请检查网络是否连接";
+            }
+
+            Log.d("getData", "服务器返回的数据----" + getData);
+            Looper.prepare();
+            new AlertDialog.Builder(Objects.requireNonNull(getContext())).setMessage(getData).setPositiveButton("确定", null).show();
+            Looper.loop();
+        }
     }
 }
+
+

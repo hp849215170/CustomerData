@@ -18,6 +18,9 @@ import java.util.List;
 import m.hp.customerdata.R;
 import m.hp.customerdata.entity.DirectoryBean;
 
+/**
+ * @author huangping
+ */
 public class ShowDirectoryAdapter extends RecyclerView.Adapter<ShowDirectoryAdapter.MyViewHolder> {
 
     private final List<DirectoryBean> mList;

@@ -18,14 +18,17 @@ import m.hp.customerdata.R;
 import m.hp.customerdata.activity.DetailedActivity;
 import m.hp.customerdata.entity.UsersDataBean;
 
-public class SearchRVAdapter extends ListAdapter<UsersDataBean, SearchRVAdapter.MessageBeanViewHolder> {
+/**
+ * @author huangping
+ */
+public class SearchRecyclerViewAdapter extends ListAdapter<UsersDataBean, SearchRecyclerViewAdapter.MessageBeanViewHolder> {
 
     private final Context mContext;
     private final LayoutInflater mInflater;
     private final String tag = getClass().getName();
     private static final String USER_BEAN = "USER_BEAN";
 
-    public SearchRVAdapter(@NonNull DiffUtil.ItemCallback<UsersDataBean> diffCallback, Context mContext) {
+    public SearchRecyclerViewAdapter(@NonNull DiffUtil.ItemCallback<UsersDataBean> diffCallback, Context mContext) {
         super(diffCallback);
         mInflater = LayoutInflater.from(mContext);
         this.mContext = mContext;
@@ -34,7 +37,7 @@ public class SearchRVAdapter extends ListAdapter<UsersDataBean, SearchRVAdapter.
     @NonNull
     @Override
     public MessageBeanViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new SearchRVAdapter.MessageBeanViewHolder(mInflater.inflate(R.layout.rv_search_item, parent, false));
+        return new SearchRecyclerViewAdapter.MessageBeanViewHolder(mInflater.inflate(R.layout.rv_search_item, parent, false));
     }
 
     @Override
@@ -77,8 +80,8 @@ public class SearchRVAdapter extends ListAdapter<UsersDataBean, SearchRVAdapter.
             UsersDataBean usersDataBean = getItem(getAdapterPosition());
             Log.d(tag, "messageBean==" + usersDataBean.getUserName());
             Intent intent = new Intent(mContext, DetailedActivity.class);
-            String MESSAGE_BEAN = "MESSAGE_BEAN";
-            intent.putExtra(MESSAGE_BEAN, usersDataBean);
+            String messageBean = "MESSAGE_BEAN";
+            intent.putExtra(messageBean, usersDataBean);
             mContext.startActivity(intent);
 
         }
@@ -90,8 +93,8 @@ public class SearchRVAdapter extends ListAdapter<UsersDataBean, SearchRVAdapter.
 
             String userName = getItem(position).getUserName();
             Intent intent = new Intent();
-            String USER_NAME = "USER_NAME";
-            intent.putExtra(USER_NAME, userName);
+            String userName1 = "USER_NAME";
+            intent.putExtra(userName1, userName);
 
             UsersDataBean bean = getItem(position);
             Intent intentBean = new Intent();

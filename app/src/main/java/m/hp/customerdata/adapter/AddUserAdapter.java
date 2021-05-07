@@ -8,7 +8,6 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -20,22 +19,32 @@ import java.util.List;
 
 import m.hp.customerdata.R;
 import m.hp.customerdata.entity.DetailedMsgBean;
+import m.hp.customerdata.utils.Constant;
 
+/**
+ * @author huangping
+ */
 public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHolder> {
 
     private final List<DetailedMsgBean> mList;
     private final LayoutInflater mInflater;
-    private final HashMap<String, String> hashMap = new HashMap<>();//存放item数据
+    /**
+     * 存放item数据
+     */
+    private final HashMap<String, String> hashMap = new HashMap<>();
     private boolean isAdd = true;
-    //edittext的焦点位置
+    /**
+     * edittext的焦点位置
+     */
     private int etFocusPosition = -1;
-    //edittext里的文字内容集合
-    private SparseArray<String> etTextArray = new SparseArray<>();
+    /**
+     * edittext里的文字内容集合
+     */
+    private final SparseArray<String> etTextArray = new SparseArray<>();
 
-    TextWatcher textWatcher = new TextWatcher() {
+    private final TextWatcher textWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
         }
 
         @Override
@@ -88,10 +97,10 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
             }
         });
 
-
         if (!isAdd) {
             //更新数据
-            holder.et_column_value.setHint(mList.get(position).getDetailedMessage());
+            holder.et_column_value.setText(mList.get(position).getDetailedMessage());
+            addTextToList(position, holder.et_column_value.getText().toString());
         } else {
             //添加新数据
             holder.et_column_value.setText(etTextArray.get(position));
@@ -105,9 +114,6 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
         super.onViewDetachedFromWindow(holder);
         holder.et_column_value.removeTextChangedListener(textWatcher);
         holder.et_column_value.clearFocus();
-        if (etFocusPosition == holder.getAdapterPosition()) {
-
-        }
     }
 
     @Override
@@ -124,54 +130,54 @@ public class AddUserAdapter extends RecyclerView.Adapter<AddUserAdapter.MyViewHo
         String title = mList.get(position).getDetailedTitle();
         hashMap.put(title, s);
         //用于返回数据给其他地方用，与解决错乱没有关系
-        getHashMap();
+//        getHashMap();
     }
 
     private void setMyInputType(MyViewHolder holder, String title) {
 
-        if (title.equals("投保人")) {
+        if (title.equals(Constant.USER_NAME)) {
             holder.et_column_value.setInputType(InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
         }
-        if (title.equals("车牌号")) {
+        if (title.equals(Constant.CAR_NUMBER)) {
             holder.et_column_value.setInputType(InputType.TYPE_CLASS_TEXT);
         }
-        if (title.equals("终保时间")) {
+        if (title.equals(Constant.LAST_DATE)) {
             holder.et_column_value.setInputType(InputType.TYPE_DATETIME_VARIATION_DATE);
         }
-        if (title.equals("承保时间")) {
+        if (title.equals(Constant.BUY_TIME)) {
             holder.et_column_value.setInputType(InputType.TYPE_DATETIME_VARIATION_DATE);
         }
-        if (title.equals("车架号")) {
+        if (title.equals(Constant.CAR_SERIAL_NUMBER)) {
             holder.et_column_value.setInputType(InputType.TYPE_CLASS_TEXT);
         }
-        if (title.equals("手机号")) {
+        if (title.equals(Constant.PHONE_NUMBER)) {
             holder.et_column_value.setInputType(InputType.TYPE_TEXT_VARIATION_PHONETIC | InputType.TYPE_CLASS_PHONE);
         }
-        if (title.equals("商业险费用")) {
+        if (title.equals(Constant.SY_PRICE)) {
             holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
         }
-        if (title.equals("交强险费用")) {
+        if (title.equals(Constant.JQ_PRICE)) {
             holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
         }
-        if (title.equals("驾乘险费用")) {
+        if (title.equals(Constant.JC_PRICE)) {
             holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
         }
-        if (title.equals("商业险费率")) {
+        if (title.equals(Constant.SY_REBATE)) {
             holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
         }
-        if (title.equals("交强险费率")) {
+        if (title.equals(Constant.JQ_REBATE)) {
             holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
         }
-        if (title.equals("驾乘险费率")) {
+        if (title.equals(Constant.JC_REBATE)) {
             holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
         }
-        if (title.equals("返现")) {
+        if (title.equals(Constant.CASH_BACK)) {
             holder.et_column_value.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL | InputType.TYPE_CLASS_NUMBER);
         }
-        if (title.equals("客户来源")) {
+        if (title.equals(Constant.USER_TYPE)) {
             holder.et_column_value.setInputType(InputType.TYPE_CLASS_TEXT);
         }
-        if (title.equals("备注")) {
+        if (title.equals(Constant.REMARK)) {
             holder.et_column_value.setInputType(InputType.TYPE_CLASS_TEXT);
         }
     }

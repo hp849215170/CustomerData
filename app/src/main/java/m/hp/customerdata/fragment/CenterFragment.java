@@ -22,7 +22,9 @@ import org.greenrobot.eventbus.Subscribe;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import m.hp.customerdata.R;
 import m.hp.customerdata.adapter.GetUsersByMonthAdapter;
@@ -32,6 +34,9 @@ import m.hp.customerdata.model.UserDataViewModel;
 import m.hp.customerdata.myevents.SendAllDataList;
 import m.hp.customerdata.view.MySectorView;
 
+/**
+ * @author huangping
+ */
 public class CenterFragment extends Fragment implements AdapterView.OnItemSelectedListener {
 
     private CenterfragmentLayoutBinding binding;
@@ -62,7 +67,7 @@ public class CenterFragment extends Fragment implements AdapterView.OnItemSelect
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        ViewModelProvider.AndroidViewModelFactory androidViewModelFactory = ViewModelProvider.AndroidViewModelFactory.getInstance(getActivity().getApplication());
+        ViewModelProvider.AndroidViewModelFactory androidViewModelFactory = ViewModelProvider.AndroidViewModelFactory.getInstance(Objects.requireNonNull(getActivity()).getApplication());
         UserDataViewModel userDataViewModel = new ViewModelProvider(this, androidViewModelFactory).get(UserDataViewModel.class);
         userDataViewModel.getAllUserData().observe(this, usersDataBeanList -> {
             Log.d("usersDataBeanList", "usersDataBeanList is " + usersDataBeanList.size());
@@ -72,14 +77,13 @@ public class CenterFragment extends Fragment implements AdapterView.OnItemSelect
 
     @Subscribe
     public void getUserList(SendAllDataList userList) {
-        // getAllDataList(userList);
     }
 
 
     private void getAllDataList(List<UsersDataBean> userList) {
 
         Log.d("getUserList", "userListUserList is " + userList.size());
-        if (userList == null || userList.size() == 0) {
+        if (userList.size() == 0) {
             return;
         }
         double syPrice = 0;
@@ -105,7 +109,7 @@ public class CenterFragment extends Fragment implements AdapterView.OnItemSelect
         //扇形面积角度
         int[] sweepAngles = {(int) (syPrice / total * 360), (int) (jqPrice / total * 360), 360 - ((int) (syPrice / total * 360) + (int) (jqPrice / total * 360))};
         List<MySectorView.SectorParams> sectorList = new ArrayList<>();
-        MySectorView.SectorParams sectorParams = null;
+        MySectorView.SectorParams sectorParams;
         //
         List<Integer> colorList = new ArrayList<>();
         for (int color : colors) {
@@ -113,9 +117,7 @@ public class CenterFragment extends Fragment implements AdapterView.OnItemSelect
         }
         //项目区域描述
         List<String> dscList = new ArrayList<>();
-        for (String describe : describes) {
-            dscList.add(describe);
-        }
+        Collections.addAll(dscList, describes);
         //扇形起始角度
         List<Integer> startAngleList = new ArrayList<>();
         for (int startAngle : startAngles) {
@@ -154,7 +156,6 @@ public class CenterFragment extends Fragment implements AdapterView.OnItemSelect
         String item = monthAdapter.getItem(position);
         binding.rvMsg.setAdapter(msgAdapter);
         binding.rvMsg.setLayoutManager(new LinearLayoutManager(getContext()));
-        //Log.d("item", "select month is " + item.substring(0,item.lastIndexOf("月")));
         getUsersByMonth(item.substring(0, item.lastIndexOf("月")));
     }
 
@@ -164,7 +165,7 @@ public class CenterFragment extends Fragment implements AdapterView.OnItemSelect
      * @param month 月份
      */
     private void getUsersByMonth(String month) {
-        ViewModelProvider.AndroidViewModelFactory androidViewModelFactory = ViewModelProvider.AndroidViewModelFactory.getInstance(getActivity().getApplication());
+        ViewModelProvider.AndroidViewModelFactory androidViewModelFactory = ViewModelProvider.AndroidViewModelFactory.getInstance(Objects.requireNonNull(getActivity()).getApplication());
         UserDataViewModel userDataViewModel = new ViewModelProvider(this, androidViewModelFactory).get(UserDataViewModel.class);
         userDataViewModel.getUsersByMonth(month).observe(this, usersDataBeanList -> {
             msgAdapter.submitList(usersDataBeanList);

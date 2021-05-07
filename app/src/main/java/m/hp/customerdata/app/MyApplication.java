@@ -6,6 +6,9 @@ import android.util.Log;
 import com.tencent.bugly.Bugly;
 import com.tencent.bugly.beta.Beta;
 
+/**
+ * @author huangping
+ */
 public class MyApplication extends Application {
 
     @Override

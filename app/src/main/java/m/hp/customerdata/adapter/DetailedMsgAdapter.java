@@ -14,6 +14,9 @@ import java.util.List;
 import m.hp.customerdata.R;
 import m.hp.customerdata.entity.DetailedMsgBean;
 
+/**
+ * @author huangping
+ */
 public class DetailedMsgAdapter extends RecyclerView.Adapter<DetailedMsgAdapter.MyViewHolder> {
 
     private final List<DetailedMsgBean> mList;

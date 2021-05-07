@@ -18,6 +18,9 @@ import m.hp.customerdata.R;
 import m.hp.customerdata.activity.DetailedActivity;
 import m.hp.customerdata.entity.UsersDataBean;
 
+/**
+ * @author huangping
+ */
 public class GetUsersByMonthAdapter extends ListAdapter<UsersDataBean, GetUsersByMonthAdapter.MessageBeanViewHolder> {
 
     private final Context mContext;
@@ -77,8 +80,8 @@ public class GetUsersByMonthAdapter extends ListAdapter<UsersDataBean, GetUsersB
             UsersDataBean usersDataBean = getItem(getAdapterPosition());
             Log.d(tag, "messageBean==" + usersDataBean.getUserName());
             Intent intent = new Intent(mContext, DetailedActivity.class);
-            String MESSAGE_BEAN = "MESSAGE_BEAN";
-            intent.putExtra(MESSAGE_BEAN, usersDataBean);
+            String messageBean = "MESSAGE_BEAN";
+            intent.putExtra(messageBean, usersDataBean);
             mContext.startActivity(intent);
 
         }
@@ -90,8 +93,8 @@ public class GetUsersByMonthAdapter extends ListAdapter<UsersDataBean, GetUsersB
 
             String userName = getItem(position).getUserName();
             Intent intent = new Intent();
-            String USER_NAME = "USER_NAME";
-            intent.putExtra(USER_NAME, userName);
+            String username = "USER_NAME";
+            intent.putExtra(username, userName);
 
             UsersDataBean bean = getItem(position);
             Intent intentBean = new Intent();

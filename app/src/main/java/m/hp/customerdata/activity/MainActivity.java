@@ -45,18 +45,25 @@ import m.hp.customerdata.fragment.CenterFragment;
 import m.hp.customerdata.fragment.MainFragment;
 import m.hp.customerdata.fragment.MysFragment;
 import m.hp.customerdata.model.UserDataViewModel;
+import m.hp.customerdata.utils.Constant;
 
+/**
+ * @author huangping
+ */
 public class MainActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener, RadioGroup.OnCheckedChangeListener {
-    //一组通知消息
+    /**
+     * 一组通知消息
+     */
     private static final String GROUP_KEY_USER_NOTIFICE = "m.hp.customerdata";
-    //是新加数据还是更新数据
+    /**
+     * 是新加数据还是更新数据
+     */
     private static final String CHANNEL_ID = "0x111";
-    //权限请求码
+    /**
+     * 权限请求码
+     */
     private static final int PERMISSION_REQUEST = 100;
-    private UserDataViewModel mUserDataViewModel;
     private ActivityMainBinding binding;
-    //标题栏父控件
-    private Toolbar parent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,8 +96,10 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         supportActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         supportActionBar.setDisplayShowHomeEnabled(true);
         supportActionBar.setDisplayShowTitleEnabled(false);
-
-        parent = (Toolbar) actionBarView.getParent();
+        /*
+          标题栏父控件
+         */
+        Toolbar parent = (Toolbar) actionBarView.getParent();
         //去两边空白
         parent.setPadding(0, 0, 0, 0);
         parent.setContentInsetsAbsolute(0, 0);
@@ -144,11 +153,11 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
 
     @Override
     public void onPageSelected(int position) {
-        if (position == 0) {
+        if (position == Constant.VIEWPAGER_FIRST) {
             binding.allDataPage.setChecked(true);
-        } else if (position == 1) {
+        } else if (position == Constant.VIEWPAGER_SECOND) {
             binding.monthDay.setChecked(true);
-        } else if (position == 2) {
+        } else if (position == Constant.VIEWPAGER_THIRD) {
             binding.mys.setChecked(true);
         }
     }
@@ -185,10 +194,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         //开始查数据
         //获取ViewModel
         ViewModelProvider.AndroidViewModelFactory androidViewModelFactory = new ViewModelProvider.AndroidViewModelFactory(getApplication());
-        mUserDataViewModel = new ViewModelProvider(MainActivity.this, androidViewModelFactory).get(UserDataViewModel.class);
-        mUserDataViewModel.getLastDateUsers(canBuyDate).observe(this, usersDataBeanList -> {
-            showCanBuyNotification(usersDataBeanList);
-        });
+        UserDataViewModel mUserDataViewModel = new ViewModelProvider(MainActivity.this, androidViewModelFactory).get(UserDataViewModel.class);
+        mUserDataViewModel.getLastDateUsers(canBuyDate).observe(this, this::showCanBuyNotification);
 
     }
 
@@ -199,17 +206,20 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
         if (lastDateUsers.size() == 0) {
             return;
         }
-
-
         Notification notification;
-        int notificeid = 1;//通知消息id
-        int SUMMARY_ID = 0;//通知消息组id
+        /*通知消息id*/
+        int notificeid = 1;
+        /*通知消息组id*/
+        int summaryid = 0;
         NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(MainActivity.this);
         //创建自定义渠道通知
         NotificationChannel channel = new NotificationChannel(CHANNEL_ID, "my_channel", NotificationManager.IMPORTANCE_DEFAULT);
-        channel.enableLights(true);//桌面icon右上角展示小红点
-        channel.setLightColor(Color.GREEN);//小红点颜色
-        channel.setShowBadge(true);//长按桌面图标时显示此渠道的通知
+        /*桌面icon右上角展示小红点*/
+        channel.enableLights(true);
+        /*小红点颜色*/
+        channel.setLightColor(Color.GREEN);
+        /*长按桌面图标时显示此渠道的通知*/
+        channel.setShowBadge(true);
         notificationManagerCompat.createNotificationChannel(channel);
         int size = lastDateUsers.size();
         for (int i = 0; i < size; i++) {
@@ -218,8 +228,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             //传递数据
             //根据条件查询到的userBean数据
-            String MESSAGE_BEAN = "MESSAGE_BEAN";
-            intent.putExtra(MESSAGE_BEAN, lastDateUsers.get(i));
+            String messageBean = "MESSAGE_BEAN";
+            intent.putExtra(messageBean, lastDateUsers.get(i));
             //i表示传递数据id，PendingIntent.FLAG_UPDATE_CURRENT表示更新当前的数据
             PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.this, i, intent, PendingIntent.FLAG_IMMUTABLE);
             //创建多个通知
@@ -243,7 +253,7 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
                 .setGroup(GROUP_KEY_USER_NOTIFICE)
                 .setGroupSummary(true)
                 .build();
-        notificationManagerCompat.notify(SUMMARY_ID, summaryNotification);
+        notificationManagerCompat.notify(summaryid, summaryNotification);
     }
 
 
@@ -268,7 +278,8 @@ public class MainActivity extends AppCompatActivity implements ViewPager.OnPageC
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSION_REQUEST) {//判断用户是否同意了全部权限
+        /*判断用户是否同意了全部权限*/
+        if (requestCode == PERMISSION_REQUEST) {
             int length = permissions.length;
             //假设全部同意
             if (length == grantResults.length) {

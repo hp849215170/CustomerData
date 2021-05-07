@@ -316,8 +316,10 @@ public class MainFragment extends Fragment {
 
         List<UsersDataBean> usersDataBeanList = this.usersDataBeanList;
         for (int i = 0; i < usersDataBeanList.size(); i++) {
-            if (usersDataBeanList.get(i).getCarSerialNumber().equals(carSerialNumber)) {
-                return true;
+            if (!TextUtils.isEmpty(usersDataBeanList.get(i).getCarSerialNumber())){
+                if (usersDataBeanList.get(i).getCarSerialNumber().equals(carSerialNumber)) {
+                    return true;
+                }
             }
         }
         return false;

@@ -22,17 +22,22 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.mancj.materialsearchbar.MaterialSearchBar;
 
 import m.hp.customerdata.R;
-import m.hp.customerdata.adapter.SearchRVAdapter;
+import m.hp.customerdata.adapter.SearchRecyclerViewAdapter;
 import m.hp.customerdata.databinding.ActivitySearchBinding;
 import m.hp.customerdata.entity.UsersDataBean;
 import m.hp.customerdata.model.UserDataViewModel;
 
+/**
+ * @author huangping
+ */
 public class SearchActivity extends AppCompatActivity {
 
-    private SearchRVAdapter searchRVAdapter;
+    private SearchRecyclerViewAdapter searchrvadapter;
     private ActivitySearchBinding binding;
     private static final String USER_BEAN = "USER_BEAN";
-    //是新加数据还是更新数据
+    /**
+     * 是新加数据还是更新数据
+     */
     private static final String IS_ADD = "IS_ADD";
     private static final int MODIFY_REQUEST = 400;
 
@@ -47,8 +52,8 @@ public class SearchActivity extends AppCompatActivity {
 
     private void initView() {
         binding.fabSearch.setOnClickListener(v -> searchUserData(false));
-        searchRVAdapter = new SearchRVAdapter(new SearchRVAdapter.MessageBeanDiff(), this);
-        binding.rvSearch.setAdapter(searchRVAdapter);
+        searchrvadapter = new SearchRecyclerViewAdapter(new SearchRecyclerViewAdapter.MessageBeanDiff(), this);
+        binding.rvSearch.setAdapter(searchrvadapter);
         binding.rvSearch.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));
         binding.rvSearch.setLayoutManager(new LinearLayoutManager(this));
         //键盘搜索键点击监听事件
@@ -81,6 +86,7 @@ public class SearchActivity extends AppCompatActivity {
         ivBack.setOnClickListener(v -> finish());
         tvTitle.setText("查询客户");
         ActionBar supportActionBar = getSupportActionBar();
+        assert supportActionBar != null;
         supportActionBar.setCustomView(actionBarView, layoutParams);
         supportActionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         supportActionBar.setDisplayShowHomeEnabled(true);
@@ -108,8 +114,8 @@ public class SearchActivity extends AppCompatActivity {
                                 .setPositiveButton("确定", null)
                                 .show();
                     }
-                    searchRVAdapter.submitList(usersDataBeanList);
-                    searchRVAdapter.notifyDataSetChanged();
+                    searchrvadapter.submitList(usersDataBeanList);
+                    searchrvadapter.notifyDataSetChanged();
                 });
 
     }
@@ -122,9 +128,10 @@ public class SearchActivity extends AppCompatActivity {
      */
     @Override
     public boolean onContextItemSelected(@NonNull MenuItem item) {
-        String USER_NAME = "USER_NAME";
+        String username = "USER_NAME";
         switch (item.getItemId()) {
-            case 1://修改菜单
+            /*修改菜单*/
+            case 1:
                 Intent intent = new Intent(this, AddUserActivity.class);
                 UsersDataBean bean = (UsersDataBean) item.getIntent().getSerializableExtra(USER_BEAN);
                 Bundle bundle = new Bundle();
@@ -133,9 +140,12 @@ public class SearchActivity extends AppCompatActivity {
                 intent.putExtras(bundle);
                 startActivityForResult(intent, MODIFY_REQUEST);
                 break;
-            case 2://删除菜单
-                String userName = item.getIntent().getStringExtra(USER_NAME);
+            /*删除菜单*/
+            case 2:
+                String userName = item.getIntent().getStringExtra(username);
                 deleteUserByName(userName);
+                break;
+            default:
                 break;
         }
         return true;
